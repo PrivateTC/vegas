@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Little Las Vegas po 30 letech</title>
-<meta name="description" content="Sraz po 30 letech. U stolu je 25 židlí a hraje se o ně. ALL IN, nebo FOLD?">
+<meta name="description" content="Sraz po 30 letech. U stolu je 25 židlí. ALL IN, nebo FOLD?">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#140a22">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="cs_CZ">
-<meta property="og:title" content="Little Las Vegas po 30 letech: hra o židli">
-<meta property="og:description" content="Sraz po 30 letech. U stolu je 25 židlí a hraje se o ně. ALL IN, nebo FOLD?">
+<meta property="og:title" content="Little Las Vegas po 30 letech">
+<meta property="og:description" content="Sraz po 30 letech. U stolu je 25 židlí. ALL IN, nebo FOLD?">
 <meta property="og:url" content="https://privatetc.github.io/vegas/">
 <meta property="og:image" content="https://privatetc.github.io/vegas/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -344,7 +344,7 @@ a.link{display:inline-block}
 </head>
 <body>
 <main class="wrap">
-  <p class="kicker">Sraz po 30 letech · hra o židli</p>
+  <p class="kicker">Sraz po 30 letech · 25 židlí u stolu</p>
 
   <section class="sign" id="sign" aria-label="Pozvánka pro starou partu z Vegas">
     <svg class="star" viewBox="0 0 100 100" aria-hidden="true">
@@ -362,9 +362,9 @@ a.link{display:inline-block}
 
   <section class="rsvp" id="ask">
     <h2>Tak co, hraješ?</h2>
-    <p>Vyber žeton. <b>ALL IN</b> a jsi ve hře o židli. <b>FOLD</b> a tentokrát pasuješ.</p>
+    <p>Vyber žeton. <b>ALL IN</b> a hned uvidíš kdy a kde. <b>FOLD</b> a tentokrát pasuješ.</p>
     <div class="chips">
-      <button class="chip" id="btn-yes" type="button"><b>ALL IN</b><span>hlásím se do hry</span></button>
+      <button class="chip" id="btn-yes" type="button"><b>ALL IN</b><span>jdu do toho</span></button>
       <button class="chip fold" id="btn-no" type="button"><b>FOLD</b><span>tentokrát ne</span></button>
     </div>
   </section>
@@ -379,11 +379,11 @@ a.link{display:inline-block}
 
   <section class="who" id="who" hidden>
     <form id="who-form" novalidate>
-      <h2 id="who-h">ALL IN. Kdo sází?</h2>
+      <h2 id="who-h">ALL IN. Kdo sedá ke stolu?</h2>
       <label for="jmeno">Jméno nebo přezdívka, pod kterou tě parta zná. Je vás víc stejných? Přidej písmeno příjmení.</label>
       <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="send" maxlength="40" required placeholder="třeba Petr K.">
       <p class="err" id="who-err" role="alert" hidden></p>
-      <button class="btn" id="who-go" type="submit">Vsadit ALL IN</button>
+      <button class="btn" id="who-go" type="submit">Potvrdit ALL IN</button>
       <button class="link" id="who-back" type="button">Zpět k žetonům</button>
     </form>
   </section>
@@ -391,7 +391,7 @@ a.link{display:inline-block}
   <section class="wait" id="ceka" hidden>
     <p class="eyebrow">Sázka přijata</p>
     <h2>Jsi ve hře o židli.</h2>
-    <p>Zapsáno na jméno <b id="ceka-name"></b>. Krupiér rozdává karty postupně. Až ti rozdá, najdeš tady kdy a kde.</p>
+    <p>Zapsáno na jméno <b id="ceka-name"></b>. Tvoji židli má teď v ruce krupiér. Až ji uvolní, najdeš tady kdy a kde.</p>
     <p class="tease" id="ceka-n" hidden></p>
     <p class="err" id="ceka-err" role="alert" hidden></p>
     <button class="btn" id="ceka-check" type="button">Mám už karty?</button>
@@ -401,7 +401,7 @@ a.link{display:inline-block}
   </section>
 
   <section class="felt" id="yes" hidden>
-    <p class="eyebrow">Karty rozdány</p>
+    <p class="eyebrow">Sázka přijata</p>
     <h2>Sedíš u stolu.</h2>
     <p>Židle je tvoje, <b id="yes-name"></b>. Tady je kdy a kde:</p>
     <ul class="deal" id="deal"></ul>
@@ -432,7 +432,7 @@ a.link{display:inline-block}
   <section class="card open" aria-label="Jak se hraje">
     <div class="lbl">U stolu je</div>
     <p class="name">25 židlí</p>
-    <p class="sub">Přihlas se do hry. Karty rozdává krupiér.</p>
+    <p class="sub">Kdo dřív vsadí, sedí blíž čelu stolu.</p>
   </section>
 
   <figure class="comic">
@@ -445,9 +445,9 @@ a.link{display:inline-block}
   <section class="rules" aria-label="Pravidla stolu">
     <h2>Pravidla stolu</h2>
     <ul>
-      <li><span>♠&#xFE0E;</span><div><strong>U stolu je 25 židlí.</strong> Kdo dřív vsadí, je dřív na řadě.</div></li>
-      <li><span class="r">♥&#xFE0E;</span><div>ALL IN znamená: hlásím se do hry. Nic víc, nic míň.</div></li>
-      <li><span class="r">♦&#xFE0E;</span><div>Karty rozdává krupiér. Komu rozdá, ten se dozví kdy a kde.</div></li>
+      <li><span>♠&#xFE0E;</span><div><strong>U stolu je 25 židlí.</strong> Kdo dřív vsadí, sedí blíž čelu stolu.</div></li>
+      <li><span class="r">♥&#xFE0E;</span><div>ALL IN znamená: sedím u stolu. Hned uvidíš kdy a kde.</div></li>
+      <li><span class="r">♦&#xFE0E;</span><div>U stolu vidíš, kdo už sedí. Kdo pasuje, nevidí nic.</div></li>
       <li><span>♣&#xFE0E;</span><div>Co se řekne u stolu, zůstane u stolu.</div></li>
     </ul>
   </section>
@@ -570,7 +570,7 @@ a.link{display:inline-block}
       var t = $("saved-t"); t.textContent = "";
       t.appendChild(document.createTextNode("V tomhle prohlížeči už odpověděl "));
       var b = document.createElement("b"); b.textContent = st.jmeno; t.appendChild(b);
-      t.appendChild(document.createTextNode(st.odpoved === "ano" ? (st.stav === "u_stolu" ? " (sedí u stolu)." : " (ve hře o židli).") : " (FOLD)."));
+      t.appendChild(document.createTextNode(st.odpoved === "ano" ? (st.stav === "u_stolu" ? " (sedí u stolu)." : " (čeká na židli).") : " (FOLD)."));
     }
     if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); }
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
@@ -639,8 +639,8 @@ a.link{display:inline-block}
 
   function pick(v){
     volba = v;
-    $("who-h").textContent = v === "ano" ? "ALL IN. Kdo sází?" : "Fold. Kdo pasuje?";
-    $("who-go").textContent = v === "ano" ? "Vsadit ALL IN" : "Potvrdit FOLD";
+    $("who-h").textContent = v === "ano" ? "ALL IN. Kdo sedá ke stolu?" : "Fold. Kdo pasuje?";
+    $("who-go").textContent = v === "ano" ? "Potvrdit ALL IN" : "Potvrdit FOLD";
     view("who");
     $("jmeno").value = "";
     $("jmeno").focus();
