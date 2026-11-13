@@ -312,7 +312,7 @@ a.link{display:inline-block}
 .tables{display:flex; flex-direction:column; gap:12px}
 .poker .st{position:absolute; width:54px; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; gap:1px}
 .poker .st svg{width:40px; height:44px; display:block; filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
-.poker .st em{font:600 12px/1.1 var(--f-cond); font-style:normal; letter-spacing:.02em; color:#fff; max-width:58px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.poker .st em{font:600 12px/1.1 var(--f-cond); font-style:normal; letter-spacing:.02em; color:#fff; max-width:72px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .poker .st.me em{color:var(--bulb)}
 .poker .st.me svg{filter:drop-shadow(0 0 6px var(--bulb)) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
 .poker .st.king{width:58px; z-index:2}
@@ -395,13 +395,13 @@ a.link{display:inline-block}
   </section>
 
   <section class="wait" id="ceka" hidden>
-    <p class="eyebrow">Sázka přijata</p>
-    <h2>Jsi ve hře o židli.</h2>
-    <p>Zapsáno na jméno <b id="ceka-name"></b>. Tvoji židli má teď v ruce krupiér. Až ji uvolní, najdeš tady kdy a kde.</p>
+    <p class="eyebrow">Pauza</p>
+    <h2>Teď u stolu nesedíš.</h2>
+    <p>Jméno <b id="ceka-name"></b> je zapsané, ale židli má teď v ruce krupiér. Až ti ji vrátí, najdeš tady kdy a kde.</p>
     <p class="tease" id="ceka-n" hidden></p>
     <p class="err" id="ceka-err" role="alert" hidden></p>
-    <button class="btn" id="ceka-check" type="button">Mám už karty?</button>
-    <p class="ceka-msg" id="ceka-msg" hidden>Ještě ne. Krupiér míchá, zkus to později.</p>
+    <button class="btn" id="ceka-check" type="button">Zkusit znovu</button>
+    <p class="ceka-msg" id="ceka-msg" hidden>Zatím ne. Zkus to později.</p>
     <button class="link" id="undo-ceka" type="button">Nakonec nemůžu</button>
     <button class="link quiet" id="other-ceka" type="button">Nejsem <span class="who-name"></span></button>
   </section>
@@ -552,7 +552,9 @@ a.link{display:inline-block}
           var jm = hraci[z], klic = jm.toLowerCase();
           el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (posazeni[klic] ? "" : " sit");
           el.innerHTML = postava(jm);
-          var em = document.createElement("em"); em.textContent = jm.split(" ")[0]; em.title = jm;
+          var slova = jm.trim().split(/\s+/);
+          var em = document.createElement("em"); em.title = jm;
+          em.textContent = slova[0] + (slova[1] ? " " + slova[1].charAt(0).toUpperCase() + "." : "");
           el.appendChild(em);
           posazeni[klic] = 1;
         } else {
@@ -712,6 +714,13 @@ a.link{display:inline-block}
 
   // pozvánka se vždy otevře od žetonů
   view("ask", false);
+  if (st.odpoved === "ano"){
+    send("seznam", st.jmeno).then(function(d){
+      if (st.odpoved !== "ano") return;
+      prijmi("ano", st.jmeno, d);
+      if (!$("ask").hidden) view("ask", false);   // jen překreslí odkazy na stoly
+    }).catch(function(){});
+  }
 })();
 </script>
 </body>
