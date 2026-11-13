@@ -102,7 +102,7 @@ body{
 }
 @keyframes blinkA{0%{opacity:1}50%{opacity:.28}100%{opacity:1}}
 @keyframes blinkB{0%{opacity:.28}50%{opacity:1}100%{opacity:.28}}
-.sign.jackpot::before,.sign.jackpot::after{animation-duration:.28s}
+.sign.jackpot::before,.sign.jackpot::after{animation-duration:.5s}
 
 .star{position:absolute; z-index:3; top:-40px; right:26px; width:74px; height:74px; transform:rotate(12deg);
   filter:drop-shadow(0 0 10px rgba(255,214,110,.7));}
@@ -114,20 +114,20 @@ body{
   display:flex; flex-direction:column; align-items:center; gap:6px;
   box-shadow:inset 0 0 0 3px #fff, inset 0 0 26px rgba(143,16,36,.18);
 }
-.coins{display:flex; justify-content:center; gap:1.4cqw; width:100%}
+.coins{display:flex; justify-content:center; gap:min(1vw,5px); gap:1.4cqw; width:100%}
 .coins span{
-  flex:0 0 auto; width:10.6cqw; aspect-ratio:1; border-radius:50%;
+  flex:0 0 auto; width:min(8vw,39px); width:10.6cqw; aspect-ratio:1; border-radius:50%;
   display:grid; place-items:center;
   background:radial-gradient(circle at 35% 30%, #fff, #e9e3d6 70%);
   box-shadow:0 0 0 1.5px #b9b1a2, 0 2px 0 #9a927f;
-  color:var(--red); font:400 6.4cqw/1 var(--f-display);
+  color:var(--red); font:400 min(4.8vw,23px)/1 var(--f-display); font:400 6.4cqw/1 var(--f-display);
 }
-.script{margin:6px 0 0; font:400 8.2cqw/1 var(--f-script); color:var(--sign-blue); transform:rotate(-3deg)}
+.script{margin:6px 0 0; font:400 min(6.2vw,30px)/1 var(--f-script); font:400 8.2cqw/1 var(--f-script); color:var(--sign-blue); transform:rotate(-3deg)}
 .vegas{
-  margin:0; font:400 24cqw/.95 var(--f-display); letter-spacing:.01em; color:var(--red);
+  margin:0; font:400 min(18vw,88px)/.95 var(--f-display); font:400 24cqw/.95 var(--f-display); letter-spacing:.01em; color:var(--red);
   text-shadow:0 2px 0 #fff, 0 4px 0 rgba(143,16,36,.35);
 }
-.tag{margin:2px 0 0; font:600 4.2cqw/1.2 var(--f-cond); letter-spacing:.24em; text-transform:uppercase; text-align:center}
+.tag{margin:2px 0 0; font:600 min(3.2vw,15px)/1.2 var(--f-cond); font:600 4.2cqw/1.2 var(--f-cond); letter-spacing:.24em; text-transform:uppercase; text-align:center}
 
 /* ---------- hráčská karta ---------- */
 .card{
@@ -173,7 +173,7 @@ body{
 .chip:focus-visible, .link:focus-visible{outline:3px solid var(--cyan); outline-offset:4px}
 
 /* ---------- sukno: podrobnosti ---------- */
-.felt{
+.felt{scroll-margin-top:16px; 
   border-radius:20px; padding:22px 18px 20px;
   background:radial-gradient(120% 90% at 50% 0%, var(--felt), var(--felt-2));
   border:1px solid rgba(255,214,110,.35);
@@ -253,6 +253,7 @@ a.link{display:inline-block}
 .who .link, .felt .link{align-self:center}
 .btn{border:0; cursor:pointer; width:100%}
 .btn[disabled]{opacity:.65; cursor:progress}
+.link[disabled]{opacity:.4}
 .err{margin:0; padding:10px 12px; border-radius:10px; background:rgba(227,32,61,.16); border:1px solid rgba(227,32,61,.55); color:#ffd9df; font-size:15px}
 .out b, .felt p b{color:var(--bulb); font-weight:600}
 .acts{display:grid; grid-template-columns:1fr 1fr; gap:10px}
@@ -273,6 +274,21 @@ a.link{display:inline-block}
 .saved-b{display:flex; gap:14px}
 .saved .link{font-size:13px; padding:4px 0}
 .link.quiet{color:var(--muted); font-size:13px; text-transform:none; letter-spacing:.04em}
+
+/* po oponentuře: cíle pro prst min. 44 px, drobné texty čitelnější */
+.link{padding:12px 10px; min-height:44px}
+.link.quiet{font-size:15px}
+.saved{font-size:15px; padding:8px 14px}
+.saved .link{font-size:15px; padding:12px 8px}
+.saved-b{gap:22px}
+.chip span{font-size:12px}
+.who label{font-size:14px; line-height:1.45; letter-spacing:.03em}
+.eyebrow,.card .lbl{font-size:12px}
+.deal h3{font-size:13.5px}
+.note{font-size:15px}
+.gcal-row{margin:0; text-align:center; font-size:15px; color:#bfe3d6}
+.gcal-row a{color:#fff; text-underline-offset:4px}
+.who input{scroll-margin-top:90px}
 </style>
 </head>
 <body>
@@ -319,8 +335,8 @@ a.link{display:inline-block}
   <section class="who" id="who" hidden>
     <form id="who-form" novalidate>
       <h2 id="who-h">ALL IN. Kdo sedá ke stolu?</h2>
-      <label for="jmeno">Jméno nebo přezdívka, pod kterou tě parta zná</label>
-      <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" maxlength="40" required placeholder="třeba Ivan T.">
+      <label for="jmeno">Jméno nebo přezdívka, pod kterou tě parta zná. Je vás víc stejných? Přidej písmeno příjmení.</label>
+      <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="send" maxlength="40" required placeholder="třeba Petr K.">
       <p class="err" id="who-err" role="alert" hidden></p>
       <button class="btn" id="who-go" type="submit">Potvrdit ALL IN</button>
       <button class="link" id="who-back" type="button">Zpět k žetonům</button>
@@ -336,7 +352,7 @@ a.link{display:inline-block}
       <a class="btn" id="cal" download="little-las-vegas.ics" href="#">Do kalendáře</a>
       <a class="btn alt" id="map" target="_blank" rel="noopener" href="#">Navigovat</a>
     </div>
-    <a class="link quiet" id="gcal" target="_blank" rel="noopener" href="#" hidden>Otevřít v Google kalendáři</a>
+    <p class="gcal-row" id="gcal-row" hidden>Nejde to? <a id="gcal" target="_blank" rel="noopener" href="#">Přidej přes Google kalendář</a></p>
     <div class="seatbox" id="table" hidden>
       <h3>Kdo už sedí u stolu <span id="table-n"></span></h3>
       <ul class="seats" id="seats"></ul>
@@ -358,10 +374,10 @@ a.link{display:inline-block}
   <section class="rules" aria-label="Pravidla stolu">
     <h2>Pravidla stolu</h2>
     <ul>
-      <li><span>♠</span><div><strong>Pozvánka je nepřenosná.</strong> Platí jen pro toho, komu přišla.</div></li>
-      <li><span class="r">♥</span><div>Nepřeposílej ji a nikoho nepřibírej. Kdo má sedět u stolu, dostal vlastní.</div></li>
-      <li><span class="r">♦</span><div>Podrobnosti dostane jen ten, kdo řekne ALL IN.</div></li>
-      <li><span>♣</span><div>Co se řekne u stolu, zůstane u stolu.</div></li>
+      <li><span>♠&#xFE0E;</span><div><strong>Pozvánka je nepřenosná.</strong> Platí jen pro toho, komu přišla.</div></li>
+      <li><span class="r">♥&#xFE0E;</span><div>Nepřeposílej ji a nikoho nepřibírej. Kdo má sedět u stolu, dostal vlastní.</div></li>
+      <li><span class="r">♦&#xFE0E;</span><div>Podrobnosti dostane jen ten, kdo řekne ALL IN.</div></li>
+      <li><span>♣&#xFE0E;</span><div>Co se řekne u stolu, zůstane u stolu.</div></li>
     </ul>
   </section>
 </main>
@@ -380,7 +396,7 @@ a.link{display:inline-block}
     var ul = $("deal"); ul.textContent = "";
     (list || []).forEach(function(d){
       var li = document.createElement("li");
-      var z = document.createElement("span"); z.className = "suit" + (d.cervena ? " r" : ""); z.textContent = d.znak || "♠";
+      var z = document.createElement("span"); z.className = "suit" + (d.cervena ? " r" : ""); z.textContent = String(d.znak || "♠").replace(/\uFE0F/g, "") + "\uFE0E";
       var n = document.createElement("h3"); n.textContent = d.nadpis || "";
       var t = document.createElement("div"); t.textContent = d.text || "";
       li.appendChild(z); li.appendChild(n); li.appendChild(t); ul.appendChild(li);
@@ -391,12 +407,15 @@ a.link{display:inline-block}
 
   function extras(){
     var u = st.udalost;
-    $("acts").hidden = !u; $("gcal").hidden = !u;
+    $("acts").hidden = !u; $("gcal-row").hidden = !u;
     if (u){
       var esc = function(s){ return String(s).replace(/([,;\\])/g, "\\$1"); };
       var ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//little-las-vegas//CZ","BEGIN:VEVENT",
-        "UID:little-las-vegas-" + u.od + "@pozvanka","DTSTAMP:" + u.od,"DTSTART:" + u.od,"DTEND:" + u.do,
-        "SUMMARY:" + esc(u.nazev),"LOCATION:" + esc(u.misto),"END:VEVENT","END:VCALENDAR"].join("\r\n");
+        "UID:little-las-vegas-" + u.od + "@pozvanka",
+        "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, ""),
+        "DTSTART:" + u.od,"DTEND:" + u.do,"SUMMARY:" + esc(u.nazev),"LOCATION:" + esc(u.misto),
+        "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:" + esc(u.nazev),"TRIGGER:-P1D","END:VALARM",
+        "END:VEVENT","END:VCALENDAR"].join("\r\n") + "\r\n";
       $("cal").href = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
       $("map").href = u.mapa;
       $("gcal").href = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(u.nazev) +
@@ -434,7 +453,8 @@ a.link{display:inline-block}
     if (v === "ano" && fresh){
       sign.classList.add("jackpot");
       setTimeout(function(){ sign.classList.remove("jackpot"); }, 2200);
-      $("yes").scrollIntoView({behavior:"smooth", block:"center"});
+      try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch(e){}
+      $("yes").scrollIntoView({behavior:"smooth", block:"start"});
     }
   }
 
@@ -442,9 +462,13 @@ a.link{display:inline-block}
     var ctl = ("AbortController" in window) ? new AbortController() : null;
     var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 15000);
     return fetch(HOOK, {method:"POST", body:new URLSearchParams({jmeno:jmeno, odpoved:odpoved}), signal: ctl ? ctl.signal : undefined})
-      .then(function(r){ return r.json(); })
-      .then(function(d){ clearTimeout(t); if (!d || !d.ok) throw new Error("bad"); return d; },
-            function(e){ clearTimeout(t); throw e; });
+      .then(function(r){ return r.text(); })
+      .then(function(txt){
+        clearTimeout(t);
+        var d = null; try { d = JSON.parse(txt); } catch(e){}
+        if (!d || !d.ok){ var er = new Error("odmitnuto"); er.kind = "odmitnuto"; throw er; }
+        return d;
+      }, function(e){ clearTimeout(t); e.kind = (e && e.name === "AbortError") ? "cas" : "sit"; throw e; });
   }
 
   function submit(odpoved, jmeno, errId, btn, btnText){
@@ -452,13 +476,19 @@ a.link{display:inline-block}
     busy = true;
     var old = btn ? btn.textContent : "";
     if (btn){ btn.disabled = true; btn.textContent = btnText; }
+    $("who-back").disabled = true;
     send(odpoved, jmeno).then(function(d){
       st = {odpoved:odpoved, jmeno:jmeno, detaily:d.detaily || [], udalost:d.udalost || null, hraci:split(d.hraci)}; save();
       view(odpoved, true);
-    }).catch(function(){
-      var e = $(errId); e.textContent = "Nepovedlo se to zapsat. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
+    }).catch(function(err){
+      var e = $(errId), k = err && err.kind;
+      e.textContent = k === "odmitnuto" ? "Tohle jméno se nepodařilo zapsat. Zkus ho napsat jen písmeny, bez zvláštních znaků."
+        : k === "cas" ? "Trvá to moc dlouho. Zkus to znovu, nic se nezapíše dvakrát."
+        : "Nepovedlo se to zapsat. Zkontroluj připojení a zkus to znovu.";
+      e.hidden = false;
     }).then(function(){
       busy = false;
+      $("who-back").disabled = false;
       if (btn){ btn.disabled = false; btn.textContent = old; }
     });
   }
