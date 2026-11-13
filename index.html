@@ -355,6 +355,29 @@ a.link{display:inline-block}
   .chip{height:clamp(124px,37vw,152px)}
   .coins span{height:min(8vw,39px)}
 }
+
+/* jeden dlouhý obdélníkový stůl: čelo nahoře, hosté odshora dolů po obou stranách; stůl roste se židlemi */
+.lt{border-radius:16px; padding:14px 10px 16px; background:radial-gradient(90% 60% at 50% 30%, #2b1040, #140a22 80%);
+  box-shadow:inset 0 0 0 1px rgba(255,214,110,.25); display:flex; flex-direction:column; gap:6px}
+.lt-head{display:flex; justify-content:center; gap:18px}
+.lt-body{display:grid; grid-template-columns:1fr minmax(96px,38%) 1fr; gap:8px; align-items:stretch}
+.lt-col{display:flex; flex-direction:column; gap:6px; align-items:center; min-width:0}
+.lt-table{border-radius:8px; min-height:140px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:#fff;
+  background:linear-gradient(180deg,#1a8a6a,#0c5a45); box-shadow:0 0 0 6px #6b3a1f, 0 0 0 8px #3d200f, inset 0 0 0 2px rgba(255,214,110,.35), 0 12px 26px rgba(0,0,0,.5); margin:8px 8px 10px}
+.lt-table b{font:400 clamp(30px,10vw,44px)/1 var(--f-display); color:var(--bulb); text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.lt-table span{font:600 12px/1.2 var(--f-cond); letter-spacing:.16em; text-transform:uppercase; color:#d9efe6}
+.lt .st{width:74px; height:64px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:1px}
+.lt .st svg{width:40px; height:44px; display:block; filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.lt .st em{font:600 12px/1.1 var(--f-cond); font-style:normal; letter-spacing:.02em; color:#fff; max-width:74px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.lt .st.me em{color:var(--bulb)}
+.lt .st.me svg{filter:drop-shadow(0 0 6px var(--bulb)) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.lt .st.king svg{width:46px; height:50px; filter:drop-shadow(0 0 7px rgba(255,214,110,.9)) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.lt .st.king em{color:var(--bulb); font-size:13px; font-weight:700}
+.lt .st.free{justify-content:center}
+.lt .st.free::before{content:""; width:26px; height:26px; border-radius:50%; border:1.5px dashed rgba(255,214,110,.35)}
+.lt .st.sit{animation:sedni .45s cubic-bezier(.2,.9,.3,1.3) backwards}
+@keyframes sedni{from{transform:scale(1.35)}}
+@media (prefers-reduced-motion:reduce){ .lt .st.sit{animation:none} }
 </style>
 </head>
 <body>
@@ -384,8 +407,8 @@ a.link{display:inline-block}
     </div>
   </section>
 
-  <nav class="saved" id="saved" aria-label="Stoly" hidden>
-    <span class="saved-l">Stoly</span>
+  <nav class="saved" id="saved" aria-label="Stůl" hidden>
+    <span class="saved-l">Stůl</span>
     <span class="saved-b" id="saved-links"></span>
   </nav>
 
@@ -424,7 +447,7 @@ a.link{display:inline-block}
     <p class="gcal-row" id="gcal-row" hidden>Nejde to? <a id="gcal" target="_blank" rel="noopener" href="#">Přidej přes Google kalendář</a></p>
     <div class="seatbox" id="table" hidden>
       <h3>Kdo už sedí u stolu <span id="table-n"></span></h3>
-      <div class="tables" id="poker" role="img" aria-label="Stoly s hosty, kteří už potvrdili"></div>
+      <div class="tables" id="poker" role="img" aria-label="Stůl s hosty, kteří už potvrdili"></div>
       <ul class="seats" id="seats"></ul>
     </div>
     <p class="note">Podrobnosti jsou jen pro tebe. Dál je neposílej.</p>
@@ -524,7 +547,6 @@ a.link{display:inline-block}
     });
   }
 
-  var ZIDLI = 6;    // židlí u jednoho stolu; když se zaplní, objeví se další volný stůl
   var SAKA = ["#2b2b3a","#5a1420","#1d3f6e","#3a2a4d","#2f4a3a","#6b4a1f","#444b57"];
   var KLOBOUKY = ["#1b1b24","#3a0d15","#e8dcc0","#2a1c3a","#5a4a3a","#11283f","#7a7f88"];
   function hash(s){ var x = 7; for (var i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
@@ -543,41 +565,49 @@ a.link{display:inline-block}
       '</svg>';
   }
   var posazeni = {};
+  // Kolik židlí má stůl pro n hostů: začíná na 6 a roste s hosty tak, aby volných zbývalo jednou 1, jindy 2 nebo 3.
+  // Počet volných je pro každý počet hostů pevný (žádná náhoda při obnovení) a stůl se nikdy nezmenší.
+  function zidli(n){
+    var cap = 6;
+    for (var k = 1; k <= n; k++){
+      var volnych = ((k * 2654435761) >>> 16) % 3 + 1;
+      if (k + volnych > cap) cap = Math.min(k + volnych, cap + 2);
+      if (cap < k + 1) cap = k + 1;
+    }
+    return cap;
+  }
+  function zidle(jm, me){
+    var el = document.createElement("div");
+    if (!jm){ el.className = "st free"; return el; }
+    var klic = jm.toLowerCase(), slova = jm.trim().split(/\s+/);
+    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (posazeni[klic] ? "" : " sit");
+    el.innerHTML = postava(jm);
+    var em = document.createElement("em"); em.title = jm;
+    em.textContent = slova[0] + (slova[1] ? " " + slova[1].charAt(0).toUpperCase() + "." : "");
+    el.appendChild(em);
+    posazeni[klic] = 1;
+    return el;
+  }
   function stul(list, me){
     var box = $("poker"); box.textContent = "";
-    // hostitelé sedí v čele prvního stolu, ostatní podle toho, kdy vsadili
+    // hostitelé sedí v čele (nahoře), ostatní si sedají odshora dolů střídavě vlevo a vpravo
     list = list.filter(kral).concat(list.filter(function(x){ return !kral(x); }));
-    var stolu = Math.floor(list.length / ZIDLI) + 1;   // vždy je vidět jeden stůl s volnými židlemi
-    for (var s = 0; s < stolu; s++){
-      var hraci = list.slice(s * ZIDLI, (s + 1) * ZIDLI), n = hraci.length;
-      var pk = document.createElement("div"); pk.className = "poker";
-      var t = document.createElement("div"); t.className = "tbl";
-      var b = document.createElement("b"); b.textContent = n;
-      var sp = document.createElement("span"); sp.textContent = "z " + ZIDLI + " u stolu";
-      var i = document.createElement("i"); i.textContent = (s + 1) + ". stůl";
-      t.appendChild(b); t.appendChild(sp); t.appendChild(i); pk.appendChild(t);
-      var krok = 2 * Math.PI / ZIDLI;
-      for (var z = 0; z < ZIDLI; z++){
-        var a = -Math.PI / 2 - krok / 2 + z * krok;   // první dvě židle nahoře vedle sebe
-        var el = document.createElement("div");
-        el.style.left = (50 + 39 * Math.cos(a)) + "%";
-        el.style.top  = (50 + 35 * Math.sin(a)) + "%";
-        if (z < n){
-          var jm = hraci[z], klic = jm.toLowerCase();
-          el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (posazeni[klic] ? "" : " sit");
-          el.innerHTML = postava(jm);
-          var slova = jm.trim().split(/\s+/);
-          var em = document.createElement("em"); em.title = jm;
-          em.textContent = slova[0] + (slova[1] ? " " + slova[1].charAt(0).toUpperCase() + "." : "");
-          el.appendChild(em);
-          posazeni[klic] = 1;
-        } else {
-          el.className = "st free";
-        }
-        pk.appendChild(el);
-      }
-      box.appendChild(pk);
+    var n = list.length, cap = zidli(n);
+    var lt = document.createElement("div"); lt.className = "lt";
+    var head = document.createElement("div"); head.className = "lt-head";
+    var body = document.createElement("div"); body.className = "lt-body";
+    var left = document.createElement("div"); left.className = "lt-col";
+    var right = document.createElement("div"); right.className = "lt-col";
+    var tbl = document.createElement("div"); tbl.className = "lt-table";
+    var b = document.createElement("b"); b.textContent = n;
+    var sp = document.createElement("span"); sp.textContent = "u stolu";
+    tbl.appendChild(b); tbl.appendChild(sp);
+    for (var z = 0; z < cap; z++){
+      var el = zidle(z < n ? list[z] : null, me);
+      if (z < 2) head.appendChild(el); else (z % 2 === 0 ? left : right).appendChild(el);
     }
+    body.appendChild(left); body.appendChild(tbl); body.appendChild(right);
+    lt.appendChild(head); lt.appendChild(body); box.appendChild(lt);
   }
 
   function view(v, fresh){
@@ -591,14 +621,9 @@ a.link{display:inline-block}
     var s = $("saved"); s.hidden = !(v === "ask" && st.odpoved === "ano");
     if (!s.hidden){
       var ln = $("saved-links"); ln.textContent = "";
-      var pocet = Math.floor((st.hraci || []).length / ZIDLI) + 1;
-      for (var q = 0; q < pocet; q++){
-        (function(q){
-          var bt = document.createElement("button"); bt.type = "button"; bt.className = "tl"; bt.textContent = (q + 1) + ". stůl";
-          bt.addEventListener("click", function(){ kestolu(q); });
-          ln.appendChild(bt);
-        })(q);
-      }
+      var bt = document.createElement("button"); bt.type = "button"; bt.className = "tl"; bt.textContent = "Kdo už sedí";
+      bt.addEventListener("click", function(){ kestolu(); });
+      ln.appendChild(bt);
     }
     if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); }
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
@@ -725,11 +750,8 @@ a.link{display:inline-block}
       else { view("ceka", false); if (hlasit) $("ceka-msg").hidden = false; }
     });
   }
-  function kestolu(i){
-    function posun(){
-      var t = document.querySelectorAll("#poker .poker")[i] || $("table");
-      if (t && !$("yes").hidden) t.scrollIntoView({behavior:"smooth", block:"center"});
-    }
+  function kestolu(){
+    function posun(){ if (!$("yes").hidden) $("table").scrollIntoView({behavior:"smooth", block:"start"}); }
     view(panel(), false); posun();
     refresh(false).then(posun).catch(function(){});
   }
