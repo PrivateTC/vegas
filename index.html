@@ -341,6 +341,14 @@ a.link{display:inline-block}
 .comic .cap1{left:-9px; top:9px; background:var(--bulb); transform:rotate(-3deg); box-shadow:3px 3px 0 #170b29}
 .comic .cap2{right:-9px; bottom:9px; background:#fff; transform:rotate(2deg); box-shadow:3px 3px 0 #170b29}
 @media (prefers-reduced-motion:reduce){ .comic .sp,.comic .burst{animation:none} }
+
+/* odkazy na stoly pro hosta, který se vrací */
+.saved{border:0; padding:0; justify-content:center; gap:10px 12px}
+.saved span.saved-l{flex:0 0 auto; font:700 13px/1 var(--f-cond); letter-spacing:.22em; text-transform:uppercase; color:var(--bulb)}
+.saved .saved-b{flex-wrap:wrap; gap:8px}
+.saved .tl{appearance:none; cursor:pointer; min-height:44px; padding:0 16px; border-radius:999px; border:1.5px solid var(--line);
+  background:rgba(255,214,110,.08); color:var(--text); font:600 16px/1 var(--f-cond); letter-spacing:.06em}
+.saved .tl:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
 </style>
 </head>
 <body>
@@ -370,13 +378,10 @@ a.link{display:inline-block}
     </div>
   </section>
 
-  <div class="saved" id="saved" hidden>
-    <span id="saved-t"></span>
-    <span class="saved-b">
-      <button class="link" id="saved-show" type="button">Zobrazit</button>
-      <button class="link" id="saved-drop" type="button">Zapomenout</button>
-    </span>
-  </div>
+  <nav class="saved" id="saved" aria-label="Stoly" hidden>
+    <span class="saved-l">Stoly</span>
+    <span class="saved-b" id="saved-links"></span>
+  </nav>
 
   <section class="who" id="who" hidden>
     <form id="who-form" novalidate>
@@ -567,13 +572,18 @@ a.link{display:inline-block}
     $("yes").hidden = v !== "ano";
     $("no").hidden  = v !== "ne";
     ["who-err","yes-err","no-err","ceka-err"].forEach(function(i){ $(i).hidden = true; });
-    // uložená odpověď z tohoto prohlížeče se jen nabízí, pozvánka vždy začíná od žetonů
-    var s = $("saved"); s.hidden = !(v === "ask" && st.odpoved);
+    // host, který se vrací a sedí (nebo čeká), dostane pod žetony odkazy na stoly
+    var s = $("saved"); s.hidden = !(v === "ask" && st.odpoved === "ano");
     if (!s.hidden){
-      var t = $("saved-t"); t.textContent = "";
-      t.appendChild(document.createTextNode("V tomhle prohlížeči už odpověděl "));
-      var b = document.createElement("b"); b.textContent = st.jmeno; t.appendChild(b);
-      t.appendChild(document.createTextNode(st.odpoved === "ano" ? (st.stav === "u_stolu" ? " (sedí u stolu)." : " (čeká na židli).") : " (FOLD)."));
+      var ln = $("saved-links"); ln.textContent = "";
+      var pocet = Math.floor((st.hraci || []).length / ZIDLI) + 1;
+      for (var q = 0; q < pocet; q++){
+        (function(q){
+          var bt = document.createElement("button"); bt.type = "button"; bt.className = "tl"; bt.textContent = (q + 1) + ". stůl";
+          bt.addEventListener("click", function(){ kestolu(q); });
+          ln.appendChild(bt);
+        })(q);
+      }
     }
     if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); }
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
@@ -684,10 +694,14 @@ a.link{display:inline-block}
       else { view("ceka", false); if (hlasit) $("ceka-msg").hidden = false; }
     });
   }
-  $("saved-show").addEventListener("click", function(){
-    view(panel(), false);
-    if (st.odpoved === "ano") refresh(false).catch(function(){});
-  });
+  function kestolu(i){
+    function posun(){
+      var t = document.querySelectorAll("#poker .poker")[i] || $("table");
+      if (t && !$("yes").hidden) t.scrollIntoView({behavior:"smooth", block:"center"});
+    }
+    view(panel(), false); posun();
+    refresh(false).then(posun).catch(function(){});
+  }
   $("ceka-check").addEventListener("click", function(){
     var b = $("ceka-check"); if (busy) return; busy = true; b.disabled = true; var old = b.textContent; b.textContent = "Ptám se krupiéra…";
     refresh(true).catch(function(){
@@ -696,7 +710,6 @@ a.link{display:inline-block}
   });
   $("undo-ceka").addEventListener("click", function(){ submit("ne", st.jmeno, "ceka-err", $("undo-ceka"), "Zapisuju…"); });
   $("other-ceka").addEventListener("click", fresh);
-  $("saved-drop").addEventListener("click", fresh);
 
   // pozvánka se vždy otevře od žetonů
   view("ask", false);
