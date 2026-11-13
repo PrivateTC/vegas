@@ -266,6 +266,12 @@ a.link{display:inline-block}
 .seats li{padding:6px 12px; border-radius:999px; background:rgba(0,0,0,.28); color:#fff; font:600 16px/1.2 var(--f-cond); letter-spacing:.03em; overflow-wrap:anywhere}
 .seats li.me{background:var(--bulb); color:var(--ink)}
 .felt .link.quiet{color:#bfe3d6}
+.saved{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; justify-content:space-between;
+  padding:10px 14px; border-radius:12px; border:1px dashed var(--line); color:var(--muted); font-size:14px}
+.saved span:first-child{min-width:0; flex:1 1 180px}
+.saved b{color:var(--text); font-weight:600}
+.saved-b{display:flex; gap:14px}
+.saved .link{font-size:13px; padding:4px 0}
 .link.quiet{color:var(--muted); font-size:13px; text-transform:none; letter-spacing:.04em}
 </style>
 </head>
@@ -292,6 +298,14 @@ a.link{display:inline-block}
     <p class="name">Jen pro zvané</p>
     <p class="sub">Platí jen pro toho, komu přišla do chatu.</p>
   </section>
+
+  <div class="saved" id="saved" hidden>
+    <span id="saved-t"></span>
+    <span class="saved-b">
+      <button class="link" id="saved-show" type="button">Zobrazit</button>
+      <button class="link" id="saved-drop" type="button">Zapomenout</button>
+    </span>
+  </div>
 
   <section class="rsvp" id="ask">
     <h2>Tak co, hraješ?</h2>
@@ -405,6 +419,14 @@ a.link{display:inline-block}
     $("yes").hidden = v !== "ano";
     $("no").hidden  = v !== "ne";
     ["who-err","yes-err","no-err"].forEach(function(i){ $(i).hidden = true; });
+    // uložená odpověď z tohoto prohlížeče se jen nabízí, pozvánka vždy začíná od žetonů
+    var s = $("saved"); s.hidden = !(v === "ask" && st.odpoved);
+    if (!s.hidden){
+      var t = $("saved-t"); t.textContent = "";
+      t.appendChild(document.createTextNode("V tomhle prohlížeči už odpověděl "));
+      var b = document.createElement("b"); b.textContent = st.jmeno; t.appendChild(b);
+      t.appendChild(document.createTextNode(st.odpoved === "ano" ? " (ALL IN)." : " (FOLD)."));
+    }
     if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); }
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     Array.prototype.forEach.call(document.querySelectorAll(".who-name"), function(e){ e.textContent = st.jmeno; });
@@ -446,7 +468,7 @@ a.link{display:inline-block}
     $("who-h").textContent = v === "ano" ? "ALL IN. Kdo sedá ke stolu?" : "Fold. Kdo se omlouvá?";
     $("who-go").textContent = v === "ano" ? "Potvrdit ALL IN" : "Potvrdit FOLD";
     view("who");
-    $("jmeno").value = st.jmeno || "";
+    $("jmeno").value = "";
     $("jmeno").focus();
   }
 
@@ -475,16 +497,22 @@ a.link{display:inline-block}
   $("other-yes").addEventListener("click", fresh);
   $("other-no").addEventListener("click", fresh);
 
-  view(st.odpoved || "ask", false);
-
-  // kdo už potvrdil a vrací se: potichu načíst čerstvé podrobnosti a seznam u stolu (nic se nezapisuje)
-  if (st.odpoved === "ano"){
+  function refresh(){
+    // potichu načíst čerstvé podrobnosti a seznam u stolu (nic se nezapisuje)
     send("seznam", st.jmeno).then(function(d){
       if (st.odpoved !== "ano") return;
       st.detaily = d.detaily || st.detaily; st.udalost = d.udalost || st.udalost; st.hraci = split(d.hraci); save();
-      view("ano", false);
+      if (!$("yes").hidden) view("ano", false);
     }).catch(function(){});
   }
+  $("saved-show").addEventListener("click", function(){
+    view(st.odpoved, false);
+    if (st.odpoved === "ano") refresh();
+  });
+  $("saved-drop").addEventListener("click", fresh);
+
+  // pozvánka se vždy otevře od žetonů
+  view("ask", false);
 })();
 </script>
 </body>
