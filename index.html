@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pozvánka pro starou partu z Vegas</title>
-<meta name="description" content="Setkání po 30 letech. Osobní, nepřenosná. ALL IN, nebo FOLD?">
+<title>Little Las Vegas po 30 letech</title>
+<meta name="description" content="Sraz po 30 letech. U stolu je 25 židlí a hraje se o ně. ALL IN, nebo FOLD?">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#140a22">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="cs_CZ">
-<meta property="og:title" content="Pozvánka pro starou partu z Vegas">
-<meta property="og:description" content="Setkání po 30 letech. Osobní, nepřenosná. ALL IN, nebo FOLD?">
+<meta property="og:title" content="Little Las Vegas po 30 letech: hra o židli">
+<meta property="og:description" content="Sraz po 30 letech. U stolu je 25 židlí a hraje se o ně. ALL IN, nebo FOLD?">
 <meta property="og:url" content="https://privatetc.github.io/vegas/">
 <meta property="og:image" content="https://privatetc.github.io/vegas/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -273,6 +273,15 @@ a.link{display:inline-block}
 .saved b{color:var(--text); font-weight:600}
 .saved-b{display:flex; gap:14px}
 .saved .link{font-size:13px; padding:4px 0}
+.wait{display:flex; flex-direction:column; gap:14px; padding:22px 18px 16px; border-radius:20px; text-align:left;
+  background:linear-gradient(135deg,#2a1238 0%,#170a26 55%,#32143f 100%); border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.45); scroll-margin-top:16px}
+.wait h2{margin:0; font:400 31px/1.08 var(--f-display); color:var(--text)}
+.wait p{margin:0; color:var(--muted)}
+.wait p b{color:var(--bulb); font-weight:600}
+.wait .tease{font:600 17px/1.3 var(--f-cond); letter-spacing:.06em; text-transform:uppercase; color:var(--cyan)}
+.wait .ceka-msg{text-align:center; color:var(--text); font-size:15px}
+.wait .link{align-self:center}
 .link.quiet{color:var(--muted); font-size:13px; text-transform:none; letter-spacing:.04em}
 
 /* po oponentuře: cíle pro prst min. 44 px, drobné texty čitelnější */
@@ -332,7 +341,7 @@ a.link{display:inline-block}
 </head>
 <body>
 <main class="wrap">
-  <p class="kicker">Osobní pozvánka · nepřenosná</p>
+  <p class="kicker">Sraz po 30 letech · hra o židli</p>
 
   <section class="sign" id="sign" aria-label="Pozvánka pro starou partu z Vegas">
     <svg class="star" viewBox="0 0 100 100" aria-hidden="true">
@@ -348,12 +357,6 @@ a.link{display:inline-block}
     </div>
   </section>
 
-  <section class="card open" aria-label="Pro koho pozvánka platí">
-    <div class="lbl">Vstup</div>
-    <p class="name">Jen pro zvané</p>
-    <p class="sub">Platí jen pro toho, komu přišla do chatu.</p>
-  </section>
-
   <div class="saved" id="saved" hidden>
     <span id="saved-t"></span>
     <span class="saved-b">
@@ -364,28 +367,40 @@ a.link{display:inline-block}
 
   <section class="rsvp" id="ask">
     <h2>Tak co, hraješ?</h2>
-    <p>Vyber žeton. <b>ALL IN</b> a hned ti ukážeme podrobnosti. <b>FOLD</b> a nic dalšího ti chodit nebude.</p>
+    <p>Vyber žeton. <b>ALL IN</b> a jsi ve hře o židli. <b>FOLD</b> a tentokrát pasuješ.</p>
     <div class="chips">
-      <button class="chip" id="btn-yes" type="button"><b>ALL IN</b><span>jdu do toho</span></button>
+      <button class="chip" id="btn-yes" type="button"><b>ALL IN</b><span>hlásím se do hry</span></button>
       <button class="chip fold" id="btn-no" type="button"><b>FOLD</b><span>tentokrát ne</span></button>
     </div>
   </section>
 
   <section class="who" id="who" hidden>
     <form id="who-form" novalidate>
-      <h2 id="who-h">ALL IN. Kdo sedá ke stolu?</h2>
+      <h2 id="who-h">ALL IN. Kdo sází?</h2>
       <label for="jmeno">Jméno nebo přezdívka, pod kterou tě parta zná. Je vás víc stejných? Přidej písmeno příjmení.</label>
       <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="send" maxlength="40" required placeholder="třeba Petr K.">
       <p class="err" id="who-err" role="alert" hidden></p>
-      <button class="btn" id="who-go" type="submit">Potvrdit ALL IN</button>
+      <button class="btn" id="who-go" type="submit">Vsadit ALL IN</button>
       <button class="link" id="who-back" type="button">Zpět k žetonům</button>
     </form>
   </section>
 
-  <section class="felt" id="yes" hidden>
+  <section class="wait" id="ceka" hidden>
     <p class="eyebrow">Sázka přijata</p>
-    <h2>Jsi ve hře.</h2>
-    <p>Zapsáno na jméno <b id="yes-name"></b>. Tady je, co zatím víme:</p>
+    <h2>Jsi ve hře o židli.</h2>
+    <p>Zapsáno na jméno <b id="ceka-name"></b>. Krupiér rozdává karty postupně. Až ti rozdá, najdeš tady kdy a kde.</p>
+    <p class="tease" id="ceka-n" hidden></p>
+    <p class="err" id="ceka-err" role="alert" hidden></p>
+    <button class="btn" id="ceka-check" type="button">Mám už karty?</button>
+    <p class="ceka-msg" id="ceka-msg" hidden>Ještě ne. Krupiér míchá, zkus to později.</p>
+    <button class="link" id="undo-ceka" type="button">Nakonec nemůžu</button>
+    <button class="link quiet" id="other-ceka" type="button">Nejsem <span class="who-name"></span></button>
+  </section>
+
+  <section class="felt" id="yes" hidden>
+    <p class="eyebrow">Karty rozdány</p>
+    <h2>Sedíš u stolu.</h2>
+    <p>Židle je tvoje, <b id="yes-name"></b>. Tady je kdy a kde:</p>
     <ul class="deal" id="deal"></ul>
     <div class="acts" id="acts" hidden>
       <a class="btn" id="cal" download="little-las-vegas.ics" href="#">Do kalendáře</a>
@@ -405,10 +420,16 @@ a.link{display:inline-block}
 
   <section class="out" id="no" hidden>
     <h2>Fold.</h2>
-    <p>Zapsáno na jméno <b id="no-name"></b>. Škoda, ale bereme to. Nic dalšího ti chodit nebude.</p>
+    <p>Zapsáno na jméno <b id="no-name"></b>. Škoda, ale bereme to. Židle zůstane pro další kolo.</p>
     <p class="err" id="no-err" role="alert" hidden></p>
     <button class="link" id="undo-no" type="button">Rozmyslel jsem si to</button>
     <button class="link quiet" id="other-no" type="button">Nejsem <span class="who-name"></span></button>
+  </section>
+
+  <section class="card open" aria-label="Jak se hraje">
+    <div class="lbl">U stolu je</div>
+    <p class="name">25 židlí</p>
+    <p class="sub">Přihlas se do hry. Karty rozdává krupiér.</p>
   </section>
 
   <figure class="comic">
@@ -421,9 +442,9 @@ a.link{display:inline-block}
   <section class="rules" aria-label="Pravidla stolu">
     <h2>Pravidla stolu</h2>
     <ul>
-      <li><span>♠&#xFE0E;</span><div><strong>Pozvánka je nepřenosná.</strong> Platí jen pro toho, komu přišla.</div></li>
-      <li><span class="r">♥&#xFE0E;</span><div>Nepřeposílej ji a nikoho nepřibírej. Kdo má sedět u stolu, dostal vlastní.</div></li>
-      <li><span class="r">♦&#xFE0E;</span><div>Podrobnosti dostane jen ten, kdo řekne ALL IN.</div></li>
+      <li><span>♠&#xFE0E;</span><div><strong>U stolu je 25 židlí.</strong> Kdo dřív vsadí, je dřív na řadě.</div></li>
+      <li><span class="r">♥&#xFE0E;</span><div>ALL IN znamená: hlásím se do hry. Nic víc, nic míň.</div></li>
+      <li><span class="r">♦&#xFE0E;</span><div>Karty rozdává krupiér. Komu rozdá, ten se dozví kdy a kde.</div></li>
       <li><span>♣&#xFE0E;</span><div>Co se řekne u stolu, zůstane u stolu.</div></li>
     </ul>
   </section>
@@ -433,7 +454,7 @@ a.link{display:inline-block}
   var HOOK = "https://hook.eu1.make.com/g4rav64rw2925f4n3k26gvdk8jzpdr0b";
   var KEY = "vegas-rsvp-2";
   var $ = function(id){ return document.getElementById(id); };
-  var st = {odpoved:null, jmeno:"", detaily:[], udalost:null, hraci:[]};
+  var st = {odpoved:null, jmeno:"", stav:"", obsazeno:0, detaily:[], udalost:null, hraci:[]};
   var volba = null, busy = false;
 
   try { var s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.jmeno) st = s; } catch(e){}
@@ -526,19 +547,25 @@ a.link{display:inline-block}
   function view(v, fresh){
     $("ask").hidden = v !== "ask";
     $("who").hidden = v !== "who";
+    $("ceka").hidden = v !== "ceka";
     $("yes").hidden = v !== "ano";
     $("no").hidden  = v !== "ne";
-    ["who-err","yes-err","no-err"].forEach(function(i){ $(i).hidden = true; });
+    ["who-err","yes-err","no-err","ceka-err"].forEach(function(i){ $(i).hidden = true; });
     // uložená odpověď z tohoto prohlížeče se jen nabízí, pozvánka vždy začíná od žetonů
     var s = $("saved"); s.hidden = !(v === "ask" && st.odpoved);
     if (!s.hidden){
       var t = $("saved-t"); t.textContent = "";
       t.appendChild(document.createTextNode("V tomhle prohlížeči už odpověděl "));
       var b = document.createElement("b"); b.textContent = st.jmeno; t.appendChild(b);
-      t.appendChild(document.createTextNode(st.odpoved === "ano" ? " (ALL IN)." : " (FOLD)."));
+      t.appendChild(document.createTextNode(st.odpoved === "ano" ? (st.stav === "u_stolu" ? " (sedí u stolu)." : " (ve hře o židli).") : " (FOLD)."));
     }
     if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); }
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
+    if (v === "ceka"){
+      $("ceka-name").textContent = st.jmeno; $("ceka-msg").hidden = true;
+      var cn = $("ceka-n"); cn.hidden = !(st.obsazeno > 0);
+      cn.textContent = "U stolu už sedí " + st.obsazeno + " z " + ZIDLI + ".";
+    }
     Array.prototype.forEach.call(document.querySelectorAll(".who-name"), function(e){ e.textContent = st.jmeno; });
     var sign = $("sign"); sign.classList.remove("jackpot");
     if (v === "ano" && fresh){
@@ -546,6 +573,10 @@ a.link{display:inline-block}
       setTimeout(function(){ sign.classList.remove("jackpot"); }, 2200);
       try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch(e){}
       $("yes").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+    if (v === "ceka" && fresh){
+      try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch(e){}
+      $("ceka").scrollIntoView({behavior:"smooth", block:"start"});
     }
   }
 
@@ -562,6 +593,15 @@ a.link{display:inline-block}
       }, function(e){ clearTimeout(t); e.kind = (e && e.name === "AbortError") ? "cas" : "sit"; throw e; });
   }
 
+  // odpověď serveru → uložený stav; bez pole „stav“ (starší server) platí: ALL IN s podrobnostmi = u stolu
+  function prijmi(odpoved, jmeno, d){
+    var stav = odpoved === "ne" ? "" : (d.stav || (d.detaily ? "u_stolu" : "ceka"));
+    st = {odpoved:odpoved, jmeno:jmeno, stav:stav, obsazeno:Number(d.obsazeno) || 0,
+          detaily:d.detaily || [], udalost:d.udalost || null, hraci:split(d.hraci)};
+    save();
+  }
+  function panel(){ return st.odpoved === "ne" ? "ne" : st.odpoved === "ano" ? (st.stav === "u_stolu" ? "ano" : "ceka") : "ask"; }
+
   function submit(odpoved, jmeno, errId, btn, btnText){
     if (busy) return;
     busy = true;
@@ -569,8 +609,8 @@ a.link{display:inline-block}
     if (btn){ btn.disabled = true; btn.textContent = btnText; }
     $("who-back").disabled = true;
     send(odpoved, jmeno).then(function(d){
-      st = {odpoved:odpoved, jmeno:jmeno, detaily:d.detaily || [], udalost:d.udalost || null, hraci:split(d.hraci)}; save();
-      view(odpoved, true);
+      prijmi(odpoved, jmeno, d);
+      view(panel(), true);
     }).catch(function(err){
       var e = $(errId), k = err && err.kind;
       e.textContent = k === "odmitnuto" ? "Tohle jméno se nepodařilo zapsat. Zkus ho napsat jen písmeny, bez zvláštních znaků."
@@ -586,8 +626,8 @@ a.link{display:inline-block}
 
   function pick(v){
     volba = v;
-    $("who-h").textContent = v === "ano" ? "ALL IN. Kdo sedá ke stolu?" : "Fold. Kdo se omlouvá?";
-    $("who-go").textContent = v === "ano" ? "Potvrdit ALL IN" : "Potvrdit FOLD";
+    $("who-h").textContent = v === "ano" ? "ALL IN. Kdo sází?" : "Fold. Kdo pasuje?";
+    $("who-go").textContent = v === "ano" ? "Vsadit ALL IN" : "Potvrdit FOLD";
     view("who");
     $("jmeno").value = "";
     $("jmeno").focus();
@@ -609,7 +649,7 @@ a.link{display:inline-block}
 
   // jiný člověk na stejném telefonu: zapomenout uloženou odpověď v tomto prohlížeči a začít od žetonů
   function fresh(){
-    st = {odpoved:null, jmeno:"", detaily:[], udalost:null, hraci:[]};
+    st = {odpoved:null, jmeno:"", stav:"", obsazeno:0, detaily:[], udalost:null, hraci:[]};
     try { localStorage.removeItem(KEY); } catch(e){}
     $("jmeno").value = "";
     view("ask");
@@ -618,18 +658,28 @@ a.link{display:inline-block}
   $("other-yes").addEventListener("click", fresh);
   $("other-no").addEventListener("click", fresh);
 
-  function refresh(){
-    // potichu načíst čerstvé podrobnosti a seznam u stolu (nic se nezapisuje)
-    send("seznam", st.jmeno).then(function(d){
+  // mám už karty? (nic se nezapisuje, jen se zeptá na stav)
+  function refresh(hlasit){
+    return send("seznam", st.jmeno).then(function(d){
       if (st.odpoved !== "ano") return;
-      st.detaily = d.detaily || st.detaily; st.udalost = d.udalost || st.udalost; st.hraci = split(d.hraci); save();
-      if (!$("yes").hidden) view("ano", false);
-    }).catch(function(){});
+      var predtim = st.stav;
+      prijmi("ano", st.jmeno, d);
+      if (st.stav === "u_stolu"){ view("ano", predtim !== "u_stolu"); }
+      else { view("ceka", false); if (hlasit) $("ceka-msg").hidden = false; }
+    });
   }
   $("saved-show").addEventListener("click", function(){
-    view(st.odpoved, false);
-    if (st.odpoved === "ano") refresh();
+    view(panel(), false);
+    if (st.odpoved === "ano") refresh(false).catch(function(){});
   });
+  $("ceka-check").addEventListener("click", function(){
+    var b = $("ceka-check"); if (busy) return; busy = true; b.disabled = true; var old = b.textContent; b.textContent = "Ptám se krupiéra…";
+    refresh(true).catch(function(){
+      var e = $("ceka-err"); e.textContent = "Nepovedlo se zeptat. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
+    }).then(function(){ busy = false; b.disabled = false; b.textContent = old; });
+  });
+  $("undo-ceka").addEventListener("click", function(){ submit("ne", st.jmeno, "ceka-err", $("undo-ceka"), "Zapisuju…"); });
+  $("other-ceka").addEventListener("click", fresh);
   $("saved-drop").addEventListener("click", fresh);
 
   // pozvánka se vždy otevře od žetonů
