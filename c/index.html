@@ -311,7 +311,7 @@ a.link{display:inline-block}
 @media (prefers-reduced-motion:reduce){ .poker .st.sit{animation:none} }
 
 /* verze C: komiksový panel se starou fotkou; krémový okraj a červený stín berou barvy z cedule */
-.comic{position:relative; margin:-4px 4px 6px; border:3px solid #170b29; border-radius:5px; background:var(--cream);
+.comic{position:relative; margin:6px 4px 10px; border:3px solid #170b29; border-radius:5px; background:var(--cream);
   box-shadow:0 0 0 5px var(--cream), 7px 9px 0 5px var(--red), 0 18px 34px rgba(0,0,0,.5); transform:rotate(-1.3deg)}
 .comic img{display:block; width:100%; height:auto; border-radius:2px}
 .comic .fx{position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
@@ -347,13 +347,6 @@ a.link{display:inline-block}
       <p class="tag">Little Las Vegas · po 30 letech</p>
     </div>
   </section>
-
-  <figure class="comic">
-    <img src="../tehdy-komiks.jpg" width="1400" height="801" alt="Komiksově překreslená stará fotka sídliště: náměstí, paneláky a nízký pavilon, na který ukazuje bublina VEGAS!">
-    <svg class="fx" viewBox="0 0 989 566" preserveAspectRatio="none" aria-hidden="true"><polygon class="sp s1" points="184.0,95.0 157.7,102.7 150.0,129.0 142.3,102.7 116.0,95.0 142.3,87.3 150.0,61.0 157.7,87.3"/><polygon class="sp s2" points="352.0,60.0 335.0,65.0 330.0,82.0 325.0,65.0 308.0,60.0 325.0,55.0 330.0,38.0 335.0,55.0"/><polygon class="sp s3" points="88.0,190.0 74.1,194.1 70.0,208.0 65.9,194.1 52.0,190.0 65.9,185.9 70.0,172.0 74.1,185.9"/><g class="burst"><polygon class="tail" points="600,150 672,150 652,212"/><polygon class="bst" points="845.0,96.0 789.4,107.8 832.6,127.5 771.4,130.0 797.0,155.1 737.5,148.2 742.5,175.7 691.9,160.0 675.6,186.6 640.0,164.1 604.4,186.6 588.1,160.0 537.5,175.7 542.5,148.2 483.0,155.1 508.6,130.0 447.4,127.5 490.6,107.8 435.0,96.0 490.6,84.2 447.4,64.5 508.6,62.0 483.0,36.9 542.5,43.8 537.5,16.3 588.1,32.0 604.4,5.4 640.0,27.9 675.6,5.4 691.9,32.0 742.5,16.3 737.5,43.8 797.0,36.9 771.4,62.0 832.6,64.5 789.4,84.2"/><polygon class="tailfill" points="606,150 666,150 652,204"/><text x="640" y="128" text-anchor="middle">VEGAS!</text></g></svg>
-    <figcaption class="cap1">Tehdy: naše kostka</figcaption>
-    <span class="cap2">Po 30 letech si sedneme znovu</span>
-  </figure>
 
   <section class="card open" aria-label="Pro koho pozvánka platí">
     <div class="lbl">Vstup</div>
@@ -417,6 +410,13 @@ a.link{display:inline-block}
     <button class="link" id="undo-no" type="button">Rozmyslel jsem si to</button>
     <button class="link quiet" id="other-no" type="button">Nejsem <span class="who-name"></span></button>
   </section>
+
+  <figure class="comic">
+    <img src="../tehdy-komiks.jpg" width="1400" height="801" alt="Komiksově překreslená stará fotka sídliště: náměstí, paneláky a nízký pavilon, na který ukazuje bublina VEGAS!">
+    <svg class="fx" viewBox="0 0 989 566" preserveAspectRatio="none" aria-hidden="true"><polygon class="sp s1" points="184.0,95.0 157.7,102.7 150.0,129.0 142.3,102.7 116.0,95.0 142.3,87.3 150.0,61.0 157.7,87.3"/><polygon class="sp s2" points="352.0,60.0 335.0,65.0 330.0,82.0 325.0,65.0 308.0,60.0 325.0,55.0 330.0,38.0 335.0,55.0"/><polygon class="sp s3" points="88.0,190.0 74.1,194.1 70.0,208.0 65.9,194.1 52.0,190.0 65.9,185.9 70.0,172.0 74.1,185.9"/><g class="burst"><polygon class="tail" points="600,150 672,150 652,212"/><polygon class="bst" points="845.0,96.0 789.4,107.8 832.6,127.5 771.4,130.0 797.0,155.1 737.5,148.2 742.5,175.7 691.9,160.0 675.6,186.6 640.0,164.1 604.4,186.6 588.1,160.0 537.5,175.7 542.5,148.2 483.0,155.1 508.6,130.0 447.4,127.5 490.6,107.8 435.0,96.0 490.6,84.2 447.4,64.5 508.6,62.0 483.0,36.9 542.5,43.8 537.5,16.3 588.1,32.0 604.4,5.4 640.0,27.9 675.6,5.4 691.9,32.0 742.5,16.3 737.5,43.8 797.0,36.9 771.4,62.0 832.6,64.5 789.4,84.2"/><polygon class="tailfill" points="606,150 666,150 652,204"/><text x="640" y="128" text-anchor="middle">VEGAS!</text></g></svg>
+    <figcaption class="cap1">Tehdy: naše kostka</figcaption>
+    <span class="cap2">Po 30 letech si sedneme znovu</span>
+  </figure>
 
   <section class="rules" aria-label="Pravidla stolu">
     <h2>Pravidla stolu</h2>
