@@ -37,7 +37,7 @@ button{appearance:none; border:0; cursor:pointer; font:700 16px/1 var(--f-cond);
 .go{background:var(--bulb); color:var(--ink); box-shadow:0 4px 0 #b98f2e}
 .go:active{transform:translateY(3px); box-shadow:0 1px 0 #b98f2e}
 .undo{background:transparent; color:var(--muted); box-shadow:inset 0 0 0 1.5px rgba(184,166,204,.5); font-size:13px}
-.undo.sure{color:#fff; background:var(--red); box-shadow:none}
+.undo.sure{color:#fff; background:var(--red); box-shadow:none; white-space:normal; text-align:center; padding:8px 12px; max-width:150px; line-height:1.15}
 .host{font:600 12px/1 var(--f-mono); color:var(--bulb); letter-spacing:.1em}
 button[disabled]{opacity:.55; cursor:progress}
 button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
@@ -55,7 +55,7 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
 <main class="wrap">
   <p class="kicker">Little Las Vegas · krupiér</p>
   <h1>Kdo sedí u stolu?</h1>
-  <p class="lead">Kdo dá ALL IN, sedne si rovnou a vidí kdy a kde. Tady máš přehled a můžeš komukoli vzít židli.</p>
+  <p class="lead">Kdo dá ALL IN, sedne si rovnou a vidí kdy a kde. Tady máš přehled a můžeš hostovi vzít židli.</p>
   <p class="err" id="msg" role="alert" hidden></p>
   <div id="app" hidden>
     <p class="count"><span id="n-sedi-big">0</span><small>u stolu</small></p>
@@ -72,10 +72,10 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
       <h2>Pasovali <span id="n-ne"></span></h2>
       <ul id="l-ne"></ul>
     </section>
-    <div class="bar">
-      <button class="refresh" id="obnovit" type="button">Obnovit</button>
-      <p class="stamp" id="stamp"></p>
-    </div>
+  </div>
+  <div class="bar" id="bar" hidden>
+    <button class="refresh" id="obnovit" type="button">Obnovit</button>
+    <p class="stamp" id="stamp"></p>
   </div>
 </main>
 <script>
@@ -84,14 +84,16 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
   var KLIC = (location.hash || "").replace(/^#/, "");
   var KRALOVE = ["robert", "ivan"];
   var $ = function(id){ return document.getElementById(id); };
-  var busy = false, kol = 0, casovac = null;
+  var busy = false, kol = 0, casovac = null, potvrzuje = 0;
 
   function chyba(t){ var m = $("msg"); m.textContent = t; m.hidden = !t; }
   function api(pole){
     pole.klic = KLIC;
-    return fetch(HOOK, {method:"POST", body:new URLSearchParams(pole)})
-      .then(function(r){ return r.text(); })
-      .then(function(t){ var d = null; try { d = JSON.parse(t); } catch(e){} if (!d || !d.ok){ var er = new Error("klic"); er.kind = "klic"; throw er; } return d; });
+    var ctl = ("AbortController" in window) ? new AbortController() : null;
+    var cas = setTimeout(function(){ if (ctl) ctl.abort(); }, 15000);
+    return fetch(HOOK, {method:"POST", body:new URLSearchParams(pole), signal: ctl ? ctl.signal : undefined})
+      .then(function(r){ clearTimeout(cas); return r.text(); }, function(e){ clearTimeout(cas); throw e; })
+      .then(function(t){ var d = null; try { d = JSON.parse(t); } catch(e){} if (!d || !d.ok){ var er = new Error("klic"); er.kind = String(t).trim() === "Accepted" ? "klic" : "server"; throw er; } return d; });
   }
   function kdy(s){ var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})$/.exec(s || ""); return m ? (+m[3]) + ". " + (+m[2]) + ". " + m[4] : (s || ""); }
 
@@ -103,7 +105,7 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
     w.appendChild(b); w.appendChild(s); li.appendChild(w);
     if (typ === "ceka"){
       var go = document.createElement("button"); go.type = "button"; go.className = "go"; go.textContent = "Pustit ke stolu";
-      go.addEventListener("click", function(){ akce("pust", z.jmeno, go, "Rozdávám…"); });
+      go.addEventListener("click", function(){ akce("pust", z.jmeno, go, "Zapisuju…"); });
       li.appendChild(go);
     } else if (typ === "sedi"){
       if (KRALOVE.indexOf(z.jmeno.toLowerCase()) !== -1){
@@ -111,7 +113,8 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
       } else {
         var un = document.createElement("button"); un.type = "button"; un.className = "undo"; un.textContent = "Vzít židli";
         un.addEventListener("click", function(){
-          if (!un.classList.contains("sure")){ un.classList.add("sure"); un.textContent = "Opravdu vzít?"; setTimeout(function(){ un.classList.remove("sure"); un.textContent = "Vzít židli"; }, 4000); return; }
+          if (!un.classList.contains("sure")){ un.classList.add("sure"); un.textContent = "Opravdu vzít: " + z.jmeno + "?"; potvrzuje++; setTimeout(function(){ if (un.classList.contains("sure")){ un.classList.remove("sure"); un.textContent = "Vzít židli"; potvrzuje--; } }, 5000); return; }
+          un.classList.remove("sure"); potvrzuje--;
           akce("odeber", z.jmeno, un, "Beru…");
         });
         li.appendChild(un);
@@ -139,7 +142,8 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
 
   function nacti(){
     return api({odpoved:"prehled"}).then(function(d){ chyba(""); kresli(d); })
-      .catch(function(e){ chyba(e && e.kind === "klic" ? "Tenhle odkaz krupiéra neplatí. Požádej Roberta o nový." : "Nepovedlo se načíst. Zkontroluj připojení a dej Obnovit."); });
+      .catch(function(e){ chyba(e && e.kind === "klic" ? "Tenhle odkaz krupiéra neplatí. Požádej Roberta o nový." : "Nepovedlo se načíst. Zkontroluj připojení a dej Obnovit."); })
+      .then(function(){ $("bar").hidden = false; });
   }
   function akce(co, jmeno, btn, text){
     if (busy) return; busy = true; var old = btn.textContent; btn.disabled = true; btn.textContent = text;
@@ -153,7 +157,7 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
   function plan(){
     clearInterval(casovac);
     casovac = setInterval(function(){
-      if (document.visibilityState !== "visible" || busy) return;
+      if (document.visibilityState !== "visible" || busy || potvrzuje > 0) return;
       if (++kol > 30){ clearInterval(casovac); $("stamp").textContent += " · samo se už neobnovuje, dej Obnovit"; return; }
       nacti();
     }, 60000);

@@ -349,6 +349,12 @@ a.link{display:inline-block}
 .saved .tl{appearance:none; cursor:pointer; min-height:44px; padding:0 16px; border-radius:999px; border:1.5px solid var(--line);
   background:rgba(255,214,110,.08); color:var(--text); font:600 16px/1 var(--f-cond); letter-spacing:.06em}
 .saved .tl:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
+
+@supports not (aspect-ratio:1){
+  .poker{height:0; padding-bottom:75%}
+  .chip{height:clamp(124px,37vw,152px)}
+  .coins span{height:min(8vw,39px)}
+}
 </style>
 </head>
 <body>
@@ -465,7 +471,15 @@ a.link{display:inline-block}
   var st = {odpoved:null, jmeno:"", stav:"", obsazeno:0, detaily:[], udalost:null, hraci:[]};
   var volba = null, busy = false;
 
-  try { var s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.jmeno) st = s; } catch(e){}
+  try {
+    var s = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (s && typeof s.jmeno === "string" && s.jmeno){
+      st = {odpoved: s.odpoved === "ano" || s.odpoved === "ne" ? s.odpoved : null, jmeno: s.jmeno,
+            stav: typeof s.stav === "string" ? s.stav : "", obsazeno: Number(s.obsazeno) || 0,
+            detaily: Array.isArray(s.detaily) ? s.detaily : [], udalost: s.udalost && typeof s.udalost === "object" ? s.udalost : null,
+            hraci: Array.isArray(s.hraci) ? s.hraci : []};
+    }
+  } catch(e){}
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
 
   function deal(list){
@@ -514,7 +528,7 @@ a.link{display:inline-block}
   var SAKA = ["#2b2b3a","#5a1420","#1d3f6e","#3a2a4d","#2f4a3a","#6b4a1f","#444b57"];
   var KLOBOUKY = ["#1b1b24","#3a0d15","#e8dcc0","#2a1c3a","#5a4a3a","#11283f","#7a7f88"];
   function hash(s){ var x = 7; for (var i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
-  var KRALOVE = ["robert", "ivan"];   // hostitelé: koruna a místa v čele stolu
+  var KRALOVE = ["robert", "ivan"];   // hostitelé: první dvě židle u prvního stolu, větší a zlatě
   function kral(jmeno){ return KRALOVE.indexOf(String(jmeno).toLowerCase()) !== -1; }
   function postava(jmeno){
     var k = hash(jmeno.toLowerCase()), sako = SAKA[k % SAKA.length], klobouk = KLOBOUKY[(k >> 3) % KLOBOUKY.length];
@@ -615,7 +629,9 @@ a.link{display:inline-block}
       .then(function(txt){
         clearTimeout(t);
         var d = null; try { d = JSON.parse(txt); } catch(e){}
-        if (!d || !d.ok){ var er = new Error("odmitnuto"); er.kind = "odmitnuto"; throw er; }
+        if (!d || !d.ok){
+          var er = new Error("server"); er.kind = String(txt).trim() === "Accepted" ? "odmitnuto" : "server"; throw er;
+        }
         return d;
       }, function(e){ clearTimeout(t); e.kind = (e && e.name === "AbortError") ? "cas" : "sit"; throw e; });
   }
@@ -642,6 +658,7 @@ a.link{display:inline-block}
       var e = $(errId), k = err && err.kind;
       e.textContent = k === "odmitnuto" ? "Tohle jméno se nepodařilo zapsat. Zkus ho napsat jen písmeny, bez zvláštních znaků."
         : k === "cas" ? "Trvá to moc dlouho. Zkus to znovu, nic se nezapíše dvakrát."
+        : k === "server" ? "Teď se to nepovedlo zapsat. Zkus to za chvíli znovu."
         : "Nepovedlo se to zapsat. Zkontroluj připojení a zkus to znovu.";
       e.hidden = false;
     }).then(function(){
@@ -656,7 +673,7 @@ a.link{display:inline-block}
     $("who-h").textContent = v === "ano" ? "ALL IN. Kdo sedá ke stolu?" : "Fold. Kdo pasuje?";
     $("who-go").textContent = v === "ano" ? "Potvrdit ALL IN" : "Potvrdit FOLD";
     view("who");
-    $("jmeno").value = "";
+    $("jmeno").value = st.jmeno || "";
     $("jmeno").focus();
   }
 
@@ -669,10 +686,23 @@ a.link{display:inline-block}
     if (j.length < 2){
       var e = $("who-err"); e.textContent = "Napiš aspoň dvě písmena, ať víme, kdo jsi."; e.hidden = false; $("jmeno").focus(); return;
     }
-    submit(volba, j, "who-err", $("who-go"), volba === "ano" ? "Rozdávám karty…" : "Zapisuju…");
+    submit(volba, j, "who-err", $("who-go"), volba === "ano" ? "Zapisuju…" : "Zapisuju…");
   });
-  $("undo-yes").addEventListener("click", function(){ submit("ne", st.jmeno, "yes-err", $("undo-yes"), "Zapisuju…"); });
-  $("undo-no").addEventListener("click", function(){ submit("ano", st.jmeno, "no-err", $("undo-no"), "Rozdávám karty…"); });
+  function dvakrat(btn, otazka, akce){
+    var puvodni = btn.textContent, t = null;
+    btn.addEventListener("click", function(){
+      if (busy) return;
+      if (btn.getAttribute("data-jiste") !== "1"){
+        btn.setAttribute("data-jiste", "1"); btn.textContent = otazka;
+        t = setTimeout(function(){ btn.removeAttribute("data-jiste"); btn.textContent = puvodni; }, 5000);
+        return;
+      }
+      clearTimeout(t); btn.removeAttribute("data-jiste"); btn.textContent = puvodni;
+      akce();
+    });
+  }
+  dvakrat($("undo-yes"), "Opravdu pasuješ? Ťukni znovu", function(){ submit("ne", st.jmeno, "yes-err", $("undo-yes"), "Zapisuju…"); });
+  $("undo-no").addEventListener("click", function(){ submit("ano", st.jmeno, "no-err", $("undo-no"), "Zapisuju…"); });
 
   // jiný člověk na stejném telefonu: zapomenout uloženou odpověď v tomto prohlížeči a začít od žetonů
   function fresh(){
@@ -704,12 +734,12 @@ a.link{display:inline-block}
     refresh(false).then(posun).catch(function(){});
   }
   $("ceka-check").addEventListener("click", function(){
-    var b = $("ceka-check"); if (busy) return; busy = true; b.disabled = true; var old = b.textContent; b.textContent = "Ptám se krupiéra…";
+    var b = $("ceka-check"); if (busy) return; busy = true; b.disabled = true; var old = b.textContent; b.textContent = "Zjišťuju…";
     refresh(true).catch(function(){
       var e = $("ceka-err"); e.textContent = "Nepovedlo se zeptat. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
     }).then(function(){ busy = false; b.disabled = false; b.textContent = old; });
   });
-  $("undo-ceka").addEventListener("click", function(){ submit("ne", st.jmeno, "ceka-err", $("undo-ceka"), "Zapisuju…"); });
+  dvakrat($("undo-ceka"), "Opravdu pasuješ? Ťukni znovu", function(){ submit("ne", st.jmeno, "ceka-err", $("undo-ceka"), "Zapisuju…"); });
   $("other-ceka").addEventListener("click", fresh);
 
   // pozvánka se vždy otevře od žetonů
