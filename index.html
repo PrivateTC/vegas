@@ -493,6 +493,7 @@ a.link{display:inline-block}
         "&dates=" + u.od + "/" + u.do + "&location=" + encodeURIComponent(u.misto);
     }
     var list = st.hraci || [], ul = $("seats"); ul.textContent = "";
+    list = list.filter(kral).concat(list.filter(function(x){ return !kral(x); }));
     $("table").hidden = !list.length;
     $("table-n").textContent = list.length ? "(" + list.length + ")" : "";
     var me = (st.jmeno || "").toLowerCase();
