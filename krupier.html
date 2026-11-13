@@ -107,7 +107,7 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
       li.appendChild(go);
     } else if (typ === "sedi"){
       if (KRALOVE.indexOf(z.jmeno.toLowerCase()) !== -1){
-        var h = document.createElement("span"); h.className = "host"; h.textContent = "♛︎ hostitel"; li.appendChild(h);
+        var h = document.createElement("span"); h.className = "host"; h.textContent = "hostitel"; li.appendChild(h);
       } else {
         var un = document.createElement("button"); un.type = "button"; un.className = "undo"; un.textContent = "Vzít židli";
         un.addEventListener("click", function(){
