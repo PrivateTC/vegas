@@ -239,6 +239,22 @@ body{
 .out .link{text-decoration:underline}
 a.link{display:inline-block}
 
+
+/* krok se jménem */
+.who form{display:flex; flex-direction:column; gap:12px; padding:20px 18px; border-radius:20px;
+  background:linear-gradient(135deg,#2a1238 0%,#170a26 55%,#32143f 100%); border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.45)}
+.who h2{margin:0; font:400 27px/1.15 var(--f-display); color:var(--text); text-wrap:balance}
+.who label{font:500 12px/1.4 var(--f-mono); letter-spacing:.08em; color:var(--muted)}
+.who input{width:100%; padding:14px 14px; border-radius:12px; border:2px solid var(--line); background:#0f0719; color:var(--bulb);
+  font:700 26px/1.1 var(--f-cond); letter-spacing:.03em}
+.who input::placeholder{color:#6d5a80; font-weight:500}
+.who input:focus{outline:none; border-color:var(--bulb); box-shadow:0 0 0 3px rgba(255,214,110,.25)}
+.who .link, .felt .link{align-self:center}
+.btn{border:0; cursor:pointer; width:100%}
+.btn[disabled]{opacity:.65; cursor:progress}
+.err{margin:0; padding:10px 12px; border-radius:10px; background:rgba(227,32,61,.16); border:1px solid rgba(227,32,61,.55); color:#ffd9df; font-size:15px}
+.out b, .felt p b{color:var(--bulb); font-weight:600}
 </style>
 </head>
 <body>
@@ -267,26 +283,38 @@ a.link{display:inline-block}
 
   <section class="rsvp" id="ask">
     <h2>Tak co, hraješ?</h2>
-    <p>Vyber žeton. <b>ALL IN</b> a podrobnosti ti přijdou do chatu. <b>FOLD</b> a nic dalšího ti chodit nebude.</p>
+    <p>Vyber žeton. <b>ALL IN</b> a hned ti ukážeme podrobnosti. <b>FOLD</b> a nic dalšího ti chodit nebude.</p>
     <div class="chips">
       <button class="chip" id="btn-yes" type="button"><b>ALL IN</b><span>jdu do toho</span></button>
       <button class="chip fold" id="btn-no" type="button"><b>FOLD</b><span>tentokrát ne</span></button>
     </div>
   </section>
 
+  <section class="who" id="who" hidden>
+    <form id="who-form" novalidate>
+      <h2 id="who-h">ALL IN. Kdo sedá ke stolu?</h2>
+      <label for="jmeno">Jméno nebo přezdívka, pod kterou tě parta zná</label>
+      <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" maxlength="40" required placeholder="třeba Ivan T.">
+      <p class="err" id="who-err" role="alert" hidden></p>
+      <button class="btn" id="who-go" type="submit">Potvrdit ALL IN</button>
+      <button class="link" id="who-back" type="button">Zpět k žetonům</button>
+    </form>
+  </section>
+
   <section class="felt" id="yes" hidden>
-    <p class="eyebrow">Dobrá volba</p>
-    <h2>Jsi skoro ve hře.</h2>
-    <p>Ještě to řekni u stolu: odepiš <b>ALL IN</b> do chatu, odkud ti pozvánka přišla. Podrobnosti ti přijdou tam.</p>
-    <a class="btn" id="wa-yes" href="https://wa.me/?text=ALL%20IN" target="_blank" rel="noopener">Odepsat ALL IN ve WhatsAppu</a>
-    <p class="note">Otevře WhatsApp s připravenou zprávou. Vyber chat, ze kterého ti pozvánka přišla.</p>
+    <p class="eyebrow">Sázka přijata</p>
+    <h2>Jsi ve hře.</h2>
+    <p>Zapsáno na jméno <b id="yes-name"></b>. Tady je, co zatím víme:</p>
+    <ul class="deal" id="deal"></ul>
+    <p class="note">Podrobnosti jsou jen pro tebe. Dál je neposílej.</p>
+    <p class="err" id="yes-err" role="alert" hidden></p>
     <button class="link" id="undo-yes" type="button">Nakonec nemůžu</button>
   </section>
 
   <section class="out" id="no" hidden>
     <h2>Fold.</h2>
-    <p>Škoda, ale bereme to. Nic dalšího ti chodit nebude.</p>
-    <a class="link" id="wa-no" href="https://wa.me/?text=FOLD" target="_blank" rel="noopener">Dát vědět, že nejdu</a>
+    <p>Zapsáno na jméno <b id="no-name"></b>. Škoda, ale bereme to. Nic dalšího ti chodit nebude.</p>
+    <p class="err" id="no-err" role="alert" hidden></p>
     <button class="link" id="undo-no" type="button">Rozmyslel jsem si to</button>
   </section>
 
@@ -302,28 +330,91 @@ a.link{display:inline-block}
 </main>
 <script>
 (function(){
-  var KEY = "vegas-rsvp";
+  var HOOK = "https://hook.eu1.make.com/g4rav64rw2925f4n3k26gvdk8jzpdr0b";
+  var KEY = "vegas-rsvp-2";
   var $ = function(id){ return document.getElementById(id); };
-  function read(){ try { return localStorage.getItem(KEY); } catch(e){ return null; } }
-  function write(v){ try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch(e){} }
-  function show(state, fresh){
-    $("ask").hidden = !!state;
-    $("yes").hidden = state !== "ano";
-    $("no").hidden  = state !== "ne";
-    var sign = $("sign");
-    sign.classList.remove("jackpot");
-    if (state === "ano" && fresh){
+  var st = {odpoved:null, jmeno:"", detaily:[]};
+  var volba = null, busy = false;
+
+  try { var s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.jmeno) st = s; } catch(e){}
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+
+  function deal(list){
+    var ul = $("deal"); ul.textContent = "";
+    (list || []).forEach(function(d){
+      var li = document.createElement("li");
+      var z = document.createElement("span"); z.className = "suit" + (d.cervena ? " r" : ""); z.textContent = d.znak || "♠";
+      var n = document.createElement("h3"); n.textContent = d.nadpis || "";
+      var t = document.createElement("div"); t.textContent = d.text || "";
+      li.appendChild(z); li.appendChild(n); li.appendChild(t); ul.appendChild(li);
+    });
+  }
+
+  function view(v, fresh){
+    $("ask").hidden = v !== "ask";
+    $("who").hidden = v !== "who";
+    $("yes").hidden = v !== "ano";
+    $("no").hidden  = v !== "ne";
+    ["who-err","yes-err","no-err"].forEach(function(i){ $(i).hidden = true; });
+    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); }
+    if (v === "ne"){ $("no-name").textContent = st.jmeno; }
+    var sign = $("sign"); sign.classList.remove("jackpot");
+    if (v === "ano" && fresh){
       sign.classList.add("jackpot");
       setTimeout(function(){ sign.classList.remove("jackpot"); }, 2200);
       $("yes").scrollIntoView({behavior:"smooth", block:"center"});
     }
   }
-  function answer(v){ write(v); show(v, true); }
-  $("btn-yes").addEventListener("click", function(){ answer("ano"); });
-  $("btn-no").addEventListener("click", function(){ answer("ne"); });
-  $("undo-yes").addEventListener("click", function(){ answer("ne"); });
-  $("undo-no").addEventListener("click", function(){ answer(null); });
-  show(read(), false);
+
+  function send(odpoved, jmeno){
+    var ctl = ("AbortController" in window) ? new AbortController() : null;
+    var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 15000);
+    return fetch(HOOK, {method:"POST", body:new URLSearchParams({jmeno:jmeno, odpoved:odpoved}), signal: ctl ? ctl.signal : undefined})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ clearTimeout(t); if (!d || !d.ok) throw new Error("bad"); return d; },
+            function(e){ clearTimeout(t); throw e; });
+  }
+
+  function submit(odpoved, jmeno, errId, btn, btnText){
+    if (busy) return;
+    busy = true;
+    var old = btn ? btn.textContent : "";
+    if (btn){ btn.disabled = true; btn.textContent = btnText; }
+    send(odpoved, jmeno).then(function(d){
+      st = {odpoved:odpoved, jmeno:jmeno, detaily:d.detaily || []}; save();
+      view(odpoved, true);
+    }).catch(function(){
+      var e = $(errId); e.textContent = "Nepovedlo se to zapsat. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
+    }).then(function(){
+      busy = false;
+      if (btn){ btn.disabled = false; btn.textContent = old; }
+    });
+  }
+
+  function pick(v){
+    volba = v;
+    $("who-h").textContent = v === "ano" ? "ALL IN. Kdo sedá ke stolu?" : "Fold. Kdo se omlouvá?";
+    $("who-go").textContent = v === "ano" ? "Potvrdit ALL IN" : "Potvrdit FOLD";
+    view("who");
+    $("jmeno").value = st.jmeno || "";
+    $("jmeno").focus();
+  }
+
+  $("btn-yes").addEventListener("click", function(){ pick("ano"); });
+  $("btn-no").addEventListener("click", function(){ pick("ne"); });
+  $("who-back").addEventListener("click", function(){ view("ask"); });
+  $("who-form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var j = $("jmeno").value.replace(/[<>]/g, "").replace(/\s+/g, " ").trim();
+    if (j.length < 2){
+      var e = $("who-err"); e.textContent = "Napiš aspoň dvě písmena, ať víme, kdo jsi."; e.hidden = false; $("jmeno").focus(); return;
+    }
+    submit(volba, j, "who-err", $("who-go"), volba === "ano" ? "Rozdávám karty…" : "Zapisuju…");
+  });
+  $("undo-yes").addEventListener("click", function(){ submit("ne", st.jmeno, "yes-err", $("undo-yes"), "Zapisuju…"); });
+  $("undo-no").addEventListener("click", function(){ submit("ano", st.jmeno, "no-err", $("undo-no"), "Rozdávám karty…"); });
+
+  view(st.odpoved || "ask", false);
 })();
 </script>
 </body>
