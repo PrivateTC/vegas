@@ -255,6 +255,7 @@ a.link{display:inline-block}
 .btn[disabled]{opacity:.65; cursor:progress}
 .err{margin:0; padding:10px 12px; border-radius:10px; background:rgba(227,32,61,.16); border:1px solid rgba(227,32,61,.55); color:#ffd9df; font-size:15px}
 .out b, .felt p b{color:var(--bulb); font-weight:600}
+.link.quiet{color:var(--muted); font-size:13px; text-transform:none; letter-spacing:.04em}
 </style>
 </head>
 <body>
@@ -309,6 +310,7 @@ a.link{display:inline-block}
     <p class="note">Podrobnosti jsou jen pro tebe. Dál je neposílej.</p>
     <p class="err" id="yes-err" role="alert" hidden></p>
     <button class="link" id="undo-yes" type="button">Nakonec nemůžu</button>
+    <button class="link quiet" id="other-yes" type="button">Nejsem <span class="who-name"></span></button>
   </section>
 
   <section class="out" id="no" hidden>
@@ -316,6 +318,7 @@ a.link{display:inline-block}
     <p>Zapsáno na jméno <b id="no-name"></b>. Škoda, ale bereme to. Nic dalšího ti chodit nebude.</p>
     <p class="err" id="no-err" role="alert" hidden></p>
     <button class="link" id="undo-no" type="button">Rozmyslel jsem si to</button>
+    <button class="link quiet" id="other-no" type="button">Nejsem <span class="who-name"></span></button>
   </section>
 
   <section class="rules" aria-label="Pravidla stolu">
@@ -358,6 +361,7 @@ a.link{display:inline-block}
     ["who-err","yes-err","no-err"].forEach(function(i){ $(i).hidden = true; });
     if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); }
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
+    Array.prototype.forEach.call(document.querySelectorAll(".who-name"), function(e){ e.textContent = st.jmeno; });
     var sign = $("sign"); sign.classList.remove("jackpot");
     if (v === "ano" && fresh){
       sign.classList.add("jackpot");
@@ -413,6 +417,17 @@ a.link{display:inline-block}
   });
   $("undo-yes").addEventListener("click", function(){ submit("ne", st.jmeno, "yes-err", $("undo-yes"), "Zapisuju…"); });
   $("undo-no").addEventListener("click", function(){ submit("ano", st.jmeno, "no-err", $("undo-no"), "Rozdávám karty…"); });
+
+  // jiný člověk na stejném telefonu: zapomenout uloženou odpověď v tomto prohlížeči a začít od žetonů
+  function fresh(){
+    st = {odpoved:null, jmeno:"", detaily:[]};
+    try { localStorage.removeItem(KEY); } catch(e){}
+    $("jmeno").value = "";
+    view("ask");
+    $("ask").scrollIntoView({behavior:"smooth", block:"center"});
+  }
+  $("other-yes").addEventListener("click", fresh);
+  $("other-no").addEventListener("click", fresh);
 
   view(st.odpoved || "ask", false);
 })();
