@@ -500,7 +500,7 @@ a.link{display:inline-block}
     var me = (st.jmeno || "").toLowerCase();
     if (list.length) stul(list, me);
     list.forEach(function(n){
-      var li = document.createElement("li"); li.textContent = (kral(n) ? "\u265B\uFE0E " : "") + n;
+      var li = document.createElement("li"); li.textContent = n;
       if (n.toLowerCase() === me) li.className = "me";
       ul.appendChild(li);
     });
@@ -519,13 +519,9 @@ a.link{display:inline-block}
       '<path d="M3 44C3 33 11 28 20 28C29 28 37 33 37 44Z" fill="' + sako + '"/>' +
       '<path d="M15.5 28.6L20 36L24.5 28.6Z" fill="#fff2d2"/><path d="M19 30.5L21 30.5L21.6 36.5L20 38.5L18.4 36.5Z" fill="' + paska + '"/>' +
       '<circle cx="20" cy="19.5" r="8" fill="#f0c7a2"/>' +
-      (kral(jmeno)
-        ? '<path d="M10.5 14.5L10.5 5.5L15.3 9.8L20 3L24.7 9.8L29.5 5.5L29.5 14.5Z" fill="#ffd66e" stroke="#a9781a" stroke-width="1" stroke-linejoin="round"/>' +
-          '<rect x="10.5" y="12.2" width="19" height="2.6" fill="#e3203d"/>' +
-          '<circle cx="10.5" cy="5.5" r="1.5" fill="#3fe3d4"/><circle cx="20" cy="3" r="1.7" fill="#e3203d"/><circle cx="29.5" cy="5.5" r="1.5" fill="#3fe3d4"/>'
-        : '<path d="M11.5 14C11.5 5.5 28.5 5.5 28.5 14Z" fill="' + klobouk + '"/>' +
-          '<rect x="11.6" y="11.4" width="16.8" height="2.4" fill="' + paska + '"/>' +
-          '<ellipse cx="20" cy="14" rx="13.5" ry="3" fill="' + klobouk + '"/>') +
+      '<path d="M11.5 14C11.5 5.5 28.5 5.5 28.5 14Z" fill="' + klobouk + '"/>' +
+      '<rect x="11.6" y="11.4" width="16.8" height="2.4" fill="' + paska + '"/>' +
+      '<ellipse cx="20" cy="14" rx="13.5" ry="3" fill="' + klobouk + '"/>' +
       '</svg>';
   }
   var posazeni = {};
