@@ -255,6 +255,17 @@ a.link{display:inline-block}
 .btn[disabled]{opacity:.65; cursor:progress}
 .err{margin:0; padding:10px 12px; border-radius:10px; background:rgba(227,32,61,.16); border:1px solid rgba(227,32,61,.55); color:#ffd9df; font-size:15px}
 .out b, .felt p b{color:var(--bulb); font-weight:600}
+.acts{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.acts .btn{padding:15px 10px; font-size:17px}
+.btn.alt{background:transparent; color:var(--bulb); box-shadow:inset 0 0 0 2px var(--bulb)}
+.btn.alt:active{box-shadow:inset 0 0 0 2px var(--bulb)}
+.seatbox{border-top:1px dashed rgba(255,214,110,.35); padding-top:14px; display:flex; flex-direction:column; gap:10px}
+.seatbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
+.seatbox h3 span{color:#d9efe6; letter-spacing:.06em}
+.seats{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px}
+.seats li{padding:6px 12px; border-radius:999px; background:rgba(0,0,0,.28); color:#fff; font:600 16px/1.2 var(--f-cond); letter-spacing:.03em; overflow-wrap:anywhere}
+.seats li.me{background:var(--bulb); color:var(--ink)}
+.felt .link.quiet{color:#bfe3d6}
 .link.quiet{color:var(--muted); font-size:13px; text-transform:none; letter-spacing:.04em}
 </style>
 </head>
@@ -307,6 +318,15 @@ a.link{display:inline-block}
     <h2>Jsi ve hře.</h2>
     <p>Zapsáno na jméno <b id="yes-name"></b>. Tady je, co zatím víme:</p>
     <ul class="deal" id="deal"></ul>
+    <div class="acts" id="acts" hidden>
+      <a class="btn" id="cal" download="little-las-vegas.ics" href="#">Do kalendáře</a>
+      <a class="btn alt" id="map" target="_blank" rel="noopener" href="#">Navigovat</a>
+    </div>
+    <a class="link quiet" id="gcal" target="_blank" rel="noopener" href="#" hidden>Otevřít v Google kalendáři</a>
+    <div class="seatbox" id="table" hidden>
+      <h3>Kdo už sedí u stolu <span id="table-n"></span></h3>
+      <ul class="seats" id="seats"></ul>
+    </div>
     <p class="note">Podrobnosti jsou jen pro tebe. Dál je neposílej.</p>
     <p class="err" id="yes-err" role="alert" hidden></p>
     <button class="link" id="undo-yes" type="button">Nakonec nemůžu</button>
@@ -336,7 +356,7 @@ a.link{display:inline-block}
   var HOOK = "https://hook.eu1.make.com/g4rav64rw2925f4n3k26gvdk8jzpdr0b";
   var KEY = "vegas-rsvp-2";
   var $ = function(id){ return document.getElementById(id); };
-  var st = {odpoved:null, jmeno:"", detaily:[]};
+  var st = {odpoved:null, jmeno:"", detaily:[], udalost:null, hraci:[]};
   var volba = null, busy = false;
 
   try { var s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.jmeno) st = s; } catch(e){}
@@ -353,13 +373,39 @@ a.link{display:inline-block}
     });
   }
 
+  function split(s){ return String(s || "").split("|").map(function(x){ return x.trim(); }).filter(Boolean); }
+
+  function extras(){
+    var u = st.udalost;
+    $("acts").hidden = !u; $("gcal").hidden = !u;
+    if (u){
+      var esc = function(s){ return String(s).replace(/([,;\\])/g, "\\$1"); };
+      var ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//little-las-vegas//CZ","BEGIN:VEVENT",
+        "UID:little-las-vegas-" + u.od + "@pozvanka","DTSTAMP:" + u.od,"DTSTART:" + u.od,"DTEND:" + u.do,
+        "SUMMARY:" + esc(u.nazev),"LOCATION:" + esc(u.misto),"END:VEVENT","END:VCALENDAR"].join("\r\n");
+      $("cal").href = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+      $("map").href = u.mapa;
+      $("gcal").href = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(u.nazev) +
+        "&dates=" + u.od + "/" + u.do + "&location=" + encodeURIComponent(u.misto);
+    }
+    var list = st.hraci || [], ul = $("seats"); ul.textContent = "";
+    $("table").hidden = !list.length;
+    $("table-n").textContent = list.length ? "(" + list.length + ")" : "";
+    var me = (st.jmeno || "").toLowerCase();
+    list.forEach(function(n){
+      var li = document.createElement("li"); li.textContent = n;
+      if (n.toLowerCase() === me) li.className = "me";
+      ul.appendChild(li);
+    });
+  }
+
   function view(v, fresh){
     $("ask").hidden = v !== "ask";
     $("who").hidden = v !== "who";
     $("yes").hidden = v !== "ano";
     $("no").hidden  = v !== "ne";
     ["who-err","yes-err","no-err"].forEach(function(i){ $(i).hidden = true; });
-    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); }
+    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); }
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     Array.prototype.forEach.call(document.querySelectorAll(".who-name"), function(e){ e.textContent = st.jmeno; });
     var sign = $("sign"); sign.classList.remove("jackpot");
@@ -385,7 +431,7 @@ a.link{display:inline-block}
     var old = btn ? btn.textContent : "";
     if (btn){ btn.disabled = true; btn.textContent = btnText; }
     send(odpoved, jmeno).then(function(d){
-      st = {odpoved:odpoved, jmeno:jmeno, detaily:d.detaily || []}; save();
+      st = {odpoved:odpoved, jmeno:jmeno, detaily:d.detaily || [], udalost:d.udalost || null, hraci:split(d.hraci)}; save();
       view(odpoved, true);
     }).catch(function(){
       var e = $(errId); e.textContent = "Nepovedlo se to zapsat. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
@@ -409,7 +455,7 @@ a.link{display:inline-block}
   $("who-back").addEventListener("click", function(){ view("ask"); });
   $("who-form").addEventListener("submit", function(ev){
     ev.preventDefault();
-    var j = $("jmeno").value.replace(/[<>]/g, "").replace(/\s+/g, " ").trim();
+    var j = $("jmeno").value.replace(/[<>"|\\\\]/g, "").replace(/\s+/g, " ").trim();
     if (j.length < 2){
       var e = $("who-err"); e.textContent = "Napiš aspoň dvě písmena, ať víme, kdo jsi."; e.hidden = false; $("jmeno").focus(); return;
     }
@@ -420,7 +466,7 @@ a.link{display:inline-block}
 
   // jiný člověk na stejném telefonu: zapomenout uloženou odpověď v tomto prohlížeči a začít od žetonů
   function fresh(){
-    st = {odpoved:null, jmeno:"", detaily:[]};
+    st = {odpoved:null, jmeno:"", detaily:[], udalost:null, hraci:[]};
     try { localStorage.removeItem(KEY); } catch(e){}
     $("jmeno").value = "";
     view("ask");
@@ -430,6 +476,15 @@ a.link{display:inline-block}
   $("other-no").addEventListener("click", fresh);
 
   view(st.odpoved || "ask", false);
+
+  // kdo už potvrdil a vrací se: potichu načíst čerstvé podrobnosti a seznam u stolu (nic se nezapisuje)
+  if (st.odpoved === "ano"){
+    send("seznam", st.jmeno).then(function(d){
+      if (st.odpoved !== "ano") return;
+      st.detaily = d.detaily || st.detaily; st.udalost = d.udalost || st.udalost; st.hraci = split(d.hraci); save();
+      view("ano", false);
+    }).catch(function(){});
+  }
 })();
 </script>
 </body>
