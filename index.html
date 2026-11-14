@@ -254,6 +254,10 @@ a.link{display:inline-block}
 .btn{border:0; cursor:pointer; width:100%}
 .btn[disabled]{opacity:.65; cursor:progress}
 .link[disabled]{opacity:.4}
+.who input[type=email], .who input[type=tel]{font-size:20px; letter-spacing:.01em}
+.kontakt .kt-p{margin:0; color:var(--muted); font-size:15px; line-height:1.45}
+.kontakt .kt-jm{display:flex; flex-direction:column; gap:12px}
+.kt-ok{margin:0; padding:14px 16px; border-radius:14px; border:1px solid var(--line); color:var(--bulb); text-align:center; font-size:16px}
 .err{margin:0; padding:10px 12px; border-radius:10px; background:rgba(227,32,61,.16); border:1px solid rgba(227,32,61,.55); color:#ffd9df; font-size:15px}
 .out b, .felt p b{color:var(--bulb); font-weight:600}
 .acts{display:grid; grid-template-columns:1fr 1fr; gap:10px}
@@ -416,7 +420,10 @@ a.link{display:inline-block}
     <form id="who-form" novalidate>
       <h2 id="who-h">ALL IN. Kdo sedá ke stolu?</h2>
       <label for="jmeno">Jméno nebo přezdívka, pod kterou tě parta zná. Je vás víc stejných? Přidej písmeno příjmení.</label>
-      <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="send" maxlength="40" required placeholder="třeba Petr K.">
+      <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="next" maxlength="40" required placeholder="třeba Petr K.">
+      <label for="email">Kontakt na příští sraz (nepovinné). Uvidí ho jen pořadatelé, u stolu se neukazuje.</label>
+      <input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="80" placeholder="e-mail">
+      <input id="telefon" name="telefon" type="tel" autocomplete="tel" inputmode="tel" enterkeyhint="send" maxlength="25" placeholder="telefon">
       <p class="err" id="who-err" role="alert" hidden></p>
       <button class="btn" id="who-go" type="submit">Potvrdit ALL IN</button>
       <button class="link" id="who-back" type="button">Zpět k žetonům</button>
@@ -464,6 +471,24 @@ a.link{display:inline-block}
     <button class="link quiet" id="other-no" type="button">Nejsem <span class="who-name"></span></button>
   </section>
 
+  <section class="who kontakt" id="kontakt" hidden>
+    <form id="kt-form" novalidate>
+      <h2>Nech nám kontakt</h2>
+      <p class="kt-p">Ať tě příště nemusíme shánět přes tři lidi. Uvidí ho jen pořadatelé, u stolu se neukazuje.</p>
+      <div class="kt-jm" id="kt-jm" hidden>
+        <label for="kt-jmeno">Jméno, pod kterým jsi odpověděl</label>
+        <input id="kt-jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="next" maxlength="40" placeholder="třeba Petr K.">
+      </div>
+      <label for="kt-email">E-mail</label>
+      <input id="kt-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="80" placeholder="e-mail">
+      <label for="kt-tel">Telefon</label>
+      <input id="kt-tel" type="tel" autocomplete="tel" inputmode="tel" enterkeyhint="send" maxlength="25" placeholder="telefon">
+      <p class="err" id="kt-err" role="alert" hidden></p>
+      <button class="btn" id="kt-go" type="submit">Uložit kontakt</button>
+    </form>
+    <p class="kt-ok" id="kt-ok" hidden>Kontakt uložený. Díky.</p>
+  </section>
+
   <section class="card open" aria-label="Jak se hraje">
     <div class="lbl">Kapacita je</div>
     <p class="name">Omezená</p>
@@ -500,9 +525,10 @@ a.link{display:inline-block}
       st = {odpoved: s.odpoved === "ano" || s.odpoved === "ne" ? s.odpoved : null, jmeno: s.jmeno,
             stav: typeof s.stav === "string" ? s.stav : "", obsazeno: Number(s.obsazeno) || 0,
             detaily: Array.isArray(s.detaily) ? s.detaily : [], udalost: s.udalost && typeof s.udalost === "object" ? s.udalost : null,
-            hraci: Array.isArray(s.hraci) ? s.hraci : []};
+            hraci: Array.isArray(s.hraci) ? s.hraci : [], kontakt: s.kontakt === true};
     }
   } catch(e){}
+  var ktOdkaz = location.hash === "#kontakt", ktHotovo = false;   // odkaz …/vegas/#kontakt = jen doplnit kontakt
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
 
   function deal(list){
@@ -633,6 +659,7 @@ a.link{display:inline-block}
       cn.textContent = "U stolu už sedí " + st.obsazeno + ".";
     }
     Array.prototype.forEach.call(document.querySelectorAll(".who-name"), function(e){ e.textContent = st.jmeno; });
+    kontakt(v);
     var sign = $("sign"); sign.classList.remove("jackpot");
     if (v === "ano" && fresh){
       sign.classList.add("jackpot");
@@ -646,10 +673,29 @@ a.link{display:inline-block}
     }
   }
 
-  function send(odpoved, jmeno){
+  // kontakt: pod odpovědí, dokud ho host z tohoto prohlížeče neposlal (i pro ty, kdo odpověděli dřív, než pole existovala)
+  function kontakt(v){
+    var bezJmena = !st.jmeno;
+    var ukaz = v !== "who" && (ktHotovo || ktOdkaz || (st.odpoved && !st.kontakt));
+    $("kontakt").hidden = !ukaz;
+    if (!ukaz) return;
+    $("kt-form").hidden = ktHotovo; $("kt-ok").hidden = !ktHotovo;
+    $("kt-jm").hidden = !bezJmena;
+    if (!bezJmena) $("kt-jmeno").value = st.jmeno;
+    $("kt-err").hidden = true;
+  }
+  function cistyEmail(s){ return String(s || "").replace(/\s+/g, "").trim(); }
+  function cistyTel(s){ return String(s || "").replace(/[^0-9+()\- ]/g, "").replace(/\s+/g, " ").trim(); }
+  function okEmail(s){ return !s || /^[^\s@<>"|\\;]{1,64}@[^\s@<>"|\\;]{1,80}\.[^\s@<>"|\\;.]{2,}$/.test(s); }
+  function okTel(s){ return !s || (/^\+?[0-9 ()\-]{6,25}$/.test(s) && s.replace(/\D/g, "").length >= 6); }
+  function posliKontakt(jmeno, email, tel){ return send("kontakt", jmeno, {email:email, telefon:tel}); }
+
+  function send(odpoved, jmeno, navic){
     var ctl = ("AbortController" in window) ? new AbortController() : null;
     var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 15000);
-    return fetch(HOOK, {method:"POST", body:new URLSearchParams({jmeno:jmeno, odpoved:odpoved}), signal: ctl ? ctl.signal : undefined})
+    var p = {jmeno:jmeno, odpoved:odpoved};
+    if (navic) for (var k in navic) p[k] = navic[k];
+    return fetch(HOOK, {method:"POST", body:new URLSearchParams(p), signal: ctl ? ctl.signal : undefined})
       .then(function(r){ return r.text(); })
       .then(function(txt){
         clearTimeout(t);
@@ -664,13 +710,14 @@ a.link{display:inline-block}
   // odpověď serveru → uložený stav; bez pole „stav“ (starší server) platí: ALL IN s podrobnostmi = u stolu
   function prijmi(odpoved, jmeno, d){
     var stav = odpoved === "ne" ? "" : (d.stav || (d.detaily ? "u_stolu" : "ceka"));
+    var kt = st.kontakt === true && st.jmeno.toLowerCase() === jmeno.toLowerCase();
     st = {odpoved:odpoved, jmeno:jmeno, stav:stav, obsazeno:Number(d.obsazeno) || 0,
-          detaily:d.detaily || [], udalost:d.udalost || null, hraci:split(d.hraci)};
+          detaily:d.detaily || [], udalost:d.udalost || null, hraci:split(d.hraci), kontakt:kt};
     save();
   }
   function panel(){ return st.odpoved === "ne" ? "ne" : st.odpoved === "ano" ? (st.stav === "u_stolu" ? "ano" : "ceka") : "ask"; }
 
-  function submit(odpoved, jmeno, errId, btn, btnText){
+  function submit(odpoved, jmeno, errId, btn, btnText, email, tel){
     if (busy) return;
     busy = true;
     var old = btn ? btn.textContent : "";
@@ -678,7 +725,15 @@ a.link{display:inline-block}
     $("who-back").disabled = true;
     send(odpoved, jmeno).then(function(d){
       prijmi(odpoved, jmeno, d);
-      view(panel(), true);
+      if (!email && !tel){ view(panel(), true); return; }
+      // kontakt jde zvlášť až po zapsané odpovědi; když se nepovede, zůstane vyplněný v rámečku „Nech nám kontakt“
+      return posliKontakt(jmeno, email, tel).then(function(){
+        st.kontakt = true; save(); ktHotovo = true; view(panel(), true);
+      }, function(){
+        view(panel(), true);
+        $("kt-email").value = email; $("kt-tel").value = tel;
+        var e = $("kt-err"); e.textContent = "Odpověď je zapsaná, jen kontakt se nepovedlo uložit. Zkus to tady znovu."; e.hidden = false;
+      });
     }).catch(function(err){
       var e = $(errId), k = err && err.kind;
       e.textContent = k === "odmitnuto" ? "Tohle jméno se nepodařilo zapsat. Zkus ho napsat jen písmeny, bez zvláštních znaků."
@@ -711,7 +766,30 @@ a.link{display:inline-block}
     if (j.length < 2){
       var e = $("who-err"); e.textContent = "Napiš aspoň dvě písmena, ať víme, kdo jsi."; e.hidden = false; $("jmeno").focus(); return;
     }
-    submit(volba, j, "who-err", $("who-go"), volba === "ano" ? "Zapisuju…" : "Zapisuju…");
+    var em = cistyEmail($("email").value), tl = cistyTel($("telefon").value);
+    if (!okEmail(em) || !okTel(tl)){
+      var e2 = $("who-err"); e2.textContent = !okEmail(em) ? "E-mail nevypadá správně. Oprav ho, nebo pole nech prázdné." : "Telefon nevypadá správně. Oprav ho, nebo pole nech prázdné.";
+      e2.hidden = false; $(!okEmail(em) ? "email" : "telefon").focus(); return;
+    }
+    submit(volba, j, "who-err", $("who-go"), volba === "ano" ? "Zapisuju…" : "Zapisuju…", em, tl);
+  });
+  $("kt-form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (busy) return;
+    var e = $("kt-err"), j = (st.jmeno || $("kt-jmeno").value).replace(/[<>"|\\\\]/g, "").replace(/\s+/g, " ").trim();
+    var em = cistyEmail($("kt-email").value), tl = cistyTel($("kt-tel").value);
+    var chyba = j.length < 2 ? ["Napiš jméno, pod kterým jsi odpověděl.", "kt-jmeno"]
+      : !em && !tl ? ["Vyplň aspoň e-mail, nebo telefon.", "kt-email"]
+      : !okEmail(em) ? ["E-mail nevypadá správně.", "kt-email"]
+      : !okTel(tl) ? ["Telefon nevypadá správně.", "kt-tel"] : null;
+    if (chyba){ e.textContent = chyba[0]; e.hidden = false; $(chyba[1]).focus(); return; }
+    busy = true; var b = $("kt-go"), old = b.textContent; b.disabled = true; b.textContent = "Ukládám…"; e.hidden = true;
+    posliKontakt(j, em, tl).then(function(){
+      if (st.jmeno && st.jmeno.toLowerCase() === j.toLowerCase()){ st.kontakt = true; save(); }
+      ktHotovo = true; kontakt(panel());
+    }).catch(function(){
+      e.textContent = "Nepovedlo se to uložit. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
+    }).then(function(){ busy = false; b.disabled = false; b.textContent = old; });
   });
   function dvakrat(btn, otazka, akce){
     var puvodni = btn.textContent, t = null;
@@ -731,9 +809,10 @@ a.link{display:inline-block}
 
   // jiný člověk na stejném telefonu: zapomenout uloženou odpověď v tomto prohlížeči a začít od žetonů
   function fresh(){
-    st = {odpoved:null, jmeno:"", stav:"", obsazeno:0, detaily:[], udalost:null, hraci:[]};
+    st = {odpoved:null, jmeno:"", stav:"", obsazeno:0, detaily:[], udalost:null, hraci:[], kontakt:false};
     try { localStorage.removeItem(KEY); } catch(e){}
-    $("jmeno").value = "";
+    ktHotovo = false;
+    ["jmeno","email","telefon","kt-jmeno","kt-email","kt-tel"].forEach(function(i){ $(i).value = ""; });
     view("ask");
     $("ask").scrollIntoView({behavior:"smooth", block:"center"});
   }
@@ -764,8 +843,9 @@ a.link{display:inline-block}
   dvakrat($("undo-ceka"), "Opravdu pasuješ? Ťukni znovu", function(){ submit("ne", st.jmeno, "ceka-err", $("undo-ceka"), "Zapisuju…"); });
   $("other-ceka").addEventListener("click", fresh);
 
-  // pozvánka se vždy otevře od žetonů
+  // pozvánka se vždy otevře od žetonů; odkaz #kontakt rovnou na rámeček s kontaktem
   view("ask", false);
+  if (ktOdkaz) setTimeout(function(){ $("kontakt").scrollIntoView({behavior:"smooth", block:"start"}); }, 300);
   if (st.odpoved === "ano"){
     send("seznam", st.jmeno).then(function(d){
       if (st.odpoved !== "ano") return;
