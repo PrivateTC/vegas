@@ -165,7 +165,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
     var jmena = chybi.filter(function(z){ return z.odpoved === "ano"; }).map(function(z){ return z.jmeno; });
     return "Ahoj parto, nechte nám prosím kontakt (hlavně e-mail), ať vám můžeme posílat info ke srazu v pátek 20. 11. " +
       "a pozvánky na další akce. Zabere to 10 vteřin:\n" + ODKAZ +
-      ($("se-jmeny").checked && jmena.length ? "\n\nZatím ho nevidíme u: " + jmena.join(", ") + "." : "") + "\n\nDíky! Ivan a Robert";
+      ($("se-jmeny").checked && jmena.length ? "\n\nZatím ho nevidíme u: " + jmena.join(", ") + "." : "") + "\n\nDíky!";
   }
 
   function kresli(d){
