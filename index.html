@@ -420,10 +420,10 @@ a.link{display:inline-block}
     <form id="who-form" novalidate>
       <h2 id="who-h">ALL IN. Kdo sedá ke stolu?</h2>
       <label for="jmeno">Jméno nebo přezdívka, pod kterou tě parta zná. Je vás víc stejných? Přidej písmeno příjmení.</label>
-      <input id="jmeno" name="jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="next" maxlength="40" required placeholder="třeba Petr K.">
+      <input id="jmeno" name="jmeno" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="next" maxlength="40" required placeholder="třeba Petr K.">
       <label for="email">Kontakt na příští sraz (nepovinné). Uvidí ho jen pořadatelé, u stolu se neukazuje.</label>
-      <input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="80" placeholder="e-mail">
-      <input id="telefon" name="telefon" type="tel" autocomplete="tel" inputmode="tel" enterkeyhint="send" maxlength="25" placeholder="telefon">
+      <input id="email" name="email" aria-label="E-mail (nepovinné)" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="80" placeholder="e-mail">
+      <input id="telefon" name="telefon" aria-label="Telefon (nepovinné)" type="tel" autocomplete="tel" inputmode="tel" enterkeyhint="send" maxlength="25" placeholder="telefon">
       <p class="err" id="who-err" role="alert" hidden></p>
       <button class="btn" id="who-go" type="submit">Potvrdit ALL IN</button>
       <button class="link" id="who-back" type="button">Zpět k žetonům</button>
@@ -475,9 +475,9 @@ a.link{display:inline-block}
     <form id="kt-form" novalidate>
       <h2>Nech nám kontakt</h2>
       <p class="kt-p">Ať tě příště nemusíme shánět přes tři lidi. Uvidí ho jen pořadatelé, u stolu se neukazuje.</p>
-      <div class="kt-jm" id="kt-jm" hidden>
-        <label for="kt-jmeno">Jméno, pod kterým jsi odpověděl</label>
-        <input id="kt-jmeno" type="text" autocomplete="nickname" autocapitalize="words" enterkeyhint="next" maxlength="40" placeholder="třeba Petr K.">
+      <div class="kt-jm" id="kt-jm">
+        <label for="kt-jmeno">Jméno, pod kterým jsi odpověděl (zkontroluj, ať je tvoje)</label>
+        <input id="kt-jmeno" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="next" maxlength="40" placeholder="třeba Petr K.">
       </div>
       <label for="kt-email">E-mail</label>
       <input id="kt-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="80" placeholder="e-mail">
@@ -675,13 +675,11 @@ a.link{display:inline-block}
 
   // kontakt: pod odpovědí, dokud ho host z tohoto prohlížeče neposlal (i pro ty, kdo odpověděli dřív, než pole existovala)
   function kontakt(v){
-    var bezJmena = !st.jmeno;
     var ukaz = v !== "who" && (ktHotovo || ktOdkaz || (st.odpoved && !st.kontakt));
     $("kontakt").hidden = !ukaz;
     if (!ukaz) return;
     $("kt-form").hidden = ktHotovo; $("kt-ok").hidden = !ktHotovo;
-    $("kt-jm").hidden = !bezJmena;
-    if (!bezJmena) $("kt-jmeno").value = st.jmeno;
+    if (!$("kt-jmeno").value) $("kt-jmeno").value = st.jmeno || "";
     $("kt-err").hidden = true;
   }
   function cistyEmail(s){ return String(s || "").replace(/\s+/g, "").trim(); }
@@ -733,6 +731,7 @@ a.link{display:inline-block}
         view(panel(), true);
         $("kt-email").value = email; $("kt-tel").value = tel;
         var e = $("kt-err"); e.textContent = "Odpověď je zapsaná, jen kontakt se nepovedlo uložit. Zkus to tady znovu."; e.hidden = false;
+        setTimeout(function(){ $("kontakt").scrollIntoView({behavior:"smooth", block:"start"}); }, 400);
       });
     }).catch(function(err){
       var e = $(errId), k = err && err.kind;
@@ -773,10 +772,15 @@ a.link{display:inline-block}
     }
     submit(volba, j, "who-err", $("who-go"), volba === "ano" ? "Zapisuju…" : "Zapisuju…", em, tl);
   });
+  [["jmeno","email"],["email","telefon"],["kt-jmeno","kt-email"],["kt-email","kt-tel"]].forEach(function(p){
+    $(p[0]).addEventListener("keydown", function(ev){
+      if (ev.key === "Enter" && !ev.isComposing){ ev.preventDefault(); $(p[1]).focus(); }
+    });
+  });
   $("kt-form").addEventListener("submit", function(ev){
     ev.preventDefault();
     if (busy) return;
-    var e = $("kt-err"), j = (st.jmeno || $("kt-jmeno").value).replace(/[<>"|\\\\]/g, "").replace(/\s+/g, " ").trim();
+    var e = $("kt-err"), j = $("kt-jmeno").value.replace(/[<>"|\\\\]/g, "").replace(/\s+/g, " ").trim();
     var em = cistyEmail($("kt-email").value), tl = cistyTel($("kt-tel").value);
     var chyba = j.length < 2 ? ["Napiš jméno, pod kterým jsi odpověděl.", "kt-jmeno"]
       : !em && !tl ? ["Vyplň aspoň e-mail, nebo telefon.", "kt-email"]
