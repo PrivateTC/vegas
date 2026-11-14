@@ -267,6 +267,17 @@ a.link{display:inline-block}
 .seatbox{border-top:1px dashed rgba(255,214,110,.35); padding-top:14px; display:flex; flex-direction:column; gap:10px}
 .seatbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
 .seatbox h3 span{color:#d9efe6; letter-spacing:.06em}
+.odpocet{margin:0; padding:10px 12px; border-radius:12px; background:rgba(0,0,0,.28); border:1px solid rgba(255,214,110,.35);
+  font:700 17px/1.25 var(--f-cond); letter-spacing:.04em; color:var(--bulb) !important; text-align:center}
+.odpocet b{font-size:22px}
+.tipbox{display:flex; flex-direction:column; gap:10px; border-top:1px dashed rgba(255,214,110,.35); padding-top:14px}
+.tipbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
+.tipbox label{font-size:15px; color:#d9efe6}
+.tip-row{display:flex; gap:8px}
+.tip-row input{flex:1; min-width:0; padding:12px; border-radius:12px; border:2px solid rgba(255,214,110,.35); background:rgba(0,0,0,.3); color:#fff; font:600 18px/1.1 var(--f-cond)}
+.tip-row input:focus{outline:none; border-color:var(--bulb)}
+.tip-row .btn{width:auto; flex:none; padding-inline:16px}
+.tip-ok{margin:0; color:var(--bulb) !important; font-size:15px}
 .legenda{margin:0; display:flex; justify-content:center; gap:16px; font:600 13px/1 var(--f-cond); letter-spacing:.06em; color:#d9efe6}
 .legenda span{display:flex; align-items:center; gap:6px}
 .legenda i{display:inline-block; width:12px; height:12px; border-radius:50%; font:700 10px/12px var(--f-cond); font-style:normal; text-align:center; color:var(--ink)}
@@ -451,6 +462,7 @@ a.link{display:inline-block}
   <section class="felt" id="yes" hidden>
     <p class="eyebrow">Sázka přijata</p>
     <h2>Sedíš u stolu.</h2>
+    <p class="odpocet" id="odpocet" hidden></p>
     <p>Židle je tvoje, <b id="yes-name"></b>. Tady je kdy a kde:</p>
     <ul class="deal" id="deal"></ul>
     <div class="acts" id="acts" hidden>
@@ -464,6 +476,16 @@ a.link{display:inline-block}
       <p class="legenda" aria-hidden="true"><span><i class="lg-m"></i>pán</span><span><i class="lg-z"></i>dáma</span><span><i class="lg-x">?</i>nevíme</span></p>
       <ul class="seats" id="seats"></ul>
     </div>
+    <form class="tipbox" id="tip-form" novalidate>
+      <h3>Koho z party ještě postrádáme?</h3>
+      <label for="tip">Napiš jméno nebo přezdívku kamaráda, který by u stolu neměl chybět. Předáme to pořadatelům.</label>
+      <div class="tip-row">
+        <input id="tip" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="send" maxlength="60" placeholder="třeba Honza z áčka">
+        <button class="btn" id="tip-go" type="submit">Dát tip</button>
+      </div>
+      <p class="err" id="tip-err" role="alert" hidden></p>
+      <p class="tip-ok" id="tip-ok" role="status" hidden>Díky, tip je u pořadatelů. Klidně přidej dalšího.</p>
+    </form>
     <p class="note">Podrobnosti jsou jen pro tebe. Dál je neposílej.</p>
     <p class="err" id="yes-err" role="alert" hidden></p>
     <button class="link" id="undo-yes" type="button">Nakonec nemůžu</button>
@@ -549,6 +571,22 @@ a.link{display:inline-block}
     });
   }
 
+  // odpočet do začátku (čas ze serveru, UTC „20261120T170000Z“); po začátku „rozdává se“, po konci zmizí
+  var odpTimer = null;
+  function utc(s){ var m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(s || ""); return m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : NaN; }
+  function odpocet(){
+    var el = $("odpocet"), u = st.udalost, od = utc(u && u.od), konec = utc(u && u.do), ted = Date.now();
+    if (!u || isNaN(od) || ted > konec){ el.hidden = true; return; }
+    el.hidden = false;
+    if (ted >= od){ el.textContent = "Karty se právě rozdávají. Dorazíš?"; return; }
+    var min = Math.floor((od - ted) / 60000), d = Math.floor(min / 1440), h = Math.floor(min % 1440 / 60), mi = min % 60;
+    var tvar = function(n, a, b, c){ return n + " " + (n === 1 ? a : n >= 2 && n <= 4 ? b : c); };
+    el.textContent = "";
+    el.appendChild(document.createTextNode("Do rozdání karet zbývá "));
+    var b = document.createElement("b");
+    b.textContent = d > 0 ? tvar(d, "den", "dny", "dní") + (h ? " " + tvar(h, "hodina", "hodiny", "hodin") : "") : h > 0 ? tvar(h, "hodina", "hodiny", "hodin") + " " + mi + " min" : mi + " min";
+    el.appendChild(b);
+  }
   function split(s){ return String(s || "").split("|").map(function(x){ return x.trim(); }).filter(Boolean); }
 
   function extras(){
@@ -713,7 +751,8 @@ a.link{display:inline-block}
       bt.addEventListener("click", function(){ kestolu(); });
       ln.appendChild(bt);
     }
-    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); }
+    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); }
+    clearInterval(odpTimer); if (v === "ano") odpTimer = setInterval(odpocet, 30000);
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     if (v === "ceka"){
       $("ceka-name").textContent = st.jmeno; $("ceka-msg").hidden = true;
@@ -838,6 +877,19 @@ a.link{display:inline-block}
     $(p[0]).addEventListener("keydown", function(ev){
       if (ev.key === "Enter" && !ev.isComposing){ ev.preventDefault(); $(p[1]).focus(); }
     });
+  });
+  $("tip-form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (busy) return;
+    var e = $("tip-err"), t = $("tip").value.replace(/[<>"|\\;\x00-\x1f\x7f]/g, "").replace(/\s+/g, " ").trim();
+    $("tip-ok").hidden = true;
+    if (t.length < 2){ e.textContent = "Napiš aspoň jméno nebo přezdívku."; e.hidden = false; $("tip").focus(); return; }
+    busy = true; var b = $("tip-go"), old = b.textContent; b.disabled = true; b.textContent = "…"; e.hidden = true;
+    send("tip", st.jmeno, {tip:t}).then(function(){
+      $("tip").value = ""; $("tip-ok").hidden = false;
+    }).catch(function(){
+      e.textContent = "Nepovedlo se to poslat. Zkus to za chvíli znovu."; e.hidden = false;
+    }).then(function(){ busy = false; b.disabled = false; b.textContent = old; });
   });
   $("kt-form").addEventListener("submit", function(ev){
     ev.preventDefault();
