@@ -102,6 +102,12 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
       <p class="ok" id="ok-seznam" role="status" hidden>Zkopírováno.</p>
     </section>
 
+    <section id="s-tipy" hidden>
+      <h2>Tipy, koho ještě pozvat <span id="c-tipy"></span></h2>
+      <p class="lead">Hosté píšou, kdo by u stolu neměl chybět.</p>
+      <ul id="l-tipy"></ul>
+    </section>
+
     <section id="s-sirotci" hidden>
       <h2>Kontakt bez odpovědi <span id="c-sirotci"></span></h2>
       <p class="lead">Jméno u kontaktu se neshoduje s žádnou odpovědí (překlep nebo jiná přezdívka).</p>
@@ -133,15 +139,17 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
   function kdy(s){ var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})$/.exec(s || ""); return m ? (+m[3]) + ". " + (+m[2]) + ". " + m[4] : (s || ""); }
   function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
-  // řádek: odpoved;pusten;cas;email;telefon;zapsano;jméno — odpověď má „odpoved“, kontakt má „zapsano“, pomocné záznamy nemají jméno
+  // řádek: odpoved;pusten;cas;email;telefon;zapsano;tip;jméno — odpověď má „odpoved“, tip má „tip“, kontakt má „zapsano“, pomocné záznamy nemají jméno
   function rozeber(radky){
-    var lidi = {}, kontakty = {};
+    var lidi = {}, kontakty = {}, tipy = [];
     String(radky || "").split("|").forEach(function(r){
       if (!r.trim()) return;
-      var p = r.split(";"), jm = p.slice(6).join(";").trim();
+      var p = r.split(";"), jm = p.slice(7).join(";").trim();
       if (!jm) return;
       var k = jm.toLowerCase();
-      if (p[0] === "ano" || p[0] === "ne"){
+      if (p[6]){
+        tipy.push({od:jm, tip:p[6], zapsano:p[5] || ""});
+      } else if (p[0] === "ano" || p[0] === "ne"){
         lidi[k] = {jmeno:jm, odpoved:p[0], pusten:p[1], cas:p[2]};
       } else if (p[5]){
         // víc zadání pod jedním jménem se neslučuje: ukážou se všechny různé e-maily a telefony (může jít o dva lidi nebo podvrh)
@@ -153,7 +161,8 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
         s.zadani++;
       }
     });
-    return {lidi:lidi, kontakty:kontakty};
+    tipy.sort(function(a, b){ return a.zapsano < b.zapsano ? 1 : -1; });
+    return {lidi:lidi, kontakty:kontakty, tipy:tipy};
   }
 
   function odkazy(k, kt){
@@ -208,6 +217,13 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
       li.appendChild(k); ls.appendChild(li);
     });
     $("s-sirotci").hidden = sir.length === 0; $("c-sirotci").textContent = "(" + sir.length + ")";
+
+    var lt = $("l-tipy"); lt.textContent = "";
+    data.tipy.forEach(function(z){
+      var li = el("li"); var top = el("div", "top"); top.appendChild(el("b", "", z.tip)); top.appendChild(el("span", "tag", kdy(z.zapsano))); li.appendChild(top);
+      li.appendChild(el("div", "kt", "tip od: " + z.od)); lt.appendChild(li);
+    });
+    $("s-tipy").hidden = data.tipy.length === 0; $("c-tipy").textContent = "(" + data.tipy.length + ")";
 
     var t = new Date(); $("stamp").textContent = "Naposledy načteno " + ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2);
     $("app").hidden = false;
