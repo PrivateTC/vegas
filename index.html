@@ -561,7 +561,7 @@ a.link{display:inline-block}
         "&dates=" + u.od + "/" + u.do + "&location=" + encodeURIComponent(u.misto);
     }
     var list = st.hraci || [], ul = $("seats"); ul.textContent = "";
-    list = list.filter(kral).concat(list.filter(function(x){ return !kral(x); }));
+    list = poradi(list);
     $("table").hidden = !list.length;
     $("table-n").textContent = list.length ? "(" + list.length + ")" : "";
     var me = (st.jmeno || "").toLowerCase();
@@ -576,8 +576,14 @@ a.link{display:inline-block}
   var SAKA = ["#2b2b3a","#5a1420","#1d3f6e","#3a2a4d","#2f4a3a","#6b4a1f","#444b57"];
   var KLOBOUKY = ["#1b1b24","#3a0d15","#e8dcc0","#2a1c3a","#5a4a3a","#11283f","#7a7f88"];
   function hash(s){ var x = 7; for (var i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
-  var KRALOVE = ["robert", "ivan"];   // hostitelé: první dvě židle u prvního stolu, větší a zlatě
+  var KRALOVE = ["robert", "ivan"];   // hostitelé: větší a zlatě, sedí nahoře po stranách stolu
+  var CELO = ["pici"];                // v čele stolu sedí Pici (RF 14. 11. 2026)
   function kral(jmeno){ return KRALOVE.indexOf(String(jmeno).toLowerCase()) !== -1; }
+  function celo(jmeno){ return CELO.indexOf(String(jmeno).toLowerCase()) !== -1; }
+  function poradi(list){
+    return list.filter(celo).concat(list.filter(function(x){ return kral(x) && !celo(x); }),
+      list.filter(function(x){ return !kral(x) && !celo(x); }));
+  }
   function postava(jmeno){
     var k = hash(jmeno.toLowerCase()), sako = SAKA[k % SAKA.length], klobouk = KLOBOUKY[(k >> 3) % KLOBOUKY.length];
     var paska = (k >> 6) % 2 ? "#e3203d" : "#ffd66e";
@@ -616,8 +622,9 @@ a.link{display:inline-block}
   }
   function stul(list, me){
     var box = $("poker"); box.textContent = "";
-    // hostitelé sedí v čele (nahoře), ostatní si sedají odshora dolů střídavě vlevo a vpravo
-    list = list.filter(kral).concat(list.filter(function(x){ return !kral(x); }));
+    // v čele sedí Pici, hostitelé nahoře po stranách, ostatní si sedají odshora dolů střídavě vlevo a vpravo
+    list = poradi(list);
+    var hlava = list.filter(celo).slice(0, 1), strany = list.filter(function(x){ return !celo(x); });
     var n = list.length, cap = zidli(n);
     var lt = document.createElement("div"); lt.className = "lt";
     var head = document.createElement("div"); head.className = "lt-head";
@@ -628,9 +635,9 @@ a.link{display:inline-block}
     var b = document.createElement("b"); b.textContent = n;
     var sp = document.createElement("span"); sp.textContent = "u stolu";
     tbl.appendChild(b); tbl.appendChild(sp);
-    for (var z = 0; z < cap; z++){
-      var el = zidle(z < n ? list[z] : null, me);
-      if (z < 2) head.appendChild(el); else (z % 2 === 0 ? left : right).appendChild(el);
+    head.appendChild(zidle(hlava[0] || null, me));
+    for (var z = 0; z < cap - 1; z++){
+      (z % 2 === 0 ? left : right).appendChild(zidle(z < strany.length ? strany[z] : null, me));
     }
     body.appendChild(left); body.appendChild(tbl); body.appendChild(right);
     lt.appendChild(head); lt.appendChild(body); box.appendChild(lt);
