@@ -267,6 +267,12 @@ a.link{display:inline-block}
 .seatbox{border-top:1px dashed rgba(255,214,110,.35); padding-top:14px; display:flex; flex-direction:column; gap:10px}
 .seatbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
 .seatbox h3 span{color:#d9efe6; letter-spacing:.06em}
+.legenda{margin:0; display:flex; justify-content:center; gap:16px; font:600 13px/1 var(--f-cond); letter-spacing:.06em; color:#d9efe6}
+.legenda span{display:flex; align-items:center; gap:6px}
+.legenda i{display:inline-block; width:12px; height:12px; border-radius:50%; font:700 10px/12px var(--f-cond); font-style:normal; text-align:center; color:var(--ink)}
+.legenda .lg-m{background:#1d3f6e; border:1.5px solid #e8dcc0}
+.legenda .lg-z{background:#e3203d; border:1.5px solid #ffd66e}
+.legenda .lg-x{background:#8b8199}
 .seats{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px}
 .seats li{padding:6px 12px; border-radius:999px; background:rgba(0,0,0,.28); color:#fff; font:600 16px/1.2 var(--f-cond); letter-spacing:.03em; overflow-wrap:anywhere}
 .seats li.me{background:var(--bulb); color:var(--ink)}
@@ -455,6 +461,7 @@ a.link{display:inline-block}
     <div class="seatbox" id="table" hidden>
       <h3>Kdo už sedí u stolu <span id="table-n"></span></h3>
       <div class="tables" id="poker" role="img" aria-label="Stůl s hosty, kteří už potvrdili"></div>
+      <p class="legenda" aria-hidden="true"><span><i class="lg-m"></i>pán</span><span><i class="lg-z"></i>dáma</span><span><i class="lg-x">?</i>nevíme</span></p>
       <ul class="seats" id="seats"></ul>
     </div>
     <p class="note">Podrobnosti jsou jen pro tebe. Dál je neposílej.</p>
@@ -584,7 +591,55 @@ a.link{display:inline-block}
     return list.filter(celo).concat(list.filter(function(x){ return kral(x) && !celo(x); }),
       list.filter(function(x){ return !kral(x) && !celo(x); }));
   }
+  // pán / dáma / nevíme (RF 14. 11. 2026): známí hosté napevno, nová jména podle křestního jména, jinak „nevíme“
+  var OSOBY = {"robert":"m","ivan":"m","pici":"m","pepa":"m","bart":"m","horniš":"m","junior":"m","děděk":"m","pandodo":"m",
+    "kudrnáč":"m","richard":"m","tonda hajek":"m","lukáš k.":"m","tomáš hladik":"m","daniel b":"m","vašek p":"m","jezy":"m",
+    "lenka":"z","pavlína nováková":"z","andrea p.":"z","jana p.":"z","lucka":"z","kamila":"z","kamila n":"z","kamila k.":"z",
+    "lucina":"z","mařena":"z",
+    "sása":"x","johnypetka":"x","radar":"x","eagle":"x"};
+  var MUZI_NA_A = ["honza","jirka","pepa","franta","tonda","jarda","standa","zdenda","vláďa","láďa","míla","sáša","saša","péťa","kuba","ota","luka","nikola","andrea"];
+  var MUZI = ["adam","aleš","antonín","bohumil","dan","daniel","david","dominik","filip","františek","ivan","jakub","jan","jarek","jaroslav",
+    "jiří","josef","karel","kamil","ladislav","libor","luboš","lukáš","marek","martin","matěj","michal","milan","mirek","miroslav","ondřej",
+    "patrik","pavel","petr","radek","radim","richard","robert","roman","stanislav","tomáš","václav","vašek","viktor","vladimír","vojtěch",
+    "zdeněk","jindřich","oldřich","tonda","standa","jenda","jirka","honza","pepa","franta","jarda","kuba","michal","martin","bart"];
+  function pohlavi(jmeno){
+    var k = String(jmeno).toLowerCase().trim();
+    if (OSOBY[k]) return OSOBY[k];
+    var slova = k.replace(/\./g, "").split(/\s+/), prvni = slova[0] || "", dalsi = slova[1] || "";
+    if (/(ová|á)$/.test(dalsi) && dalsi.length > 3) return "z";
+    if (MUZI.indexOf(prvni) !== -1) return "m";
+    if (prvni.length > 2 && /a$/.test(prvni) && MUZI_NA_A.indexOf(prvni) === -1) return "z";
+    return "x";
+  }
+  var SATY = ["#e3203d","#7a1f5c","#b0124a","#3b1d6e","#0f6a5a","#c58b1a","#1d3f6e"];
+  var VLASY = ["#2a1a12","#5a3a1e","#8a5a2b","#d9b46a","#1b1b24","#7a2a1a","#b9b1a6"];
   function postava(jmeno){
+    var p = pohlavi(jmeno);
+    if (p === "z") return dama(jmeno);
+    if (p === "x") return nevime();
+    return pan(jmeno);
+  }
+  function dama(jmeno){
+    var k = hash(jmeno.toLowerCase()), saty = SATY[k % SATY.length], vlasy = VLASY[(k >> 3) % VLASY.length];
+    return '<svg viewBox="0 0 40 44" aria-hidden="true">' +
+      '<path d="M10 20C10 8 30 8 30 20L31.5 32C27 34.5 13 34.5 8.5 32Z" fill="' + vlasy + '"/>' +
+      '<path d="M6 44C6 34 12 29.5 20 29.5C28 29.5 34 34 34 44Z" fill="' + saty + '"/>' +
+      '<path d="M15.6 29.9L20 35.5L24.4 29.9Z" fill="#f0c7a2"/>' +
+      '<path d="M15.8 30.6Q20 36.6 24.2 30.6" fill="none" stroke="#fff2d2" stroke-width="1.1" stroke-dasharray="0.1 1.6" stroke-linecap="round"/>' +
+      '<circle cx="20" cy="19.5" r="8" fill="#f0c7a2"/>' +
+      '<path d="M11.6 19C11.2 10 28.8 10 28.4 19C26 14.6 20.5 13.6 16 15.6C14.2 16.4 12.7 17.6 11.6 19Z" fill="' + vlasy + '"/>' +
+      '<ellipse cx="20" cy="23.6" rx="1.7" ry="0.75" fill="#e3203d"/>' +
+      '<circle cx="12.2" cy="22.4" r="0.9" fill="#ffd66e"/><circle cx="27.8" cy="22.4" r="0.9" fill="#ffd66e"/>' +
+      '</svg>';
+  }
+  function nevime(){
+    return '<svg viewBox="0 0 40 44" aria-hidden="true">' +
+      '<path d="M5 44C5 33.5 11.5 28.5 20 28.5C28.5 28.5 35 33.5 35 44Z" fill="#4a4458"/>' +
+      '<circle cx="20" cy="19.5" r="8.5" fill="#8b8199"/>' +
+      '<text x="20" y="23.4" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#ffd66e">?</text>' +
+      '</svg>';
+  }
+  function pan(jmeno){
     var k = hash(jmeno.toLowerCase()), sako = SAKA[k % SAKA.length], klobouk = KLOBOUKY[(k >> 3) % KLOBOUKY.length];
     var paska = (k >> 6) % 2 ? "#e3203d" : "#ffd66e";
     return '<svg viewBox="0 0 40 44" aria-hidden="true">' +
