@@ -797,7 +797,7 @@ a.link{display:inline-block}
       });
     }).catch(function(err){
       var e = $(errId), k = err && err.kind;
-      e.textContent = k === "odmitnuto" ? "Tohle jméno se nepodařilo zapsat. Zkus ho napsat jen písmeny, bez zvláštních znaků."
+      e.textContent = k === "odmitnuto" ? "Teď se to nepovedlo zapsat. Zkus to za chvíli znovu, jméno piš jen písmeny. Když to nepůjde, napiš Robertovi."
         : k === "cas" ? "Trvá to moc dlouho. Zkus to znovu, nic se nezapíše dvakrát."
         : k === "server" ? "Teď se to nepovedlo zapsat. Zkus to za chvíli znovu."
         : "Nepovedlo se to zapsat. Zkontroluj připojení a zkus to znovu.";
@@ -823,7 +823,7 @@ a.link{display:inline-block}
   $("who-back").addEventListener("click", function(){ view("ask"); });
   $("who-form").addEventListener("submit", function(ev){
     ev.preventDefault();
-    var j = $("jmeno").value.replace(/[<>"|\\\\]/g, "").replace(/\s+/g, " ").trim();
+    var j = $("jmeno").value.replace(/[<>"|\\\\:\x00-\x1f\x7f]/g, "").replace(/\s+/g, " ").trim();
     if (j.length < 2){
       var e = $("who-err"); e.textContent = "Napiš aspoň dvě písmena, ať víme, kdo jsi."; e.hidden = false; $("jmeno").focus(); return;
     }
@@ -842,7 +842,7 @@ a.link{display:inline-block}
   $("kt-form").addEventListener("submit", function(ev){
     ev.preventDefault();
     if (busy) return;
-    var e = $("kt-err"), j = $("kt-jmeno").value.replace(/[<>"|\\\\]/g, "").replace(/\s+/g, " ").trim();
+    var e = $("kt-err"), j = $("kt-jmeno").value.replace(/[<>"|\\\\:\x00-\x1f\x7f]/g, "").replace(/\s+/g, " ").trim();
     var em = cistyEmail($("kt-email").value), tl = cistyTel($("kt-tel").value);
     var chyba = j.length < 2 ? ["Napiš jméno, pod kterým jsi odpověděl.", "kt-jmeno"]
       : !em && !tl ? ["Vyplň aspoň e-mail, nebo telefon.", "kt-email"]
