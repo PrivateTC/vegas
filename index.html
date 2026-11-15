@@ -274,6 +274,26 @@ a.link{display:inline-block}
 .kt-vyzva p{margin:0; color:#fff !important; font-size:16px; line-height:1.45}
 .kt-vyzva p b{color:var(--bulb)}
 .kt-vyzva .link{align-self:center}
+.foto{display:flex; flex-direction:column; gap:12px; border-top:1px dashed rgba(255,214,110,.35); padding-top:14px}
+.foto h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
+.foto p{margin:0}
+.foto p b{color:var(--bulb)}
+.kat{display:flex; gap:8px}
+.kat button{flex:1; padding:10px 6px; border-radius:12px; border:1.5px solid rgba(255,214,110,.35); background:rgba(0,0,0,.25); color:#fff;
+  font:700 15px/1.1 var(--f-cond); cursor:pointer}
+.kat button small{display:block; font:500 11px/1.2 var(--f-mono); opacity:.8; margin-top:3px}
+.kat button.on{background:var(--bulb); color:var(--ink); border-color:var(--bulb)}
+.sr{position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none}
+.foto-btn{display:flex; align-items:center; justify-content:center; text-align:center; cursor:pointer}
+.foto-btn.busy{opacity:.65; pointer-events:none}
+.foto-stav{color:var(--bulb) !important; font-size:15px}
+.stena{display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:rgba(0,0,0,.28); border:1px solid rgba(255,214,110,.35)}
+.stena b{font:400 36px/1 var(--f-display); color:var(--bulb)}
+.stena div{font-size:15px; color:#d9efe6}
+.stena-jm{color:var(--bulb)}
+.foto .drob{font-size:13px; color:#bfe3d6 !important}
+.lt .st.foto{position:relative}
+.lt .st.foto::after{content:"📷"; position:absolute; top:-2px; right:8px; font-size:14px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .tipbox{display:flex; flex-direction:column; gap:10px; border-top:1px dashed rgba(255,214,110,.35); padding-top:14px}
 .tipbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
 .tipbox label{font-size:15px; color:#d9efe6}
@@ -485,6 +505,21 @@ a.link{display:inline-block}
       <p class="legenda" aria-hidden="true"><span><i class="lg-m"></i>pán</span><span><i class="lg-z"></i>dáma</span><span><i class="lg-x">?</i>nevíme</span></p>
       <ul class="seats" id="seats"></ul>
     </div>
+    <section class="foto" id="foto" aria-label="Fotostěna">
+      <h3>📷 Fotostěna</h3>
+      <p><b>Máš fotky z Vegas z 90. let?</b> Nahraj je sem. Za fotky dostaneš u stolu foťák a po akci z nich složíme album pro celou partu.</p>
+      <div class="kat" role="radiogroup" aria-label="Jaké fotky nahráváš">
+        <button type="button" class="on" data-kat="tehdy" role="radio" aria-checked="true">Tehdy<small>90. léta</small></button>
+        <button type="button" data-kat="ted" role="radio" aria-checked="false">Teď<small>selfie, parta</small></button>
+        <button type="button" data-kat="patek" role="radio" aria-checked="false">Z pátku<small>po akci</small></button>
+      </div>
+      <label class="btn foto-btn" for="foto-vyber" id="foto-label">Vybrat fotky z telefonu</label>
+      <input id="foto-vyber" class="sr" type="file" accept="image/*" multiple>
+      <p class="foto-stav" id="foto-stav" role="status" hidden></p>
+      <p class="err" id="foto-err" role="alert" hidden></p>
+      <div class="stena" id="stena" hidden><b id="stena-n">0</b><div><span id="stena-txt">fotek</span><br><span class="stena-jm" id="stena-jm"></span></div></div>
+      <p class="drob">Fotky vidí jen pořadatelé, nikde veřejně se neukazují. Před odesláním se zmenší a smaže se z nich poloha a údaje z telefonu. Najednou nejvýš 10 fotek.</p>
+    </section>
     <form class="tipbox" id="tip-form" novalidate>
       <h3>Koho z party ještě postrádáme?</h3>
       <label for="tip">Napiš jméno nebo přezdívku kamaráda, který by u stolu neměl chybět. Předáme to pořadatelům.</label>
@@ -699,6 +734,7 @@ a.link{display:inline-block}
       '</svg>';
   }
   var posazeni = {};
+  var fotkari = {};   // kdo nahrál fotku (jména malými) → foťák u postavičky
   // Kolik židlí má stůl pro n hostů: začíná na 6 a roste s hosty tak, aby volných zbývalo jednou 1, jindy 2 nebo 3.
   // Počet volných je pro každý počet hostů pevný (žádná náhoda při obnovení) a stůl se nikdy nezmenší.
   function zidli(n){
@@ -714,7 +750,7 @@ a.link{display:inline-block}
     var el = document.createElement("div");
     if (!jm){ el.className = "st free"; return el; }
     var klic = jm.toLowerCase(), slova = jm.trim().split(/\s+/);
-    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (posazeni[klic] ? "" : " sit");
+    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (fotkari[klic] ? " foto" : "") + (posazeni[klic] ? "" : " sit");
     el.innerHTML = postava(jm);
     var em = document.createElement("em"); em.title = jm;
     em.textContent = slova[0] + (slova[1] ? " " + slova[1].charAt(0).toUpperCase() + "." : "");
@@ -760,7 +796,7 @@ a.link{display:inline-block}
       bt.addEventListener("click", function(){ kestolu(); });
       ln.appendChild(bt);
     }
-    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); }
+    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); }
     clearInterval(odpTimer); if (v === "ano") odpTimer = setInterval(odpocet, 30000);
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     if (v === "ceka"){
@@ -896,6 +932,78 @@ a.link{display:inline-block}
   $("kt-vyzva-uz").addEventListener("click", function(){
     st.kontakt = true; save(); kontakt(panel());
   });
+  // ---- fotostěna (RF 15. 11. 2026): fotky jdou na Disk účtu jen pro fotky, na stránce jen počet a jména ----
+  var FOTO_HOOK = "https://hook.eu1.make.com/um6q52779a38fsenjtt7i7st8essf8ya";
+  var fotoKat = "tehdy", fotoBusy = false;
+  function fotoPost(pole){
+    var ctl = ("AbortController" in window) ? new AbortController() : null;
+    var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 60000);
+    return fetch(FOTO_HOOK, {method:"POST", body:new URLSearchParams(pole), signal: ctl ? ctl.signal : undefined})
+      .then(function(r){ return r.text(); })
+      .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (!d || !d.ok) throw new Error("server"); return d; },
+            function(e){ clearTimeout(t); throw e; });
+  }
+  function tvarFotek(n){ return n === 1 ? "fotka" : n >= 2 && n <= 4 ? "fotky" : "fotek"; }
+  function stena(){
+    fotoPost({odpoved:"stena"}).then(function(d){
+      var jm = split(d.kdo), uniq = [], f = {};
+      jm.forEach(function(x){ var k = x.toLowerCase(); if (!f[k]){ f[k] = 1; uniq.push(x); } });
+      fotkari = f;
+      $("stena").hidden = jm.length === 0;
+      $("stena-n").textContent = jm.length;
+      $("stena-txt").textContent = tvarFotek(jm.length) + " od " + uniq.length + (uniq.length === 1 ? " člověka" : " lidí");
+      $("stena-jm").textContent = uniq.slice(-6).reverse().join(", ") + (uniq.length > 6 ? " a další" : "");
+      if (!$("yes").hidden && (st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase());
+    }).catch(function(){});
+  }
+  // zmenšení na max. 1600 px a JPEG: zároveň zmizí EXIF (poloha, telefon)
+  function zmensi(file){
+    return new Promise(function(ok, ko){
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function(){
+        var max = 1600, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+        var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        var data = c.toDataURL("image/jpeg", 0.82).split(",")[1] || "";
+        if (!/^\/9j\//.test(data)) return ko(new Error("jpeg"));
+        ok(data);
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); ko(new Error("obrazek")); };
+      img.src = url;
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".kat button"), function(b){
+    b.addEventListener("click", function(){
+      fotoKat = b.getAttribute("data-kat");
+      Array.prototype.forEach.call(document.querySelectorAll(".kat button"), function(x){
+        var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-checked", on ? "true" : "false");
+      });
+    });
+  });
+  $("foto-vyber").addEventListener("change", function(){
+    var soubory = Array.prototype.slice.call(this.files || []).slice(0, 10), inp = this;
+    if (!soubory.length || fotoBusy) return;
+    fotoBusy = true; $("foto-label").classList.add("busy"); $("foto-err").hidden = true;
+    var stav = $("foto-stav"), hotovo = 0, chyb = 0;
+    stav.hidden = false;
+    var retez = Promise.resolve();
+    soubory.forEach(function(f, i){
+      retez = retez.then(function(){
+        stav.textContent = "Nahrávám " + (i + 1) + " z " + soubory.length + "…";
+        return zmensi(f).then(function(data){ return fotoPost({odpoved:"foto", jmeno:st.jmeno, kat:fotoKat, data:data}); })
+          .then(function(){ hotovo++; }, function(){ chyb++; });
+      });
+    });
+    retez.then(function(){
+      fotoBusy = false; $("foto-label").classList.remove("busy"); inp.value = "";
+      stav.textContent = hotovo ? "Díky! Máme od tebe " + hotovo + " " + (hotovo === 1 ? "fotku" : hotovo <= 4 ? "fotky" : "fotek") + ". Foťák u stolu je tvůj." : "";
+      stav.hidden = !hotovo;
+      if (chyb){ var e = $("foto-err"); e.textContent = (chyb === 1 ? "Jednu fotku" : chyb + " fotky") + " se nepovedlo nahrát. Zkus to prosím znovu."; e.hidden = false; }
+      if (hotovo) stena();
+    });
+  });
+
   $("tip-form").addEventListener("submit", function(ev){
     ev.preventDefault();
     if (busy) return;
