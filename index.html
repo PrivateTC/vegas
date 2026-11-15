@@ -292,8 +292,12 @@ a.link{display:inline-block}
 .stena div{font-size:15px; color:#d9efe6}
 .stena-jm{color:var(--bulb)}
 .foto .drob{font-size:13px; color:#bfe3d6 !important}
-.lt .st.foto{position:relative}
-.lt .st.foto::after{content:"📷"; position:absolute; top:-2px; right:8px; font-size:14px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.lt .st.fotkar{position:relative}
+.lt .st{position:relative}
+.lt .st .ozdoba{position:absolute; pointer-events:none; filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.lt .st .korunka{width:16px; height:10px; top:-4px; left:50%; transform:translateX(-50%)}
+.lt .st .dort{width:15px; height:14px; bottom:16px; right:10px}
+.lt .st.fotkar::after{content:"📷"; position:absolute; top:-2px; right:8px; font-size:14px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .tipbox{display:flex; flex-direction:column; gap:10px; border-top:1px dashed rgba(255,214,110,.35); padding-top:14px}
 .tipbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
 .tipbox label{font-size:15px; color:#d9efe6}
@@ -750,8 +754,11 @@ a.link{display:inline-block}
     var el = document.createElement("div");
     if (!jm){ el.className = "st free"; return el; }
     var klic = jm.toLowerCase(), slova = jm.trim().split(/\s+/);
-    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (fotkari[klic] ? " foto" : "") + (posazeni[klic] ? "" : " sit");
+    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (fotkari[klic] ? " fotkar" : "") + (posazeni[klic] ? "" : " sit");
     el.innerHTML = postava(jm);
+    // drobné ozdoby (RF 15. 11. 2026): korunka pro Piciho, narozeninový dortík před RADARem
+    if (klic === "pici") el.insertAdjacentHTML("afterbegin", '<svg class="ozdoba korunka" viewBox="0 0 20 12" aria-hidden="true"><path d="M1 11L2.5 3L7 7L10 1L13 7L17.5 3L19 11Z" fill="#ffd66e" stroke="#b98f2e" stroke-width=".8" stroke-linejoin="round"/><circle cx="10" cy="1.6" r="1.1" fill="#e3203d"/></svg>');
+    if (klic === "radar") el.insertAdjacentHTML("beforeend", '<svg class="ozdoba dort" viewBox="0 0 20 18" aria-hidden="true"><rect x="9.3" y="1.5" width="1.4" height="5" rx=".6" fill="#fff2d2"/><path d="M10 0C11.2 1.2 10.9 2 10 2.2C9.1 2 8.8 1.2 10 0Z" fill="#ffb02e"/><rect x="2" y="7" width="16" height="9" rx="2" fill="#f6d7e6"/><path d="M2 9.5C4 11 6 8.5 8 10S12 8.5 14 10S16 9 18 9.5V9C18 7.9 17.1 7 16 7H4C2.9 7 2 7.9 2 9Z" fill="#e3203d"/><rect x="1" y="15.5" width="18" height="2" rx="1" fill="#ffd66e"/></svg>');
     var em = document.createElement("em"); em.title = jm;
     em.textContent = slova[0] + (slova[1] ? " " + slova[1].charAt(0).toUpperCase() + "." : "");
     el.appendChild(em);
