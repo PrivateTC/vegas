@@ -803,7 +803,7 @@ a.link{display:inline-block}
       bt.addEventListener("click", function(){ kestolu(); });
       ln.appendChild(bt);
     }
-    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); }
+    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); navsteva(); }
     clearInterval(odpTimer); if (v === "ano") odpTimer = setInterval(odpocet, 30000);
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     if (v === "ceka"){
@@ -949,6 +949,21 @@ a.link{display:inline-block}
       .then(function(r){ return r.text(); })
       .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (!d || !d.ok) throw new Error("server"); return d; },
             function(e){ clearTimeout(t); throw e; });
+  }
+  // počítání návštěv (RF 15. 11. 2026, volba A): nejvýš 1× za hodinu z prohlížeče; se jménem, kdo už odpověděl, jinak anonymně
+  function navsteva(){
+    try {
+      var dev = localStorage.getItem("vegas-dev");
+      if (!/^[a-f0-9]{16}$/.test(dev || "")){
+        var b = new Uint8Array(8); (window.crypto || window.msCrypto).getRandomValues(b);
+        dev = Array.prototype.map.call(b, function(x){ return ("0" + x.toString(16)).slice(-2); }).join("");
+        localStorage.setItem("vegas-dev", dev);
+      }
+      var kdo = st.odpoved ? st.jmeno : "", hod = new Date().toISOString().slice(0, 13), k = "vegas-nav:" + (kdo.toLowerCase() || "anon");
+      if (localStorage.getItem(k) === hod) return;
+      localStorage.setItem(k, hod);
+      fetch(FOTO_HOOK, {method:"POST", body:new URLSearchParams({odpoved:"navsteva", jmeno:kdo, dev:dev}), keepalive:true}).catch(function(){});
+    } catch(e){}
   }
   function tvarFotek(n){ return n === 1 ? "fotka" : n >= 2 && n <= 4 ? "fotky" : "fotek"; }
   function stena(){
@@ -1098,6 +1113,7 @@ a.link{display:inline-block}
   // pozvánka se vždy otevře od žetonů; odkaz #kontakt rovnou na rámeček s kontaktem
   view("ask", false);
   if (ktOdkaz) setTimeout(function(){ $("kontakt").scrollIntoView({behavior:"smooth", block:"start"}); }, 300);
+  navsteva();
   if (st.odpoved === "ano"){
     send("seznam", st.jmeno).then(function(d){
       if (st.odpoved !== "ano") return;
