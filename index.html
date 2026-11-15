@@ -393,6 +393,10 @@ a.link{display:inline-block}
 
 /* odkazy na stoly pro hosta, který se vrací */
 .saved{border:0; padding:0; justify-content:center; gap:10px 12px}
+.saved span.saved-n{flex:0 0 auto; font:600 15px/1 var(--f-cond); letter-spacing:.06em; text-transform:uppercase; color:var(--cyan)}
+.saved span.saved-n b{color:#fff; font-weight:700}
+.yes-n{margin:0; font:600 17px/1.3 var(--f-cond); letter-spacing:.06em; text-transform:uppercase; color:var(--cyan)}
+.yes-n b{color:#fff}
 .saved span.saved-l{flex:0 0 auto; font:700 13px/1 var(--f-cond); letter-spacing:.22em; text-transform:uppercase; color:var(--bulb)}
 .saved .saved-b{flex-wrap:wrap; gap:8px}
 .saved .tl{appearance:none; cursor:pointer; min-height:44px; padding:0 16px; border-radius:999px; border:1.5px solid var(--line);
@@ -458,6 +462,7 @@ a.link{display:inline-block}
 
   <nav class="saved" id="saved" aria-label="Stůl" hidden>
     <span class="saved-l">Stůl</span>
+    <span class="saved-n" id="saved-n" hidden></span>
     <span class="saved-b" id="saved-links"></span>
   </nav>
 
@@ -490,6 +495,7 @@ a.link{display:inline-block}
   <section class="felt" id="yes" hidden>
     <p class="eyebrow">Sázka přijata</p>
     <h2>Sedíš u stolu.</h2>
+    <p class="yes-n" id="yes-n" hidden></p>
     <p class="odpocet" id="odpocet" hidden></p>
     <div class="kt-vyzva" id="kt-vyzva" hidden>
       <p><b>Chybí nám tvůj e-mail.</b> Pošleme ti aktuality k pátku, pozvánky na další akce party a <b>osobní odkaz do galerie fotek</b>. Bez e-mailu galerii neuvidíš. Zabere to 10 vteřin.</p>
@@ -788,6 +794,15 @@ a.link{display:inline-block}
     lt.appendChild(head); lt.appendChild(body); box.appendChild(lt);
   }
 
+  // kolik lidí sedí u stolu (RF 15. 11. 2026): jen pro ty, kdo jdou; jména zná jen kdo sedí, čekající mají jen číslo
+  function sedi(){ var n = (st.hraci || []).length; return n || st.obsazeno || 0; }
+  function lidi(n){ return n === 1 ? "člověk" : (n >= 2 && n <= 4) ? "lidé" : "lidí"; }
+  function pocet(el, n, pred){
+    el.hidden = !(n > 0); el.textContent = "";
+    if (!(n > 0)) return;
+    var b = document.createElement("b"); b.textContent = n;
+    el.appendChild(document.createTextNode(pred)); el.appendChild(b); el.appendChild(document.createTextNode(" " + lidi(n)));
+  }
   function view(v, fresh){
     $("ask").hidden = v !== "ask";
     $("who").hidden = v !== "who";
@@ -797,6 +812,8 @@ a.link{display:inline-block}
     ["who-err","yes-err","no-err","ceka-err"].forEach(function(i){ $(i).hidden = true; });
     // host, který se vrací a sedí (nebo čeká), dostane pod žetony odkazy na stoly
     var s = $("saved"); s.hidden = !(v === "ask" && st.odpoved === "ano");
+    pocet($("saved-n"), s.hidden ? 0 : sedi(), "Sedí ");
+    pocet($("yes-n"), v === "ano" ? sedi() : 0, "U stolu teď sedí ");
     if (!s.hidden){
       var ln = $("saved-links"); ln.textContent = "";
       var bt = document.createElement("button"); bt.type = "button"; bt.className = "tl"; bt.textContent = "Kdo už sedí";
