@@ -102,6 +102,12 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
       <p class="ok" id="ok-seznam" role="status" hidden>Zkopírováno.</p>
     </section>
 
+    <section id="s-nav" hidden>
+      <h2>Kdo se dívá na stůl <span id="c-nav"></span></h2>
+      <p class="lead" id="nav-lead">Počítáno od 15. 11. 2026, stejný člověk nejvýš jednou za hodinu.</p>
+      <ul id="l-nav"></ul>
+    </section>
+
     <section id="s-tipy" hidden>
       <h2>Tipy, koho ještě pozvat <span id="c-tipy"></span></h2>
       <p class="lead">Hosté píšou, kdo by u stolu neměl chybět.</p>
@@ -229,9 +235,37 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
     $("app").hidden = false;
   }
 
+  // návštěvy stolu: řádky „jméno;zařízení;RRRR-MM-DD HH“ (anonymní mají prázdné jméno)
+  var FOTO_HOOK = "https://hook.eu1.make.com/um6q52779a38fsenjtt7i7st8essf8ya";
+  function hod(h){ var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2})$/.exec(h || ""); return m ? (+m[3]) + ". " + (+m[2]) + ". v " + (+m[4]) + " h" : (h || ""); }
+  function navstevy(){
+    var pole = new URLSearchParams({odpoved:"navstevy", klic:KLIC});
+    fetch(FOTO_HOOK, {method:"POST", body:pole, cache:"no-store"}).then(function(r){ return r.text(); }).then(function(t){
+      var d = null; try { d = JSON.parse(t); } catch(e){} if (!d || !d.ok) return;
+      var lidi = {}, zarizeni = {}, anonHod = 0;
+      String(d.radky || "").split("|").forEach(function(r){
+        if (!r.trim()) return;
+        var p = r.split(";"), h = p[p.length - 1], dev = p[p.length - 2], jm = p.slice(0, p.length - 2).join(";").trim();
+        if (jm){ var k = jm.toLowerCase(), z = lidi[k] || (lidi[k] = {jmeno:jm, n:0, posl:""}); z.n++; if (h > z.posl) z.posl = h; }
+        else if (dev){ zarizeni[dev] = 1; anonHod++; }
+      });
+      var list = Object.keys(lidi).map(function(k){ return lidi[k]; }).sort(function(a, b){ return b.n - a.n || (a.posl < b.posl ? 1 : -1); });
+      var ul = $("l-nav"); ul.textContent = "";
+      list.forEach(function(z){
+        var li = el("li"); var top = el("div", "top"); top.appendChild(el("b", "", z.jmeno)); top.appendChild(el("span", "tag", z.n + "×"));
+        li.appendChild(top); li.appendChild(el("div", "kt", "naposledy " + hod(z.posl))); ul.appendChild(li);
+      });
+      var nz = Object.keys(zarizeni).length;
+      $("nav-lead").textContent = "Počítáno od 15. 11. 2026, stejný člověk nejvýš jednou za hodinu. Bez jména (ještě neodpověděli nebo z jiného telefonu): " +
+        nz + " " + (nz === 1 ? "zařízení" : nz >= 2 && nz <= 4 ? "zařízení" : "zařízení") + ", " + anonHod + "× celkem.";
+      $("c-nav").textContent = "(" + list.length + ")";
+      $("s-nav").hidden = list.length === 0 && nz === 0;
+    }).catch(function(){});
+  }
+
   function nacti(){
     var b = $("obnovit"); b.disabled = true;
-    return api({odpoved:"kontakty"}).then(function(d){ chyba(""); kresli(d); })
+    return api({odpoved:"kontakty"}).then(function(d){ chyba(""); kresli(d); navstevy(); })
       .catch(function(e){ chyba(e && e.kind === "klic" ? "Nepovedlo se načíst. Buď odkaz neplatí, nebo je chvilkový výpadek. Zkus Obnovit, případně napiš Robertovi." : "Nepovedlo se načíst. Zkontroluj připojení a dej Obnovit."); })
       .then(function(){ b.disabled = false; $("bar").hidden = false; });
   }
