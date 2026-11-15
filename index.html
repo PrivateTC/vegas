@@ -518,7 +518,7 @@ a.link{display:inline-block}
       <p class="foto-stav" id="foto-stav" role="status" hidden></p>
       <p class="err" id="foto-err" role="alert" hidden></p>
       <div class="stena" id="stena" hidden><b id="stena-n">0</b><div><span id="stena-txt">fotek</span><br><span class="stena-jm" id="stena-jm"></span></div></div>
-      <p class="drob">Fotky vidí jen pořadatelé, nikde veřejně se neukazují. Před odesláním se zmenší a smaže se z nich poloha a údaje z telefonu. Najednou nejvýš 10 fotek.</p>
+      <p class="drob">Fotky vidí jen pořadatelé, nikde veřejně se neukazují. Před odesláním se zmenší a smaže se z nich poloha a údaje z telefonu.</p>
     </section>
     <form class="tipbox" id="tip-form" novalidate>
       <h3>Koho z party ještě postrádáme?</h3>
@@ -934,7 +934,7 @@ a.link{display:inline-block}
   });
   // ---- fotostěna (RF 15. 11. 2026): fotky jdou na Disk účtu jen pro fotky, na stránce jen počet a jména ----
   var FOTO_HOOK = "https://hook.eu1.make.com/um6q52779a38fsenjtt7i7st8essf8ya";
-  var fotoKat = "tehdy", fotoBusy = false;
+  var fotoKat = "tehdy", fotoBusy = false, MAX_FOTEK = 30;   // jedna dávka; víc se dá poslat dalším výběrem
   function fotoPost(pole){
     var ctl = ("AbortController" in window) ? new AbortController() : null;
     var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 60000);
@@ -982,7 +982,7 @@ a.link{display:inline-block}
     });
   });
   $("foto-vyber").addEventListener("change", function(){
-    var soubory = Array.prototype.slice.call(this.files || []).slice(0, 10), inp = this;
+    var vse = Array.prototype.slice.call(this.files || []), soubory = vse.slice(0, MAX_FOTEK), inp = this;
     if (!soubory.length || fotoBusy) return;
     fotoBusy = true; $("foto-label").classList.add("busy"); $("foto-err").hidden = true;
     var stav = $("foto-stav"), hotovo = 0, chyb = 0;
@@ -997,7 +997,8 @@ a.link{display:inline-block}
     });
     retez.then(function(){
       fotoBusy = false; $("foto-label").classList.remove("busy"); inp.value = "";
-      stav.textContent = hotovo ? "Díky! Máme od tebe " + hotovo + " " + (hotovo === 1 ? "fotku" : hotovo <= 4 ? "fotky" : "fotek") + ". Foťák u stolu je tvůj." : "";
+      stav.textContent = hotovo ? "Díky! Máme od tebe " + hotovo + " " + (hotovo === 1 ? "fotku" : hotovo <= 4 ? "fotky" : "fotek") + ". Foťák u stolu je tvůj." +
+        (vse.length > soubory.length ? " Zbylé fotky vyber znovu, pošlou se v další dávce." : "") : "";
       stav.hidden = !hotovo;
       if (chyb){ var e = $("foto-err"); e.textContent = (chyb === 1 ? "Jednu fotku" : chyb + " fotky") + " se nepovedlo nahrát. Zkus to prosím znovu."; e.hidden = false; }
       if (hotovo) stena();
