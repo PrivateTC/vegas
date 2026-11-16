@@ -274,6 +274,9 @@ a.link{display:inline-block}
 .kt-vyzva p{margin:0; color:#fff !important; font-size:16px; line-height:1.45}
 .kt-vyzva p b{color:var(--bulb)}
 .kt-vyzva .link{align-self:center}
+.kt-stul{margin:0 0 12px; animation:kt-puls 2.4s ease-in-out 3}
+@keyframes kt-puls{50%{box-shadow:0 0 0 4px rgba(255,214,110,.25)}}
+@media (prefers-reduced-motion:reduce){ .kt-stul{animation:none} }
 .foto{display:flex; flex-direction:column; gap:12px; border-top:1px dashed rgba(255,214,110,.35); padding-top:14px}
 .foto h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
 .foto p{margin:0}
@@ -520,6 +523,11 @@ a.link{display:inline-block}
     <p class="gcal-row" id="gcal-row" hidden>Nejde to? <a id="gcal" target="_blank" rel="noopener" href="#">Přidej přes Google kalendář</a></p>
     <div class="seatbox" id="table" hidden>
       <h3>Kdo už sedí u stolu <span id="table-n"></span></h3>
+      <div class="kt-vyzva kt-stul" id="kt-stul" hidden>
+        <p>📣 <b>Chybí nám tvůj e-mail nebo telefon.</b> Než v pátek usedneme, pošleme ti nové podrobnosti k akci: změny času, místa a co se chystá. Bez kontaktu se o nich nedozvíš.</p>
+        <button class="btn" id="kt-stul-go" type="button">Doplnit kontakt</button>
+        <button class="link quiet" id="kt-stul-uz" type="button">Kontakt už jsem dal</button>
+      </div>
       <div class="tables" id="poker" role="img" aria-label="Stůl s hosty, kteří už potvrdili"></div>
       <p class="legenda" aria-hidden="true"><span><i class="lg-m"></i>pán</span><span><i class="lg-z"></i>dáma</span><span><i class="lg-x">?</i>nevíme</span></p>
       <ul class="seats" id="seats"></ul>
@@ -969,6 +977,7 @@ a.link{display:inline-block}
     $("kontakt").hidden = !ukaz;
     // u stolu je rámeček až pod stolem: nahoru dát krátkou výzvu s tlačítkem
     $("kt-vyzva").hidden = !(v === "ano" && ukaz && !ktHotovo && !ktOdkaz);
+    $("kt-stul").hidden = $("kt-vyzva").hidden;   // stejná výzva přímo u stolu (RF 16. 11.): sem vede „Kdo už sedí“
     if (!ukaz) return;
     $("kt-form").hidden = ktHotovo; $("kt-ok").hidden = !ktHotovo;
     if (!$("kt-jmeno").value) $("kt-jmeno").value = st.jmeno || "";
@@ -1076,6 +1085,8 @@ a.link{display:inline-block}
   $("kt-vyzva-uz").addEventListener("click", function(){
     st.kontakt = true; save(); kontakt(panel());
   });
+  $("kt-stul-go").addEventListener("click", function(){ $("kt-vyzva-go").click(); });
+  $("kt-stul-uz").addEventListener("click", function(){ $("kt-vyzva-uz").click(); });
   // ---- fotostěna (RF 15. 11. 2026): fotky jdou na Disk účtu jen pro fotky, na stránce jen počet a jména ----
   var FOTO_HOOK = "https://hook.eu1.make.com/um6q52779a38fsenjtt7i7st8essf8ya";
   var fotoKat = "tehdy", fotoBusy = false, MAX_FOTEK = 30;   // jedna dávka; víc se dá poslat dalším výběrem
