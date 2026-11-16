@@ -430,6 +430,15 @@ a.link{display:inline-block}
 .lt .st.free::before{content:""; width:26px; height:26px; border-radius:50%; border:1.5px dashed rgba(255,214,110,.35)}
 .lt .st.sit{animation:sedni .45s cubic-bezier(.2,.9,.3,1.3) backwards}
 @keyframes sedni{from{transform:scale(1.35)}}
+/* párty na suknu (RF 16. 11. 2026): den po dni přibývá; po–út šampus, pivo, chipsy a konfety; st whisky a žebírka; čt víc konfet a padají; pá balónky a bouchnuté šampaňské */
+.lt-table{position:relative; overflow:hidden; justify-content:space-around; padding:12px 4px}
+.lt-n{display:flex; flex-direction:column; align-items:center; gap:2px; position:relative; z-index:1}
+.lt-table .party{width:100%; max-width:118px; height:auto; display:block; position:relative; z-index:1; filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+.lt-table.konfety{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg opacity='.8'%3E%3Crect x='8' y='10' width='5' height='3' fill='%23ffd66e' transform='rotate(25 10 11)'/%3E%3Crect x='52' y='6' width='5' height='3' fill='%23e3203d' transform='rotate(-30 54 7)'/%3E%3Ccircle cx='76' cy='30' r='2' fill='%2353d6ff'/%3E%3Crect x='30' y='38' width='5' height='3' fill='%23ff6fb5' transform='rotate(60 32 39)'/%3E%3Ccircle cx='14' cy='62' r='2' fill='%23ffd66e'/%3E%3Crect x='60' y='64' width='5' height='3' fill='%2353d6ff' transform='rotate(15 62 65)'/%3E%3Ccircle cx='42' cy='80' r='1.8' fill='%23e3203d'/%3E%3Crect x='80' y='78' width='5' height='3' fill='%23ffd66e' transform='rotate(-50 82 79)'/%3E%3Cpath d='M20 24q4-5 8 0t8 0t8 0' fill='none' stroke='%23ff6fb5' stroke-width='1.6'/%3E%3Cpath d='M58 46q-3 5 0 9t0 9' fill='none' stroke='%23ffd66e' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E"), linear-gradient(180deg,#1a8a6a,#0c5a45)}
+.lt-table.konfety.hodne{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg opacity='.8'%3E%3Crect x='8' y='10' width='5' height='3' fill='%23ffd66e' transform='rotate(25 10 11)'/%3E%3Crect x='52' y='6' width='5' height='3' fill='%23e3203d' transform='rotate(-30 54 7)'/%3E%3Ccircle cx='76' cy='30' r='2' fill='%2353d6ff'/%3E%3Crect x='30' y='38' width='5' height='3' fill='%23ff6fb5' transform='rotate(60 32 39)'/%3E%3Ccircle cx='14' cy='62' r='2' fill='%23ffd66e'/%3E%3Crect x='60' y='64' width='5' height='3' fill='%2353d6ff' transform='rotate(15 62 65)'/%3E%3Ccircle cx='42' cy='80' r='1.8' fill='%23e3203d'/%3E%3Crect x='80' y='78' width='5' height='3' fill='%23ffd66e' transform='rotate(-50 82 79)'/%3E%3Cpath d='M20 24q4-5 8 0t8 0t8 0' fill='none' stroke='%23ff6fb5' stroke-width='1.6'/%3E%3Cpath d='M58 46q-3 5 0 9t0 9' fill='none' stroke='%23ffd66e' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E") 0 0/90px 90px, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg opacity='.8'%3E%3Crect x='8' y='10' width='5' height='3' fill='%23ffd66e' transform='rotate(25 10 11)'/%3E%3Crect x='52' y='6' width='5' height='3' fill='%23e3203d' transform='rotate(-30 54 7)'/%3E%3Ccircle cx='76' cy='30' r='2' fill='%2353d6ff'/%3E%3Crect x='30' y='38' width='5' height='3' fill='%23ff6fb5' transform='rotate(60 32 39)'/%3E%3Ccircle cx='14' cy='62' r='2' fill='%23ffd66e'/%3E%3Crect x='60' y='64' width='5' height='3' fill='%2353d6ff' transform='rotate(15 62 65)'/%3E%3Ccircle cx='42' cy='80' r='1.8' fill='%23e3203d'/%3E%3Crect x='80' y='78' width='5' height='3' fill='%23ffd66e' transform='rotate(-50 82 79)'/%3E%3Cpath d='M20 24q4-5 8 0t8 0t8 0' fill='none' stroke='%23ff6fb5' stroke-width='1.6'/%3E%3Cpath d='M58 46q-3 5 0 9t0 9' fill='none' stroke='%23ffd66e' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E") 45px 45px/70px 70px, linear-gradient(180deg,#1a8a6a,#0c5a45)}
+.lt-table.padaji::after{content:""; position:absolute; left:0; right:0; top:0; height:100%; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg opacity='.8'%3E%3Crect x='8' y='10' width='5' height='3' fill='%23ffd66e' transform='rotate(25 10 11)'/%3E%3Crect x='52' y='6' width='5' height='3' fill='%23e3203d' transform='rotate(-30 54 7)'/%3E%3Ccircle cx='76' cy='30' r='2' fill='%2353d6ff'/%3E%3Crect x='30' y='38' width='5' height='3' fill='%23ff6fb5' transform='rotate(60 32 39)'/%3E%3Ccircle cx='14' cy='62' r='2' fill='%23ffd66e'/%3E%3Crect x='60' y='64' width='5' height='3' fill='%2353d6ff' transform='rotate(15 62 65)'/%3E%3Ccircle cx='42' cy='80' r='1.8' fill='%23e3203d'/%3E%3Crect x='80' y='78' width='5' height='3' fill='%23ffd66e' transform='rotate(-50 82 79)'/%3E%3Cpath d='M20 24q4-5 8 0t8 0t8 0' fill='none' stroke='%23ff6fb5' stroke-width='1.6'/%3E%3Cpath d='M58 46q-3 5 0 9t0 9' fill='none' stroke='%23ffd66e' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E") 0 0/70px 70px; opacity:0; pointer-events:none; animation:padej 3.2s ease-in .4s 2}
+@keyframes padej{0%{transform:translateY(-60%); opacity:1} 85%{opacity:1} 100%{transform:translateY(60%); opacity:0}}
+@media (prefers-reduced-motion:reduce){ .lt-table.padaji::after{animation:none} }
 @media (prefers-reduced-motion:reduce){ .lt .st.sit{animation:none} }
 </style>
 </head>
@@ -720,7 +729,12 @@ a.link{display:inline-block}
       '<path d="M15.8 30.6Q20 36.6 24.2 30.6" fill="none" stroke="#fff2d2" stroke-width="1.1" stroke-dasharray="0.1 1.6" stroke-linecap="round"/>' +
       '<circle cx="20" cy="19.5" r="8" fill="#f0c7a2"/>' +
       '<path d="M11.6 19C11.2 10 28.8 10 28.4 19C26 14.6 20.5 13.6 16 15.6C14.2 16.4 12.7 17.6 11.6 19Z" fill="' + vlasy + '"/>' +
-      '<ellipse cx="20" cy="23.6" rx="1.7" ry="0.75" fill="#e3203d"/>' +
+      // obličej (RF 16. 11. 2026): oči s řasami, tvářenky a nalíčené rty
+      '<circle cx="16.8" cy="19.4" r="0.95" fill="#2a1a12"/><circle cx="23.2" cy="19.4" r="0.95" fill="#2a1a12"/>' +
+      '<path d="M15.9 18.8l-1-.8M16.6 18.4l-.4-1M24.1 18.8l1-.8M23.4 18.4l.4-1" stroke="#2a1a12" stroke-width=".6" stroke-linecap="round"/>' +
+      '<circle cx="14.7" cy="21.9" r="1.4" fill="#ff7f9a" opacity=".45"/><circle cx="25.3" cy="21.9" r="1.4" fill="#ff7f9a" opacity=".45"/>' +
+      '<path d="M17.9 23.5Q19 22.4 20 23.1Q21 22.4 22.1 23.5Q21.1 25.2 20 25.2Q18.9 25.2 17.9 23.5Z" fill="' + RTENKY[(k >> 6) % RTENKY.length] + '"/>' +
+      '<path d="M18.6 23.6Q20 24.1 21.4 23.6" stroke="#7a0f20" stroke-width=".35" fill="none"/><ellipse cx="20.7" cy="24.4" rx=".5" ry=".25" fill="#fff" opacity=".6"/>' +
       '<circle cx="12.2" cy="22.4" r="0.9" fill="#ffd66e"/><circle cx="27.8" cy="22.4" r="0.9" fill="#ffd66e"/>' +
       '</svg>';
   }
@@ -730,6 +744,23 @@ a.link{display:inline-block}
       '<circle cx="20" cy="19.5" r="8.5" fill="#a2a2ab"/>' +
       '<text x="20" y="23.4" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#ffd66e">?</text>' +
       '</svg>';
+  }
+  // obličej pána (RF 16. 11. 2026): oči a úsměv; hostitelé a asi každý třetí s doutníkem, někdo s knírem
+  var RTENKY = ["#e3203d","#c8102e","#ff2d6f","#b0124a"];
+  function tvarPana(jmeno, k){
+    var j = jmeno.toLowerCase().trim();
+    var doutnik = ["robert","ivan","pici"].indexOf(j) !== -1 || (k >> 9) % 3 === 0;
+    var knir = !doutnik && (k >> 11) % 3 === 0;
+    var o = '<circle cx="16.8" cy="19" r="0.95" fill="#2a1a12"/><circle cx="23.2" cy="19" r="0.95" fill="#2a1a12"/>' +
+      '<path d="M15.6 17.2l2.3-.3M24.4 17.2l-2.3-.3" stroke="#3a2414" stroke-width=".7" stroke-linecap="round"/>';
+    if (knir) o += '<path d="M16.4 22.2Q18.2 20.8 20 22Q21.8 20.8 23.6 22.2Q21.8 23.3 20 22.6Q18.2 23.3 16.4 22.2Z" fill="#3a2414"/>' +
+      '<path d="M18.2 23.7Q20 24.6 21.8 23.7" stroke="#8a3a2a" stroke-width=".8" fill="none" stroke-linecap="round"/>';
+    else if (doutnik) o += '<path d="M17.2 23Q19 24.1 21 23.3" stroke="#8a3a2a" stroke-width=".85" fill="none" stroke-linecap="round"/>' +
+      '<g transform="rotate(-12 21.5 23.4)"><rect x="21" y="22.5" width="9" height="2.1" rx=".9" fill="#7a4520"/><rect x="23.2" y="22.5" width="1.3" height="2.1" fill="#ffd66e"/>' +
+      '<rect x="29.1" y="22.5" width="1.5" height="2.1" rx=".6" fill="#b9b1a6"/><circle cx="30.9" cy="23.55" r=".75" fill="#ff8a1e"/></g>' +
+      '<path d="M32 20.6q-1.4-1.8 0-3.3t0-3.2" stroke="#e4e4ea" stroke-width=".8" fill="none" opacity=".75" stroke-linecap="round"/>';
+    else o += '<path d="M17 22.6Q20 25.2 23 22.6" stroke="#8a3a2a" stroke-width=".9" fill="none" stroke-linecap="round"/>';
+    return o;
   }
   function pan(jmeno){
     var k = hash(jmeno.toLowerCase()), sako = SAKA[k % SAKA.length], klobouk = KLOBOUKY[(k >> 3) % KLOBOUKY.length];
@@ -741,7 +772,7 @@ a.link{display:inline-block}
       '<path d="M11.5 14C11.5 5.5 28.5 5.5 28.5 14Z" fill="' + klobouk + '"/>' +
       '<rect x="11.6" y="11.4" width="16.8" height="2.4" fill="' + paska + '"/>' +
       '<ellipse cx="20" cy="14" rx="13.5" ry="3" fill="' + klobouk + '"/>' +
-      '</svg>';
+      tvarPana(jmeno, k) + '</svg>';
   }
   var posazeni = {};
   var fotkari = {};   // kdo nahrál fotku (jména malými) → foťák u postavičky
@@ -771,6 +802,93 @@ a.link{display:inline-block}
     posazeni[klic] = 1;
     return el;
   }
+
+  // ---- párty na suknu (RF 16. 11. 2026): podle dne v Praze přibývá pití a jídlo, karty ne ----
+  function dnesPraha(){
+    try { return new Intl.DateTimeFormat("en-CA", {timeZone:"Europe/Prague", year:"numeric", month:"2-digit", day:"2-digit"}).format(new Date()); }
+    catch(e){ var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  }
+  function partyFaze(){ var d = dnesPraha(); return d >= "2026-11-20" ? 4 : d >= "2026-11-19" ? 3 : d >= "2026-11-18" ? 2 : 1; }
+  var SVG0 = '<svg class="party" viewBox="0 0 120 60" aria-hidden="true">';
+  function korbel(x, rot, vlevo){
+    var h = vlevo ? '<path d="M' + x + ' 28h-6a5 5 0 0 0 -5 5v9a5 5 0 0 0 5 5h6" fill="none" stroke="#fff2d2" stroke-width="3" opacity=".85"/>'
+                  : '<path d="M' + (x + 24) + ' 28h6a5 5 0 0 1 5 5v9a5 5 0 0 1 -5 5h-6" fill="none" stroke="#fff2d2" stroke-width="3" opacity=".85"/>';
+    return '<g transform="rotate(' + rot + ' ' + (x + 12) + ' 40)">' + h +
+      '<rect x="' + x + '" y="20" width="24" height="36" rx="4" fill="#f2a52a" stroke="#fff2d2" stroke-opacity=".7" stroke-width="1.5"/>' +
+      '<rect x="' + (x + 4) + '" y="25" width="3" height="26" rx="1.5" fill="#fff" opacity=".35"/>' +
+      '<circle cx="' + (x + 14) + '" cy="44" r="1.3" fill="#ffe08a"/><circle cx="' + (x + 18) + '" cy="36" r="1" fill="#ffe08a"/>' +
+      '<circle cx="' + (x + 4) + '" cy="20" r="6" fill="#fffaf0"/><circle cx="' + (x + 12) + '" cy="17" r="7" fill="#fffaf0"/><circle cx="' + (x + 20) + '" cy="20" r="6" fill="#fffaf0"/></g>';
+  }
+  var PARTY = {
+    pivo: function(){ return SVG0 + korbel(30, 14, true) + korbel(66, -14, false) +
+      '<path d="M58 8l2-5M62 9l4-4M54 9l-3-4" stroke="#ffd66e" stroke-width="1.6" stroke-linecap="round"/></svg>'; },
+    chipsy: function(){ return SVG0 +
+      '<path d="M28 30l8-14 9 12z M44 27l10-15 8 15z M60 26l9-13 10 14z M76 29l8-12 8 13z M36 31l9-9 8 9z" fill="#ffcf4a" stroke="#d99a1a" stroke-width="1"/>' +
+      '<ellipse cx="60" cy="30" rx="38" ry="6" fill="#b0122a"/>' +
+      '<path d="M22 30Q60 72 98 30z" fill="#e3203d"/><path d="M34 40Q60 58 86 40" fill="none" stroke="#ffd66e" stroke-width="2" opacity=".7"/></svg>'; },
+    whisky: function(){
+      function sklo(x){ return '<path d="M' + x + ' 36h20l-2 20h-16z" fill="rgba(255,255,255,.22)" stroke="#fff2d2" stroke-width="1.2"/>' +
+        '<path d="M' + (x + .8) + ' 45h18.4l-1.2 10h-16z" fill="#d98a2a"/><rect x="' + (x + 6) + '" y="41" width="7" height="7" rx="1.5" fill="#e8f6ff" opacity=".85" transform="rotate(12 ' + (x + 9) + ' 44)"/>'; }
+      return SVG0 + sklo(18) + sklo(82) +
+        '<rect x="54" y="2" width="12" height="6" rx="1.5" fill="#1b1b24"/><rect x="55" y="7" width="10" height="11" fill="#7a3d12"/>' +
+        '<path d="M48 22q0-6 7-6h10q7 0 7 6v32q0 4-4 4h-16q-4 0-4-4z" fill="#8a4a1a" stroke="#3d200f" stroke-width="1"/>' +
+        '<rect x="51" y="30" width="18" height="15" rx="1.5" fill="#fff2d2"/><rect x="54" y="35" width="12" height="2" fill="#e3203d"/><rect x="55" y="39" width="10" height="1.5" fill="#8a4a1a"/>' +
+        '<rect x="51" y="20" width="3" height="32" rx="1.5" fill="#fff" opacity=".25"/></svg>'; },
+    zebra: function(){
+      var zebro = "";
+      for (var i = 0; i < 5; i++) zebro += '<rect x="' + (38 + i * 9) + '" y="20" width="7" height="22" rx="3.5" fill="#7a2e12"/><circle cx="' + (41.5 + i * 9) + '" cy="19" r="3" fill="#fff2d2"/>';
+      return SVG0 + '<ellipse cx="60" cy="36" rx="48" ry="20" fill="#fff8ec" stroke="#d9cbb0" stroke-width="1.5"/><ellipse cx="60" cy="36" rx="38" ry="14" fill="#f1e6d0"/>' +
+        '<g transform="rotate(-8 60 32)">' + zebro + '<path d="M38 28h45" stroke="#c0501e" stroke-width="2.5" stroke-linecap="round" opacity=".8"/><path d="M38 35h45" stroke="#4a1a08" stroke-width="1.5" opacity=".6"/></g>' +
+        '<path d="M84 40l10-3M86 44l9 1M83 46l8 5" stroke="#ffcf4a" stroke-width="3" stroke-linecap="round"/>' +
+        '<ellipse cx="26" cy="40" rx="7" ry="4" fill="#e3203d" stroke="#fff2d2" stroke-width="1"/></svg>'; },
+    sampus: function(){
+      function flet(x){ return '<path d="M' + x + ' 14h10l-1.5 22q-3.5 3-7 0z" fill="#ffe9a8" fill-opacity=".85" stroke="#fff2d2" stroke-width="1"/>' +
+        '<path d="M' + (x + 5) + ' 38v14" stroke="#fff2d2" stroke-width="1.6"/><ellipse cx="' + (x + 5) + '" cy="53" rx="6" ry="2" fill="#fff2d2"/>' +
+        '<circle cx="' + (x + 4) + '" cy="26" r="1" fill="#fff"/><circle cx="' + (x + 6) + '" cy="20" r=".8" fill="#fff"/>'; }
+      return SVG0 + flet(12) + flet(98) +
+        '<g transform="rotate(-14 60 30)"><rect x="54" y="2" width="12" height="10" rx="2" fill="#ffd66e"/><path d="M52 14q0-4 8-4t8 4v24h-16z" fill="#1f5a34"/><rect x="54" y="20" width="12" height="7" fill="#fff2d2"/></g>' +
+        '<path d="M36 30h48l-5 28h-38z" fill="#c9ccd4" stroke="#8e9099" stroke-width="1.2"/><rect x="34" y="27" width="52" height="6" rx="3" fill="#e4e6ec"/>' +
+        '<rect x="44" y="24" width="8" height="7" rx="1.5" fill="#e8f6ff" opacity=".9" transform="rotate(-15 48 27)"/><rect x="68" y="23" width="8" height="7" rx="1.5" fill="#e8f6ff" opacity=".9" transform="rotate(20 72 26)"/>' +
+        '<path d="M42 38v14" stroke="#fff" stroke-width="2.5" opacity=".45" stroke-linecap="round"/></svg>'; },
+    becher: function(){
+      // Becherovka s cedulkou „pro Humla“ (RF 16. 11. 2026)
+      return SVG0 +
+        '<rect x="35" y="2" width="10" height="6" rx="1.5" fill="#e3203d"/><rect x="36" y="7" width="8" height="9" fill="#1d5a32"/>' +
+        '<path d="M28 22q0-6 8-7h8q8 1 8 7v32q0 4-4 4h-16q-4 0-4-4z" fill="#1f6a3a" stroke="#0e3d20" stroke-width="1"/>' +
+        '<rect x="30" y="20" width="3" height="32" rx="1.5" fill="#fff" opacity=".25"/>' +
+        '<rect x="30" y="29" width="20" height="16" rx="2" fill="#f6e7b0"/><rect x="30" y="29" width="20" height="3" fill="#e3203d"/>' +
+        '<text x="40" y="40" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="5.6" fill="#1d5a32">BECHEROVKA</text>' +
+        '<path d="M49 22l13 4" stroke="#fff2d2" stroke-width="1"/>' +
+        '<g transform="rotate(-6 84 30)"><rect x="60" y="18" width="50" height="22" rx="4" fill="#fff8e6" stroke="#ffd66e" stroke-width="1.5"/><circle cx="64" cy="29" r="1.6" fill="#b98f2e"/>' +
+        '<text x="87" y="34" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="13" fill="#e3203d">pro Humla</text></g></svg>'; },
+    balonky: function(){
+      function bal(x, y, c, t){ return '<path d="M' + x + ' ' + (y + 15) + 'q-4 10 2 18t-1 14" fill="none" stroke="#fff2d2" stroke-width="1" opacity=".8"/>' +
+        '<ellipse cx="' + x + '" cy="' + y + '" rx="11" ry="13" fill="' + c + '"/><path d="M' + (x - 2) + ' ' + (y + 13) + 'l2 3 2-3z" fill="' + t + '"/><ellipse cx="' + (x - 4) + '" cy="' + (y - 5) + '" rx="2.5" ry="4" fill="#fff" opacity=".45"/>'; }
+      return SVG0 + bal(34, 16, "#e3203d", "#b0122a") + bal(60, 13, "#ffd66e", "#d9a92e") + bal(86, 16, "#2563b0", "#1a4a86") + '</svg>'; },
+    bouchnuto: function(){
+      return SVG0 + '<g transform="rotate(28 60 40)"><path d="M52 30q0-4 8-4t8 4v28h-16z" fill="#1f5a34"/><rect x="54" y="20" width="12" height="10" rx="2" fill="#ffd66e"/><rect x="54" y="38" width="12" height="8" fill="#fff2d2"/></g>' +
+        '<g fill="#fffaf0"><circle cx="76" cy="14" r="5"/><circle cx="84" cy="9" r="4"/><circle cx="90" cy="16" r="3.5"/><circle cx="96" cy="8" r="2.5"/><circle cx="80" cy="22" r="3"/><circle cx="101" cy="14" r="2"/></g>' +
+        '<rect x="104" y="2" width="7" height="6" rx="2" fill="#c98a4a" transform="rotate(30 107 5)"/>' +
+        '<path d="M22 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2z M36 4l1.3 3 3 1.3-3 1.3-1.3 3-1.3-3-3-1.3 3-1.3z" fill="#ffd66e"/></svg>'; }
+  };
+  function party(tbl, ln, radku){
+    // věci se po délce stolu opakují jako na hostinové tabuli (asi jedna na 190 px), číslo „u stolu“ je uprostřed
+    // RF 16. 11.: šampus a konfety hned od začátku
+    var f = partyFaze(), vec = ["sampus", "pivo", "chipsy"];
+    if (f >= 2) vec = ["sampus", "pivo", "whisky", "chipsy", "zebra"];
+    if (f >= 4) vec = ["bouchnuto", "pivo", "whisky", "sampus", "chipsy", "zebra"];
+    var kolik = Math.max(vec.length, Math.round((radku || 2) * 70 / 190)), seq = [];
+    for (var i = 0; i < kolik; i++) seq.push(vec[i % vec.length]);
+    seq.splice(1, 0, "becher");
+    if (f >= 4) seq.unshift("balonky");
+    var stred = Math.floor(seq.length / 2);
+    seq.forEach(function(k, i){
+      if (i === stred) tbl.appendChild(ln);
+      tbl.insertAdjacentHTML("beforeend", PARTY[k]());
+    });
+    tbl.classList.add("konfety");
+    if (f >= 3) tbl.classList.add("hodne", "padaji");
+  }
   function stul(list, me){
     var box = $("poker"); box.textContent = "";
     // v čele sedí Pici, hostitelé nahoře po stranách, ostatní si sedají odshora dolů střídavě vlevo a vpravo
@@ -785,7 +903,9 @@ a.link{display:inline-block}
     var tbl = document.createElement("div"); tbl.className = "lt-table";
     var b = document.createElement("b"); b.textContent = n;
     var sp = document.createElement("span"); sp.textContent = "u stolu";
-    tbl.appendChild(b); tbl.appendChild(sp);
+    var ln = document.createElement("div"); ln.className = "lt-n";
+    ln.appendChild(b); ln.appendChild(sp);
+    party(tbl, ln, Math.ceil((cap - 1) / 2));
     head.appendChild(zidle(hlava[0] || null, me));
     for (var z = 0; z < cap - 1; z++){
       (z % 2 === 0 ? left : right).appendChild(zidle(z < strany.length ? strany[z] : null, me));
