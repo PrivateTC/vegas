@@ -275,6 +275,9 @@ a.link{display:inline-block}
 .kt-vyzva p b{color:var(--bulb)}
 .kt-vyzva .link{align-self:center}
 .lt .st.par{position:relative; height:80px}
+.lt .st.free.pryc{justify-content:flex-end; gap:2px}
+.lt .st.free.pryc::before{margin-bottom:6px}
+.lt .st.pryc em{opacity:.75}
 .lt .st .klin-dama{position:absolute; left:50%; bottom:25px; width:28px; height:31px; margin-left:-4px; pointer-events:none; filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}
 .lt .st .klin-dama svg, .lt .st.king .klin-dama svg{width:28px; height:31px; filter:none}
 .lt .st em.klin-jm, .lt .st.king em.klin-jm, .lt .st.me em.klin-jm{font-size:11px; font-weight:600; color:#ff9fb8}
@@ -894,9 +897,16 @@ a.link{display:inline-block}
     }
     return cap;
   }
-  function zidle(jm, me, dama){
+  function zidle(jm, me, dama, pryc){
     var el = document.createElement("div");
     if (!jm){ el.className = "st free"; return el; }
+    if (pryc){
+      var sl = jm.trim().split(/\s+/), e1 = document.createElement("em"), e2 = document.createElement("em");
+      el.className = "st free pryc" + (jm.toLowerCase() === me ? " me" : ""); el.title = jm + " sedí na klíně";
+      e1.textContent = sl[0] + (sl[1] ? " " + sl[1].charAt(0).toUpperCase() + "." : ""); e2.className = "klin-jm"; e2.textContent = "♥ na klíně";
+      el.appendChild(e1); el.appendChild(e2);
+      return el;
+    }
     var klic = jm.toLowerCase(), slova = jm.trim().split(/\s+/);
     var jaNaKline = dama && dama.toLowerCase() === me;
     el.className = "st" + (kral(jm) ? " king" : "") + (klic === me || jaNaKline ? " me" : "") + (fotkari[klic] ? " fotkar" : "") + (posazeni[klic] ? "" : " sit") + (dama ? " par" : "");
@@ -1008,7 +1018,7 @@ a.link{display:inline-block}
     // v čele sedí Pici, hostitelé nahoře po stranách, ostatní si sedají odshora dolů střídavě vlevo a vpravo
     list = poradi(list);
     var sp0 = sparuj(list), n = list.length, cap = zidli(n);
-    list = list.filter(function(x){ return !sp0.naKline[x.toLowerCase()]; });
+    // dáma na klíně: její židle zůstane prázdná, ale se jménem (RF 16. 11. 2026)
     var hlava = list.filter(celo).slice(0, 1), strany = list.filter(function(x){ return !celo(x); });
     var lt = document.createElement("div"); lt.className = "lt";
     var head = document.createElement("div"); head.className = "lt-head";
@@ -1022,10 +1032,11 @@ a.link{display:inline-block}
     ln.appendChild(b); ln.appendChild(sp);
     party(tbl, ln, Math.ceil((cap - 1) / 2));
     var dam = function(x){ return x ? sp0.pary[x.toLowerCase()] : null; };
-    head.appendChild(zidle(hlava[0] || null, me, dam(hlava[0])));
+    var pryc = function(x){ return !!(x && sp0.naKline[x.toLowerCase()]); };
+    head.appendChild(zidle(hlava[0] || null, me, dam(hlava[0]), pryc(hlava[0])));
     for (var z = 0; z < cap - 1; z++){
       var hz = z < strany.length ? strany[z] : null;
-      (z % 2 === 0 ? left : right).appendChild(zidle(hz, me, dam(hz)));
+      (z % 2 === 0 ? left : right).appendChild(zidle(hz, me, dam(hz), pryc(hz)));
     }
     body.appendChild(left); body.appendChild(tbl); body.appendChild(right);
     lt.appendChild(head); lt.appendChild(body); box.appendChild(lt);
