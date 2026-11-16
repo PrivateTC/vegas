@@ -284,6 +284,8 @@ a.link{display:inline-block}
 .klin-box{display:flex; flex-direction:column; align-items:center; gap:10px; margin:12px 0 4px; padding:12px; border-radius:14px; background:rgba(255,111,181,.1); border:1.5px dashed rgba(255,111,181,.5); text-align:center}
 .klin-box p{margin:0; color:#fff; font-size:15px}
 .klin-box p b{color:#ff9fb8}
+.klin-box p.klin-pravidlo{font-size:13px; opacity:.8; margin-top:-6px}
+.klin-box .err{color:#ffb4b4}
 .klin-box select{width:100%; max-width:280px; padding:10px 12px; border-radius:10px; border:1.5px solid rgba(255,214,110,.5); background:#1a0f24; color:#fff; font:600 16px/1.2 var(--f-cond)}
 .satna-tip{margin:0 0 6px; text-align:center}
 .satna-tip .link{font-size:15px}
@@ -1216,7 +1218,7 @@ a.link{display:inline-block}
     var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 60000);
     return fetch(FOTO_HOOK, {method:"POST", body:new URLSearchParams(pole), signal: ctl ? ctl.signal : undefined})
       .then(function(r){ return r.text(); })
-      .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (!d || !d.ok) throw new Error("server"); return d; },
+      .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (d && d.chybi) throw new Error("chybi:" + d.chybi); if (!d || !d.ok) throw new Error("server"); return d; },
             function(e){ clearTimeout(t); throw e; });
   }
   // počítání návštěv (RF 15. 11. 2026, volba A): nejvýš 1× za hodinu z prohlížeče; se jménem, kdo už odpověděl, jinak anonymně
@@ -1291,6 +1293,7 @@ a.link{display:inline-block}
       .sort(function(a, b){ return a.localeCompare(b, "cs"); });
     if (!volne.length){ p.textContent = "💋 Všechny dámy už sedí na klíně. 😉"; box.appendChild(p); return; }
     p.textContent = "💋 Vezmi si dámu na klín:"; box.appendChild(p);
+    var pr = document.createElement("p"); pr.className = "klin-pravidlo"; pr.textContent = "Jen pro ty, kdo nám dali e-mail i telefon."; box.appendChild(pr);
     var sel = document.createElement("select"); sel.id = "klin-vyber"; sel.setAttribute("aria-label", "Kterou dámu si vezmeš na klín");
     volne.forEach(function(x){ var o = document.createElement("option"); o.value = x; o.textContent = x; sel.appendChild(o); });
     box.appendChild(sel);
@@ -1301,9 +1304,21 @@ a.link{display:inline-block}
     fotoPost(pole).then(function(){
       var k = dama.toLowerCase().trim(); delete KLINY[k]; KLINY[k] = pan;
       if ((st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase());
-    }).catch(function(){
+    }).catch(function(err){
       b.disabled = false; b.textContent = old;
-      var e = document.createElement("p"); e.className = "err"; e.textContent = "Nepovedlo se. Zkontroluj připojení a zkus to znovu."; $("klin-box").appendChild(e);
+      var box = $("klin-box"), e = document.createElement("p"); e.className = "err";
+      if (err && err.message === "chybi:kontakt"){
+        // na klín jen s e-mailem i telefonem (RF 16. 11. 2026)
+        e.textContent = "Na klín si může dámu vzít jen ten, kdo nám dal e-mail i telefon. Doplň je a zkus to znovu.";
+        box.appendChild(e);
+        var go = document.createElement("button"); go.type = "button"; go.className = "btn alt"; go.textContent = "Doplnit e-mail a telefon";
+        go.addEventListener("click", function(){
+          st.kontakt = false; save(); kontakt(panel());
+          $("kontakt").scrollIntoView({behavior:"smooth", block:"start"});
+          setTimeout(function(){ try { $("kt-email").focus({preventScroll:true}); } catch(x){} }, 450);
+        });
+        box.appendChild(go);
+      } else { e.textContent = "Nepovedlo se. Zkontroluj připojení a zkus to znovu."; box.appendChild(e); }
     });
   }
   // ---- šatna: výběr vzhledu vlastní figurky ----
