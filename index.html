@@ -274,6 +274,31 @@ a.link{display:inline-block}
 .kt-vyzva p{margin:0; color:#fff !important; font-size:16px; line-height:1.45}
 .kt-vyzva p b{color:var(--bulb)}
 .kt-vyzva .link{align-self:center}
+.lt .st.par{position:relative; height:80px}
+.lt .st .klin-dama{position:absolute; left:50%; bottom:25px; width:28px; height:31px; margin-left:-4px; pointer-events:none; filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}
+.lt .st .klin-dama svg, .lt .st.king .klin-dama svg{width:28px; height:31px; filter:none}
+.lt .st em.klin-jm, .lt .st.king em.klin-jm, .lt .st.me em.klin-jm{font-size:11px; font-weight:600; color:#ff9fb8}
+.klin-box{display:flex; flex-direction:column; align-items:center; gap:10px; margin:12px 0 4px; padding:12px; border-radius:14px; background:rgba(255,111,181,.1); border:1.5px dashed rgba(255,111,181,.5); text-align:center}
+.klin-box p{margin:0; color:#fff; font-size:15px}
+.klin-box p b{color:#ff9fb8}
+.klin-box select{width:100%; max-width:280px; padding:10px 12px; border-radius:10px; border:1.5px solid rgba(255,214,110,.5); background:#1a0f24; color:#fff; font:600 16px/1.2 var(--f-cond)}
+.satna-tip{margin:0 0 6px; text-align:center}
+.satna-tip .link{font-size:15px}
+.satna-bar{display:flex; justify-content:center; margin:14px 0 4px}
+.satna{display:flex; flex-direction:column; gap:12px; padding:14px; border-radius:14px; background:rgba(0,0,0,.3); border:1.5px solid rgba(255,214,110,.4); margin:12px 0}
+.satna h4{margin:0; font:700 14px/1 var(--f-cond); letter-spacing:.22em; text-transform:uppercase; color:var(--bulb); text-align:center}
+.satna .satna-p{margin:0; font-size:15px; color:#fff; text-align:center}
+.satna .link{align-self:center}
+.satna-nahled{display:flex; justify-content:center; padding:6px 0; border-radius:12px; background:radial-gradient(60% 70% at 50% 50%, rgba(255,214,110,.18), transparent)}
+.satna-nahled svg{width:132px; height:145px; display:block; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+.sv-rada{display:flex; flex-direction:column; gap:7px; margin-bottom:10px}
+.sv-rada > span{font:700 12px/1 var(--f-cond); letter-spacing:.16em; text-transform:uppercase; color:var(--bulb)}
+.sv-moz{display:flex; flex-wrap:wrap; gap:7px}
+.sv{padding:9px 13px; border-radius:999px; border:1.5px solid rgba(255,214,110,.35); background:rgba(0,0,0,.25); color:#fff; font:600 15px/1 var(--f-cond); letter-spacing:.03em; cursor:pointer}
+.sv[aria-pressed="true"]{background:var(--bulb); color:var(--ink); border-color:var(--bulb)}
+.sv.barva{width:36px; height:36px; padding:0; border-radius:50%; border:2px solid rgba(255,255,255,.35)}
+.sv.barva[aria-pressed="true"]{border-color:#fff; box-shadow:0 0 0 3px var(--bulb)}
+.satna-ok{margin:8px 0 0; text-align:center; color:var(--bulb); font:600 16px/1.3 var(--f-cond); letter-spacing:.04em}
 .kt-stul{margin:0 0 12px; animation:kt-puls 2.4s ease-in-out 3}
 @keyframes kt-puls{50%{box-shadow:0 0 0 4px rgba(255,214,110,.25)}}
 @media (prefers-reduced-motion:reduce){ .kt-stul{animation:none} }
@@ -528,8 +553,21 @@ a.link{display:inline-block}
         <button class="btn" id="kt-stul-go" type="button">Doplnit kontakt</button>
         <button class="link quiet" id="kt-stul-uz" type="button">Kontakt už jsem dal</button>
       </div>
+      <p class="satna-tip"><button class="link" id="satna-tip" type="button">🎩 Vytuň si figurku (pod stolem)</button></p>
       <div class="tables" id="poker" role="img" aria-label="Stůl s hosty, kteří už potvrdili"></div>
       <p class="legenda" aria-hidden="true"><span><i class="lg-m"></i>pán</span><span><i class="lg-z"></i>dáma</span><span><i class="lg-x">?</i>nevíme</span></p>
+      <div class="satna-bar"><button class="btn alt" id="satna-go" type="button">🎩 Vytuň si figurku</button></div>
+      <div class="klin-box" id="klin-box" hidden></div>
+      <p class="satna-ok" id="satna-ok" role="status" hidden></p>
+      <div class="satna" id="satna" hidden>
+        <h4>Šatna</h4>
+        <p class="satna-p">Vyber si klobouk, barvy, doplňky a co budeš držet v ruce. Po uložení tě tak uvidí celý stůl.</p>
+        <div class="satna-nahled" id="satna-nahled" aria-hidden="true"></div>
+        <div id="satna-volby"></div>
+        <p class="err" id="satna-err" role="alert" hidden></p>
+        <button class="btn" id="satna-ulozit" type="button">Uložit a sednout ke stolu</button>
+        <button class="link quiet" id="satna-zpet" type="button">Zavřít bez uložení</button>
+      </div>
       <ul class="seats" id="seats"></ul>
     </div>
     <section class="foto" id="foto" aria-label="Fotostěna">
@@ -722,29 +760,77 @@ a.link{display:inline-block}
   }
   var SATY = ["#e3203d","#c8102e","#b0124a","#d6334f","#a3172f","#ef4a5f","#8f1228"];   // dámy: odstíny červené
   var VLASY = ["#2a1a12","#5a3a1e","#8a5a2b","#d9b46a","#1b1b24","#7a2a1a","#b9b1a6"];
-  function postava(jmeno){
-    var p = pohlavi(jmeno);
-    if (p === "z") return dama(jmeno);
-    if (p === "x") return nevime();
-    return pan(jmeno);
+  var RTENKY = ["#e3203d","#c8102e","#ff2d6f","#b0124a"];
+  // ---- šatna (RF 16. 11. 2026): každý si může svou figurku vytunit; vzhled se ukládá k jménu a vidí ho celý stůl ----
+  // kód vzhledu: k = klobouk / účes, c = barva klobouku nebo vlasů, b = sako / šaty, d = doplňky (bity), r = v ruce, l = rtěnka
+  var VZHLEDY = {};
+  var ROZSAH = {k:[6, 4], c:[7, 7], b:[7, 7], d:[64, 32], r:[5, 5], l:[1, 4]};   // [pán, dáma]
+  function vychozi(jmeno, zena){
+    var k = hash(String(jmeno).toLowerCase()), v = {k:0, c:(k >> 3) % 7, b:k % 7, d:0, r:0, l:zena ? (k >> 6) % 4 : 0};
+    if (!zena){
+      var j = String(jmeno).toLowerCase().trim();
+      var doutnik = ["robert","ivan","pici"].indexOf(j) !== -1 || (k >> 9) % 3 === 0;
+      if (doutnik) v.d = 1; else if ((k >> 11) % 3 === 0) v.d = 2;
+    }
+    return v;
   }
-  function dama(jmeno){
-    var k = hash(jmeno.toLowerCase()), saty = SATY[k % SATY.length], vlasy = VLASY[(k >> 3) % VLASY.length];
-    return '<svg viewBox="0 0 40 44" aria-hidden="true">' +
-      '<path d="M10 20C10 8 30 8 30 20L31.5 32C27 34.5 13 34.5 8.5 32Z" fill="' + vlasy + '"/>' +
-      '<path d="M6 44C6 34 12 29.5 20 29.5C28 29.5 34 34 34 44Z" fill="' + saty + '"/>' +
-      '<path d="M15.6 29.9L20 35.5L24.4 29.9Z" fill="#f0c7a2"/>' +
-      '<path d="M15.8 30.6Q20 36.6 24.2 30.6" fill="none" stroke="#fff2d2" stroke-width="1.1" stroke-dasharray="0.1 1.6" stroke-linecap="round"/>' +
-      '<circle cx="20" cy="19.5" r="8" fill="#f0c7a2"/>' +
-      '<path d="M11.6 19C11.2 10 28.8 10 28.4 19C26 14.6 20.5 13.6 16 15.6C14.2 16.4 12.7 17.6 11.6 19Z" fill="' + vlasy + '"/>' +
-      // obličej (RF 16. 11. 2026): oči s řasami, tvářenky a nalíčené rty
-      '<circle cx="16.8" cy="19.4" r="0.95" fill="#2a1a12"/><circle cx="23.2" cy="19.4" r="0.95" fill="#2a1a12"/>' +
+  function rozkoduj(kod, jmeno, zena){
+    var v = vychozi(jmeno, zena), re = /([a-z])(\d{1,2})/g, m, i = zena ? 1 : 0;
+    while ((m = re.exec(String(kod || "")))){ if (ROZSAH[m[1]] && +m[2] < ROZSAH[m[1]][i]) v[m[1]] = +m[2]; }
+    return v;
+  }
+  function zakoduj(v, zena){ return "k" + v.k + "c" + v.c + "b" + v.b + "d" + v.d + "r" + v.r + (zena ? "l" + v.l : ""); }
+  function vzhledJmena(jmeno, zena){
+    var kod = VZHLEDY[String(jmeno).toLowerCase().trim()];
+    return kod ? rozkoduj(kod, jmeno, zena) : vychozi(jmeno, zena);
+  }
+  function postava(jmeno, v){
+    var p = pohlavi(jmeno);
+    if (p === "z") return dama(jmeno, v || vzhledJmena(jmeno, true));
+    if (p === "x") return nevime();
+    return pan(jmeno, v || vzhledJmena(jmeno, false));
+  }
+  var BRYLE = '<path d="M14.3 17.7h4.9q.4 0 .4.4l-.3 1.6q-.4 1.4-2.2 1.4h-.9q-1.7 0-1.9-1.5l-.2-1.5q0-.4.2-.4zM25.7 17.7h-4.9q-.4 0-.4.4l.3 1.6q.4 1.4 2.2 1.4h.9q1.7 0 1.9-1.5l.2-1.5q0-.4-.2-.4z" fill="#14141c"/>' +
+    '<path d="M19.6 18.2h.8M13.9 18l-1.6-.7M26.1 18l1.6-.7" stroke="#14141c" stroke-width=".7" stroke-linecap="round"/><path d="M15.4 18.4l1.4 1.4M22 18.4l1.4 1.4" stroke="#fff" stroke-width=".5" opacity=".6"/>';
+  var RETEZ = '<path d="M13.6 30.4Q20 39.5 26.4 30.4" stroke="#ffd66e" stroke-width="1.1" stroke-dasharray="1.1 .7" fill="none"/><circle cx="20" cy="35.2" r="1.4" fill="#ffd66e" stroke="#b98f2e" stroke-width=".4"/>';
+  // jointa v levém koutku úst (RF 16. 11. 2026)
+  var JOINTA = '<path d="M18.5 23.2L10.6 23.3L10.6 26.4L18.5 24.3Z" fill="#fffaf0" stroke="#cbbf9e" stroke-width=".35"/><path d="M14 23.5l.4 1.9M16.2 23.6l.3 1" stroke="#cbbf9e" stroke-width=".3"/>' +
+    '<path d="M10.6 23.3l-.7.3v2.5l.7.3z" fill="#9a9aa2"/><ellipse cx="9.8" cy="24.85" rx=".6" ry="1.1" fill="#ff8a1e"/><path d="M9.8 23.4q-1.4-1.8 0-3.3t0-3.2" stroke="#d6f5d0" stroke-width=".8" fill="none" opacity=".75" stroke-linecap="round"/>';
+  function vRuce(r){
+    var ruka = '<circle cx="33.2" cy="40.6" r="1.9" fill="#f0c7a2"/>';
+    if (r === 1) return '<path d="M30.9 29.5h4.4l-.6 6.4q-1.6 1.2-3.2 0z" fill="#ffe9a8" stroke="#fff2d2" stroke-width=".5"/><path d="M33.1 36.4v3.6" stroke="#fff2d2" stroke-width=".7"/><circle cx="32.6" cy="32.4" r=".45" fill="#fff"/>' + ruka;
+    if (r === 2) return '<path d="M35.4 33.2h1.3q1.2 0 1.2 1.2v2.2q0 1.2-1.2 1.2h-1.3" fill="none" stroke="#fff2d2" stroke-width=".9"/><rect x="30.4" y="32" width="5.2" height="7.2" rx="1" fill="#f2a52a" stroke="#fff2d2" stroke-width=".5"/>' +
+      '<circle cx="31.4" cy="32" r="1.4" fill="#fffaf0"/><circle cx="33" cy="31.5" r="1.6" fill="#fffaf0"/><circle cx="34.6" cy="32" r="1.4" fill="#fffaf0"/>' + ruka;
+    if (r === 3) return '<rect x="32.2" y="26.6" width="1.8" height="2.6" fill="#e3203d"/><path d="M31 31q0-2 2.1-2t2.1 2v8h-4.2z" fill="#1f6a3a" stroke="#0e3d20" stroke-width=".4"/><rect x="31.2" y="32.6" width="3.8" height="2.6" fill="#f6e7b0"/>' + ruka;
+    if (r === 4) return '<path d="M30.2 33.6h5.8l-.6 5.6h-4.6z" fill="rgba(255,255,255,.3)" stroke="#fff2d2" stroke-width=".5"/><path d="M30.5 36.2h5.2l-.3 3h-4.6z" fill="#d98a2a"/><rect x="31.6" y="34.6" width="2" height="2" fill="#e8f6ff" opacity=".85"/>' + ruka;
+    return "";
+  }
+  function dama(jmeno, v){
+    var saty = SATY[v.b], vlasy = VLASY[v.c], o = '<svg viewBox="0 0 40 44" aria-hidden="true">';
+    var ofina = '<path d="M11.6 19C11.2 10 28.8 10 28.4 19C26 14.6 20.5 13.6 16 15.6C14.2 16.4 12.7 17.6 11.6 19Z" fill="' + vlasy + '"/>';
+    if (v.k === 0) o += '<path d="M10 20C10 8 30 8 30 20L31.5 32C27 34.5 13 34.5 8.5 32Z" fill="' + vlasy + '"/>';
+    if (v.k === 1) o += '<circle cx="20" cy="9.2" r="4.6" fill="' + vlasy + '"/><path d="M17 9.5q3-2 6 0" stroke="#000" stroke-width=".4" opacity=".3" fill="none"/>';
+    if (v.k === 2) o += '<g fill="' + vlasy + '"><circle cx="12" cy="20" r="4"/><circle cx="28" cy="20" r="4"/><circle cx="11.2" cy="26" r="3.6"/><circle cx="28.8" cy="26" r="3.6"/><circle cx="13.6" cy="13.4" r="4.2"/><circle cx="26.4" cy="13.4" r="4.2"/><circle cx="20" cy="10.8" r="4.6"/><circle cx="13" cy="30.5" r="3"/><circle cx="27" cy="30.5" r="3"/></g>';
+    if (v.k === 3) o += '<path d="M10.5 21C10.5 9 29.5 9 29.5 21L29.6 26.4C26 28 14 28 10.4 26.4Z" fill="' + vlasy + '"/>';
+    o += '<path d="M6 44C6 34 12 29.5 20 29.5C28 29.5 34 34 34 44Z" fill="' + saty + '"/>' +
+      '<path d="M15.6 29.9L20 35.5L24.4 29.9Z" fill="#f0c7a2"/>';
+    if (v.d & 2) o += '<g fill="#fffaf0" stroke="#d9cbb0" stroke-width=".25"><circle cx="16.2" cy="31.2" r=".8"/><circle cx="17.2" cy="32.6" r=".8"/><circle cx="18.4" cy="33.7" r=".8"/><circle cx="20" cy="34.2" r=".85"/><circle cx="21.6" cy="33.7" r=".8"/><circle cx="22.8" cy="32.6" r=".8"/><circle cx="23.8" cy="31.2" r=".8"/></g>';
+    else o += '<path d="M15.8 30.6Q20 36.6 24.2 30.6" fill="none" stroke="#fff2d2" stroke-width="1.1" stroke-dasharray="0.1 1.6" stroke-linecap="round"/>';
+    if (v.d & 8) o += '<path d="M15 31.2Q20 39 25 31.2" stroke="#ffd66e" stroke-width="1" stroke-dasharray="1 .6" fill="none"/><circle cx="20" cy="35.4" r="1.2" fill="#ffd66e"/>';
+    o += '<circle cx="20" cy="19.5" r="8" fill="#f0c7a2"/>';
+    o += v.k === 3 ? '<path d="M11.8 18.4C11.6 10.5 28.4 10.5 28.2 18.4Q20 14.8 11.8 18.4Z" fill="' + vlasy + '"/>' : ofina;
+    if (v.k === 2) o += '<g fill="' + vlasy + '"><circle cx="15" cy="13.6" r="2.6"/><circle cx="20" cy="12.6" r="2.8"/><circle cx="25" cy="13.6" r="2.6"/></g>';
+    // obličej: oči s řasami, tvářenky a nalíčené rty
+    o += '<circle cx="16.8" cy="19.4" r="0.95" fill="#2a1a12"/><circle cx="23.2" cy="19.4" r="0.95" fill="#2a1a12"/>' +
       '<path d="M15.9 18.8l-1-.8M16.6 18.4l-.4-1M24.1 18.8l1-.8M23.4 18.4l.4-1" stroke="#2a1a12" stroke-width=".6" stroke-linecap="round"/>' +
       '<circle cx="14.7" cy="21.9" r="1.4" fill="#ff7f9a" opacity=".45"/><circle cx="25.3" cy="21.9" r="1.4" fill="#ff7f9a" opacity=".45"/>' +
-      '<path d="M17.9 23.5Q19 22.4 20 23.1Q21 22.4 22.1 23.5Q21.1 25.2 20 25.2Q18.9 25.2 17.9 23.5Z" fill="' + RTENKY[(k >> 6) % RTENKY.length] + '"/>' +
+      '<path d="M17.9 23.5Q19 22.4 20 23.1Q21 22.4 22.1 23.5Q21.1 25.2 20 25.2Q18.9 25.2 17.9 23.5Z" fill="' + RTENKY[v.l] + '"/>' +
       '<path d="M18.6 23.6Q20 24.1 21.4 23.6" stroke="#7a0f20" stroke-width=".35" fill="none"/><ellipse cx="20.7" cy="24.4" rx=".5" ry=".25" fill="#fff" opacity=".6"/>' +
-      '<circle cx="12.2" cy="22.4" r="0.9" fill="#ffd66e"/><circle cx="27.8" cy="22.4" r="0.9" fill="#ffd66e"/>' +
-      '</svg>';
+      '<circle cx="12.2" cy="22.4" r="0.9" fill="#ffd66e"/><circle cx="27.8" cy="22.4" r="0.9" fill="#ffd66e"/>';
+    if (v.d & 1) o += BRYLE;
+    if (v.d & 16) o += JOINTA;
+    if (v.d & 4) o += '<g transform="translate(27.4 12.6)"><circle cx="0" cy="-2" r="1.7" fill="#ff6fb5"/><circle cx="1.9" cy="-.6" r="1.7" fill="#ff6fb5"/><circle cx="1.2" cy="1.6" r="1.7" fill="#ff6fb5"/><circle cx="-1.2" cy="1.6" r="1.7" fill="#ff6fb5"/><circle cx="-1.9" cy="-.6" r="1.7" fill="#ff6fb5"/><circle r="1.2" fill="#ffd66e"/></g>';
+    return o + vRuce(v.r) + '</svg>';
   }
   function nevime(){
     return '<svg viewBox="0 0 40 44" aria-hidden="true">' +
@@ -753,34 +839,47 @@ a.link{display:inline-block}
       '<text x="20" y="23.4" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#ffd66e">?</text>' +
       '</svg>';
   }
-  // obličej pána (RF 16. 11. 2026): oči a úsměv; hostitelé a asi každý třetí s doutníkem, někdo s knírem
-  var RTENKY = ["#e3203d","#c8102e","#ff2d6f","#b0124a"];
-  function tvarPana(jmeno, k){
-    var j = jmeno.toLowerCase().trim();
-    var doutnik = ["robert","ivan","pici"].indexOf(j) !== -1 || (k >> 9) % 3 === 0;
-    var knir = !doutnik && (k >> 11) % 3 === 0;
+  // obličej pána (RF 16. 11. 2026): oči, obočí a úsměv; doutník, knír a brýle podle vzhledu
+  function tvarPana(v){
+    var doutnik = v.d & 1, knir = v.d & 2;
     var o = '<circle cx="16.8" cy="19" r="0.95" fill="#2a1a12"/><circle cx="23.2" cy="19" r="0.95" fill="#2a1a12"/>' +
       '<path d="M15.6 17.2l2.3-.3M24.4 17.2l-2.3-.3" stroke="#3a2414" stroke-width=".7" stroke-linecap="round"/>';
-    if (knir) o += '<path d="M16.4 22.2Q18.2 20.8 20 22Q21.8 20.8 23.6 22.2Q21.8 23.3 20 22.6Q18.2 23.3 16.4 22.2Z" fill="#3a2414"/>' +
-      '<path d="M18.2 23.7Q20 24.6 21.8 23.7" stroke="#8a3a2a" stroke-width=".8" fill="none" stroke-linecap="round"/>';
-    else if (doutnik) o += '<path d="M17.2 23Q19 24.1 21 23.3" stroke="#8a3a2a" stroke-width=".85" fill="none" stroke-linecap="round"/>' +
+    if (knir) o += '<path d="M16.4 22.2Q18.2 20.8 20 22Q21.8 20.8 23.6 22.2Q21.8 23.3 20 22.6Q18.2 23.3 16.4 22.2Z" fill="#3a2414"/>';
+    if (doutnik) o += (knir ? '' : '<path d="M17.2 23Q19 24.1 21 23.3" stroke="#8a3a2a" stroke-width=".85" fill="none" stroke-linecap="round"/>') +
       '<g transform="rotate(-12 21.5 23.4)"><rect x="21" y="22.5" width="9" height="2.1" rx=".9" fill="#7a4520"/><rect x="23.2" y="22.5" width="1.3" height="2.1" fill="#ffd66e"/>' +
       '<rect x="29.1" y="22.5" width="1.5" height="2.1" rx=".6" fill="#b9b1a6"/><circle cx="30.9" cy="23.55" r=".75" fill="#ff8a1e"/></g>' +
       '<path d="M32 20.6q-1.4-1.8 0-3.3t0-3.2" stroke="#e4e4ea" stroke-width=".8" fill="none" opacity=".75" stroke-linecap="round"/>';
+    else if (knir) o += '<path d="M18.2 23.7Q20 24.6 21.8 23.7" stroke="#8a3a2a" stroke-width=".8" fill="none" stroke-linecap="round"/>';
     else o += '<path d="M17 22.6Q20 25.2 23 22.6" stroke="#8a3a2a" stroke-width=".9" fill="none" stroke-linecap="round"/>';
+    if (v.d & 4) o += BRYLE;
+    if (v.d & 32) o += JOINTA;
     return o;
   }
-  function pan(jmeno){
-    var k = hash(jmeno.toLowerCase()), sako = SAKA[k % SAKA.length], klobouk = KLOBOUKY[(k >> 3) % KLOBOUKY.length];
+  function hlavaPana(v, paska){
+    var c = v.k === 5 ? VLASY[v.c] : KLOBOUKY[v.c];
+    if (v.k === 1) return '<path d="M12.6 13.6C12.6 4.6 27.4 4.6 27.4 13.6Z" fill="' + c + '"/><rect x="12.7" y="11.6" width="14.6" height="1.6" fill="' + paska + '"/>' +
+      '<ellipse cx="20" cy="13.8" rx="10.6" ry="2.2" fill="' + c + '"/><path d="M15.2 10.6q1.8-2.4 4.2-2.9" stroke="#fff" stroke-width=".6" opacity=".3" fill="none"/>';
+    if (v.k === 2) return '<path d="M12.8 12.8C12.6 6 15.8 4.6 20 6.8C24.2 4.6 27.4 6 27.2 12.8Z" fill="' + c + '"/><rect x="12.9" y="10.8" width="14.2" height="1.8" fill="' + paska + '"/>' +
+      '<path d="M4.6 10.6Q8 16.4 20 15.3Q32 16.4 35.4 10.6Q31 14.4 20 13.3Q9 14.4 4.6 10.6Z" fill="' + c + '"/>';
+    if (v.k === 3) return '<rect x="12.4" y="8" width="15.2" height="6" rx="1" fill="#e6c77a"/><rect x="12.4" y="10.8" width="15.2" height="2.2" fill="' + paska + '"/>' +
+      '<ellipse cx="20" cy="14" rx="13" ry="2.6" fill="#e6c77a"/><path d="M9 14.2h22M13 9.4h14" stroke="#b9934a" stroke-width=".4" opacity=".7"/>';
+    if (v.k === 4) return '<path d="M12 15C12 6.4 28 6.4 28 15Z" fill="' + c + '"/><circle cx="20" cy="7.4" r=".9" fill="' + paska + '"/>' +
+      '<path d="M20 14.1Q30.5 12.8 34.6 15.4Q30.5 16.9 20 15.7Z" fill="' + c + '" stroke="#000" stroke-opacity=".25" stroke-width=".5"/><path d="M14.6 11.6q2-2.6 4.6-3.1" stroke="#fff" stroke-width=".6" opacity=".3" fill="none"/>';
+    if (v.k === 5) return '<path d="M11.8 18C11.2 8.6 28.8 8.6 28.2 18C26.6 13.6 22.4 12.4 20 13.1C17.4 12.2 13.6 13.4 11.8 18Z" fill="' + c + '"/>';
+    return '<path d="M11.5 14C11.5 5.5 28.5 5.5 28.5 14Z" fill="' + c + '"/>' +
+      '<rect x="11.6" y="11.4" width="16.8" height="2.4" fill="' + paska + '"/>' +
+      '<ellipse cx="20" cy="14" rx="13.5" ry="3" fill="' + c + '"/>';
+  }
+  function pan(jmeno, v){
+    var k = hash(jmeno.toLowerCase()), sako = SAKA[v.b];
     var paska = (k >> 6) % 2 ? "#e3203d" : "#ffd66e";
+    var krk = v.d & 8 ? '<path d="M16.4 29.6L20 31.4L16.4 33.2Z M23.6 29.6L20 31.4L23.6 33.2Z" fill="' + paska + '"/><circle cx="20" cy="31.4" r=".9" fill="' + paska + '" stroke="#000" stroke-opacity=".3" stroke-width=".3"/>'
+                      : '<path d="M19 30.5L21 30.5L21.6 36.5L20 38.5L18.4 36.5Z" fill="' + paska + '"/>';
     return '<svg viewBox="0 0 40 44" aria-hidden="true">' +
       '<path d="M3 44C3 33 11 28 20 28C29 28 37 33 37 44Z" fill="' + sako + '"/>' +
-      '<path d="M15.5 28.6L20 36L24.5 28.6Z" fill="#fff2d2"/><path d="M19 30.5L21 30.5L21.6 36.5L20 38.5L18.4 36.5Z" fill="' + paska + '"/>' +
+      '<path d="M15.5 28.6L20 36L24.5 28.6Z" fill="#fff2d2"/>' + krk + (v.d & 16 ? RETEZ : '') +
       '<circle cx="20" cy="19.5" r="8" fill="#f0c7a2"/>' +
-      '<path d="M11.5 14C11.5 5.5 28.5 5.5 28.5 14Z" fill="' + klobouk + '"/>' +
-      '<rect x="11.6" y="11.4" width="16.8" height="2.4" fill="' + paska + '"/>' +
-      '<ellipse cx="20" cy="14" rx="13.5" ry="3" fill="' + klobouk + '"/>' +
-      tvarPana(jmeno, k) + '</svg>';
+      hlavaPana(v, paska) + tvarPana(v) + vRuce(v.r) + '</svg>';
   }
   var posazeni = {};
   var fotkari = {};   // kdo nahrál fotku (jména malými) → foťák u postavičky
@@ -795,18 +894,25 @@ a.link{display:inline-block}
     }
     return cap;
   }
-  function zidle(jm, me){
+  function zidle(jm, me, dama){
     var el = document.createElement("div");
     if (!jm){ el.className = "st free"; return el; }
     var klic = jm.toLowerCase(), slova = jm.trim().split(/\s+/);
-    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me ? " me" : "") + (fotkari[klic] ? " fotkar" : "") + (posazeni[klic] ? "" : " sit");
+    var jaNaKline = dama && dama.toLowerCase() === me;
+    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me || jaNaKline ? " me" : "") + (fotkari[klic] ? " fotkar" : "") + (posazeni[klic] ? "" : " sit") + (dama ? " par" : "");
     el.innerHTML = postava(jm);
+    if (dama) el.insertAdjacentHTML("beforeend", '<span class="klin-dama">' + postava(dama) + '</span>');
     // drobné ozdoby (RF 15. 11. 2026): korunka pro Piciho, narozeninový dortík před RADARem
     if (klic === "pici") el.insertAdjacentHTML("afterbegin", '<svg class="ozdoba korunka" viewBox="0 0 20 12" aria-hidden="true"><path d="M1 11L2.5 3L7 7L10 1L13 7L17.5 3L19 11Z" fill="#ffd66e" stroke="#b98f2e" stroke-width=".8" stroke-linejoin="round"/><circle cx="10" cy="1.6" r="1.1" fill="#e3203d"/></svg>');
     if (klic === "radar") el.insertAdjacentHTML("beforeend", '<svg class="ozdoba dort" viewBox="0 0 20 18" aria-hidden="true"><rect x="9.3" y="1.5" width="1.4" height="5" rx=".6" fill="#fff2d2"/><path d="M10 0C11.2 1.2 10.9 2 10 2.2C9.1 2 8.8 1.2 10 0Z" fill="#ffb02e"/><rect x="2" y="7" width="16" height="9" rx="2" fill="#f6d7e6"/><path d="M2 9.5C4 11 6 8.5 8 10S12 8.5 14 10S16 9 18 9.5V9C18 7.9 17.1 7 16 7H4C2.9 7 2 7.9 2 9Z" fill="#e3203d"/><rect x="1" y="15.5" width="18" height="2" rx="1" fill="#ffd66e"/></svg>');
     var em = document.createElement("em"); em.title = jm;
     em.textContent = slova[0] + (slova[1] ? " " + slova[1].charAt(0).toUpperCase() + "." : "");
     el.appendChild(em);
+    if (dama){
+      var sd = dama.trim().split(/\s+/), em2 = document.createElement("em"); em2.className = "klin-jm"; em2.title = dama;
+      em2.textContent = "♥ " + sd[0] + (sd[1] ? " " + sd[1].charAt(0).toUpperCase() + "." : "");
+      el.title = jm + " a na klíně " + dama; el.appendChild(em2);
+    }
     posazeni[klic] = 1;
     return el;
   }
@@ -901,8 +1007,9 @@ a.link{display:inline-block}
     var box = $("poker"); box.textContent = "";
     // v čele sedí Pici, hostitelé nahoře po stranách, ostatní si sedají odshora dolů střídavě vlevo a vpravo
     list = poradi(list);
+    var sp0 = sparuj(list), n = list.length, cap = zidli(n);
+    list = list.filter(function(x){ return !sp0.naKline[x.toLowerCase()]; });
     var hlava = list.filter(celo).slice(0, 1), strany = list.filter(function(x){ return !celo(x); });
-    var n = list.length, cap = zidli(n);
     var lt = document.createElement("div"); lt.className = "lt";
     var head = document.createElement("div"); head.className = "lt-head";
     var body = document.createElement("div"); body.className = "lt-body";
@@ -914,12 +1021,15 @@ a.link{display:inline-block}
     var ln = document.createElement("div"); ln.className = "lt-n";
     ln.appendChild(b); ln.appendChild(sp);
     party(tbl, ln, Math.ceil((cap - 1) / 2));
-    head.appendChild(zidle(hlava[0] || null, me));
+    var dam = function(x){ return x ? sp0.pary[x.toLowerCase()] : null; };
+    head.appendChild(zidle(hlava[0] || null, me, dam(hlava[0])));
     for (var z = 0; z < cap - 1; z++){
-      (z % 2 === 0 ? left : right).appendChild(zidle(z < strany.length ? strany[z] : null, me));
+      var hz = z < strany.length ? strany[z] : null;
+      (z % 2 === 0 ? left : right).appendChild(zidle(hz, me, dam(hz)));
     }
     body.appendChild(left); body.appendChild(tbl); body.appendChild(right);
     lt.appendChild(head); lt.appendChild(body); box.appendChild(lt);
+    klinUI(sp0);
   }
 
   // kolik lidí sedí u stolu (RF 15. 11. 2026): jen pro ty, kdo jdou; jména zná jen kdo sedí, čekající mají jen číslo
@@ -1119,6 +1229,14 @@ a.link{display:inline-block}
       var jm = split(d.kdo), uniq = [], f = {};
       jm.forEach(function(x){ var k = x.toLowerCase(); if (!f[k]){ f[k] = 1; uniq.push(x); } });
       fotkari = f;
+      var vz = {}, kl = {};
+      split(d.vzhledy).forEach(function(x){
+        var p = x.split(";"); if (p.length < 3) return;
+        var kat = p[0].trim(), kdo = p[1].trim(), text = p.slice(2).join(";").trim(), k = kdo.toLowerCase();
+        if (kat === "vzhled" && kdo && kdo !== "_" && text) vz[k] = text;
+        if (kat === "klin" && kdo){ delete kl[k]; kl[k] = text; }
+      });
+      VZHLEDY = vz; KLINY = kl;
       $("stena").hidden = jm.length === 0;
       $("stena-n").textContent = jm.length;
       $("stena-txt").textContent = tvarFotek(jm.length) + " od " + uniq.length + (uniq.length === 1 ? " člověka" : " lidí");
@@ -1126,6 +1244,123 @@ a.link{display:inline-block}
       if (!$("yes").hidden && (st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase());
     }).catch(function(){});
   }
+  // ---- klín (RF 16. 11. 2026): pán si může vzít volnou dámu na klín; dáma může kdykoli seskočit, pán ji může pustit ----
+  var KLINY = {};   // dáma (malými) → jméno pána, "" = nesedí
+  function sparuj(list){
+    var jm = {}, pary = {}, naKline = {};
+    list.forEach(function(x){ jm[x.toLowerCase()] = x; });
+    Object.keys(KLINY).forEach(function(w){
+      var m = String(KLINY[w] || "").toLowerCase().trim();
+      if (!m || !jm[w] || !jm[m] || w === m) return;
+      if (pohlavi(jm[w]) !== "z" || pohlavi(jm[m]) === "z" || pary[m] || naKline[w]) return;
+      pary[m] = jm[w]; naKline[w] = m;
+    });
+    return {jm:jm, pary:pary, naKline:naKline};
+  }
+  function klinUI(sp0){
+    var box = $("klin-box"), me = (st.jmeno || "").toLowerCase().trim(), ja = sp0.jm[me];
+    box.textContent = ""; box.hidden = !ja;
+    if (!ja) return;
+    var p = document.createElement("p"), akce = function(text, tr, fn){ var b = document.createElement("button"); b.type = "button"; b.className = tr; b.textContent = text; b.addEventListener("click", function(){ fn(b); }); return b; };
+    var bold = function(t){ var b = document.createElement("b"); b.textContent = t; return b; };
+    if (pohlavi(ja) === "z"){
+      if (sp0.naKline[me]){
+        p.appendChild(document.createTextNode("💋 Sedíš na klíně, drží tě ")); p.appendChild(bold(sp0.jm[sp0.naKline[me]])); p.appendChild(document.createTextNode("."));
+        box.appendChild(p); box.appendChild(akce("Seskočit z klína", "btn alt", function(b){ klinPost({odpoved:"seskoc", koho:ja}, ja, "", b); }));
+      } else { p.textContent = "💋 Pánové si tě můžou vzít na klín. Seskočit můžeš kdykoli."; box.appendChild(p); }
+      return;
+    }
+    if (sp0.pary[me]){
+      var d = sp0.pary[me];
+      p.appendChild(document.createTextNode("💋 Na klíně ti sedí ")); p.appendChild(bold(d)); p.appendChild(document.createTextNode("."));
+      box.appendChild(p); box.appendChild(akce("Pustit z klína", "btn alt", function(b){ klinPost({odpoved:"seskoc", koho:d}, d, "", b); }));
+      return;
+    }
+    var volne = Object.keys(sp0.jm).filter(function(k){ return pohlavi(sp0.jm[k]) === "z" && !sp0.naKline[k]; }).map(function(k){ return sp0.jm[k]; })
+      .sort(function(a, b){ return a.localeCompare(b, "cs"); });
+    if (!volne.length){ p.textContent = "💋 Všechny dámy už sedí na klíně. 😉"; box.appendChild(p); return; }
+    p.textContent = "💋 Vezmi si dámu na klín:"; box.appendChild(p);
+    var sel = document.createElement("select"); sel.id = "klin-vyber"; sel.setAttribute("aria-label", "Kterou dámu si vezmeš na klín");
+    volne.forEach(function(x){ var o = document.createElement("option"); o.value = x; o.textContent = x; sel.appendChild(o); });
+    box.appendChild(sel);
+    box.appendChild(akce("Vzít na klín", "btn", function(b){ klinPost({odpoved:"klin", jmeno:st.jmeno, koho:sel.value}, sel.value, st.jmeno, b); }));
+  }
+  function klinPost(pole, dama, pan, b){
+    if (b.disabled) return; var old = b.textContent; b.disabled = true; b.textContent = "Moment…";
+    fotoPost(pole).then(function(){
+      var k = dama.toLowerCase().trim(); delete KLINY[k]; KLINY[k] = pan;
+      if ((st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase());
+    }).catch(function(){
+      b.disabled = false; b.textContent = old;
+      var e = document.createElement("p"); e.className = "err"; e.textContent = "Nepovedlo se. Zkontroluj připojení a zkus to znovu."; $("klin-box").appendChild(e);
+    });
+  }
+  // ---- šatna: výběr vzhledu vlastní figurky ----
+  var satnaV = null;
+  function jsemZena(){ return pohlavi(st.jmeno) === "z"; }
+  function satnaRady(){
+    var z = jsemZena();
+    return z ? [
+      {t:"Účes", k:"k", m:["Dlouhé", "Drdol", "Kudrny", "Mikádo"]},
+      {t:"Barva vlasů", k:"c", barvy:VLASY},
+      {t:"Šaty", k:"b", barvy:SATY},
+      {t:"Rtěnka", k:"l", barvy:RTENKY},
+      {t:"Doplňky", k:"d", bity:["Brýle", "Perly", "Květina", "Řetěz", "Jointa"]},
+      {t:"V ruce", k:"r", m:["Nic", "Šampus", "Pivo", "Becherovka", "Whisky"]}
+    ] : [
+      {t:"Na hlavu", k:"k", m:["Fedora", "Buřinka", "Kovboják", "Slamák", "Kšiltovka", "Bez klobouku"]},
+      {t:satnaV && satnaV.k === 5 ? "Barva vlasů" : "Barva klobouku", k:"c", barvy:satnaV && satnaV.k === 5 ? VLASY : KLOBOUKY},
+      {t:"Sako", k:"b", barvy:SAKA},
+      {t:"Doplňky", k:"d", bity:["Doutník", "Knír", "Brýle", "Motýlek", "Řetěz", "Jointa"]},
+      {t:"V ruce", k:"r", m:["Nic", "Šampus", "Pivo", "Becherovka", "Whisky"]}
+    ];
+  }
+  function satnaKresli(){
+    var z = jsemZena();
+    $("satna-nahled").innerHTML = z ? dama(st.jmeno, satnaV) : pan(st.jmeno, satnaV);
+    var box = $("satna-volby"); box.textContent = "";
+    satnaRady().forEach(function(rd){
+      var rada = document.createElement("div"); rada.className = "sv-rada";
+      var nad = document.createElement("span"); nad.textContent = rd.t; rada.appendChild(nad);
+      var moz = document.createElement("div"); moz.className = "sv-moz"; moz.setAttribute("role", "group"); moz.setAttribute("aria-label", rd.t);
+      var pridej = function(popis, zapnuto, klik, barva){
+        var b = document.createElement("button"); b.type = "button"; b.className = "sv" + (barva ? " barva" : "");
+        if (barva){ b.style.background = barva; b.setAttribute("aria-label", popis); } else b.textContent = popis;
+        b.setAttribute("aria-pressed", zapnuto ? "true" : "false");
+        b.addEventListener("click", function(){ klik(); satnaKresli(); });
+        moz.appendChild(b);
+      };
+      if (rd.m) rd.m.forEach(function(popis, i){ pridej(popis, satnaV[rd.k] === i, function(){ satnaV[rd.k] = i; }); });
+      if (rd.barvy) rd.barvy.forEach(function(c, i){ pridej(rd.t + " " + (i + 1), satnaV[rd.k] === i, function(){ satnaV[rd.k] = i; }, c); });
+      if (rd.bity) rd.bity.forEach(function(popis, i){ var bit = 1 << i; pridej(popis, (satnaV.d & bit) !== 0, function(){ satnaV.d ^= bit; }); });
+      rada.appendChild(moz); box.appendChild(rada);
+    });
+  }
+  function satnaOtevri(){
+    if (!st.jmeno) return;
+    var v = vzhledJmena(st.jmeno, jsemZena()); satnaV = {k:v.k, c:v.c, b:v.b, d:v.d, r:v.r, l:v.l};
+    satnaKresli();
+    $("satna").hidden = false; $("satna-go").hidden = true; $("satna-ok").hidden = true; $("satna-err").hidden = true;
+    $("satna").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  function satnaZavri(){ $("satna").hidden = true; $("satna-go").hidden = false; }
+  $("satna-go").addEventListener("click", satnaOtevri);
+  $("satna-tip").addEventListener("click", satnaOtevri);
+  $("satna-zpet").addEventListener("click", satnaZavri);
+  $("satna-ulozit").addEventListener("click", function(){
+    var b = $("satna-ulozit"); if (b.disabled) return;
+    var kod = zakoduj(satnaV, jsemZena()), old = b.textContent;
+    b.disabled = true; b.textContent = "Ukládám…"; $("satna-err").hidden = true;
+    fotoPost({odpoved:"vzhled", jmeno:st.jmeno, vzhled:kod}).then(function(){
+      VZHLEDY[st.jmeno.toLowerCase().trim()] = kod;
+      satnaZavri();
+      var ok = $("satna-ok"); ok.textContent = "Sekne ti to! Takhle teď sedíš u stolu."; ok.hidden = false;
+      if ((st.hraci || []).length) stul(poradi(st.hraci), st.jmeno.toLowerCase());
+      var ja = document.querySelector(".lt .st.me"); if (ja) ja.scrollIntoView({behavior:"smooth", block:"center"});
+    }).catch(function(){
+      var e = $("satna-err"); e.textContent = "Nepovedlo se uložit. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
+    }).then(function(){ b.disabled = false; b.textContent = old; });
+  });
   // zmenšení na max. 1600 px a JPEG: zároveň zmizí EXIF (poloha, telefon)
   function zmensi(file){
     return new Promise(function(ok, ko){
