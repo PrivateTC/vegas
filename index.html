@@ -209,6 +209,24 @@ body{
 @keyframes zmPuls2{50%{box-shadow:0 0 0 3px var(--red), 0 0 30px rgba(227,32,61,.6)}}
 @media (prefers-reduced-motion:reduce){ .zm-ovl,.zm-box,.zm-v,.zm-pas,.deal li.nove{animation:none} .zm-conf{display:none} }
 
+/* vstupenka e-mailem (RF 17. 11. 2026, volba A): kdo sedí u stolu, pošle si vstupenku na svůj e-mail; Make ji odešle hned (nejvýš 2× na jméno, do pátku) */
+.vst{position:relative; margin:4px 0; border-radius:18px; overflow:hidden; background:var(--cream); color:var(--ink); border:3px solid var(--bulb);
+  box-shadow:0 0 0 3px rgba(143,16,36,.9), 0 10px 28px rgba(0,0,0,.45)}
+.vst-h{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px 10px; background:var(--red); color:#fff}
+.vst-h b{font:400 22px/1.1 var(--f-display); color:#fff}
+.vst-h span{font:700 12px/1 var(--f-cond); letter-spacing:.24em; text-transform:uppercase; color:var(--bulb); white-space:nowrap}
+.vst-t{padding:14px 16px 16px; border-top:3px dashed #c9a24a; display:flex; flex-direction:column; gap:10px}
+.vst-t p{margin:0; color:var(--ink) !important; font-size:16px; line-height:1.45}
+.vst-t p b{color:var(--frame) !important}
+.vst-t input{width:100%; padding:13px 14px; border-radius:12px; border:2px solid #c9a24a; background:#fff; color:var(--ink); font:500 17px/1.2 var(--f-body)}
+.vst-t input:focus{outline:3px solid var(--cyan); outline-offset:1px; border-color:var(--frame)}
+.vst-t .btn{width:100%}
+.vst-t .link{align-self:center; color:var(--frame) !important}
+.vst-t .err{color:var(--frame); background:rgba(227,32,61,.1)}
+.vst-ok{font-weight:600}
+.vst.nova{animation:vstPuls 2.2s ease-in-out 3}
+@keyframes vstPuls{50%{box-shadow:0 0 0 3px rgba(143,16,36,.9), 0 0 34px rgba(255,214,110,.85)}}
+@media (prefers-reduced-motion:reduce){ .vst.nova{animation:none} }
 /* ---------- sukno: podrobnosti ---------- */
 .felt{scroll-margin-top:16px; 
   border-radius:20px; padding:22px 18px 20px;
@@ -621,6 +639,19 @@ a.link{display:inline-block}
       </div>
       <p class="odp-live" id="odp-live" hidden>Karty se právě rozdávají!</p>
       <p class="odp-kdy" id="odp-kdy"></p>
+    </div>
+    <div class="vst" id="vst" hidden>
+      <div class="vst-h"><b>🎟️ Vstupenka</b><span>Pátek 20. 11.</span></div>
+      <div class="vst-t">
+        <p id="vst-text"></p>
+        <form id="vst-form" novalidate hidden>
+          <label for="vst-email" class="sr">E-mail pro vstupenku</label>
+          <input id="vst-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="80" placeholder="tvůj e-mail">
+          <p class="err" id="vst-err" role="alert" hidden></p>
+          <button class="btn" id="vst-go" type="submit">Poslat mi vstupenku</button>
+        </form>
+        <button class="link" id="vst-znovu" type="button" hidden>Nepřišla? Poslat znovu</button>
+      </div>
     </div>
     <div class="kt-vyzva" id="kt-vyzva" hidden>
       <p><b>Chybí nám tvůj e-mail.</b> Pošleme ti aktuality k pátku a pozvánky na další akce party. <b>Galerie fotek se otevře jen tomu, kdo nám dal e-mail i telefon.</b> Zabere to 10 vteřin.</p>
@@ -1209,6 +1240,7 @@ a.link{display:inline-block}
     }
     Array.prototype.forEach.call(document.querySelectorAll(".who-name"), function(e){ e.textContent = st.jmeno; });
     kontakt(v);
+    vstupenka(v);
     var sign = $("sign"); sign.classList.remove("jackpot");
     if (v === "ano" && fresh){
       sign.classList.add("jackpot");
@@ -1234,6 +1266,64 @@ a.link{display:inline-block}
     if (!$("kt-jmeno").value) $("kt-jmeno").value = st.jmeno || "";
     $("kt-err").hidden = true;
   }
+  // vstupenka e-mailem (RF 17. 11. 2026, volba A)
+  var VST_HOOK = "https://hook.eu1.make.com/pyspojkro34boi4ifu5x7jn3ek85qfl2", vstStav = "";
+  function vstEmail(){ try { return localStorage.getItem("vegas-gal-email") || ""; } catch(e){ return ""; } }
+  function vstupenka(v){
+    var box = $("vst");
+    if (v !== "ano" || Date.now() > Date.UTC(2026, 10, 20, 23)){ box.hidden = true; return; }
+    box.hidden = false;
+    var em = vstEmail(), t = $("vst-text"), form = $("vst-form"), zn = $("vst-znovu");
+    if (vstStav === "odeslano") return;
+    if (!vstStav) vstStav = em ? "ma" : st.kontakt ? "asi" : "form";
+    t.textContent = "";
+    var tx = function(s){ t.appendChild(document.createTextNode(s)); }, bb = function(s){ var b = document.createElement("b"); b.textContent = s; t.appendChild(b); };
+    if (vstStav === "ma"){ tx("Vstupenka ti chodí e-mailem od "); bb("Little Las Vegas"); tx(" na " + em + ". V pátek ji ukaž u vchodu na mobilu."); }
+    else if (vstStav === "asi"){ tx("Vstupenky jsme rozeslali e-mailem všem, kdo nám nechali e-mail. V pátek ji ukaž u vchodu. "); bb("Nemáš ji?"); tx(" Pošli si ji sem."); }
+    else { bb("Vstupenka ti ještě nepřišla."); tx(" Chodí e-mailem a v pátek ji ukážeš u vchodu. Zadej e-mail a pošleme ti ji hned."); }
+    form.hidden = vstStav !== "form"; zn.hidden = vstStav === "form";
+    box.classList.toggle("nova", vstStav === "form");
+    if (!$("vst-email").value) $("vst-email").value = em;
+    // kdo má výzvu ke vstupence, nepotřebuje nahoře ještě výzvu ke kontaktu
+    if (vstStav === "form") $("kt-vyzva").hidden = true;
+  }
+  $("vst-znovu").addEventListener("click", function(){
+    vstStav = "form"; vstupenka(panel());
+    $("vst-err").hidden = true;
+    try { $("vst-email").focus({preventScroll:true}); } catch(e){ $("vst-email").focus(); }
+  });
+  $("vst-form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (busy) return;
+    var e = $("vst-err"), em = cistyEmail($("vst-email").value).toLowerCase();
+    if (!em || !okEmail(em)){ e.textContent = em ? "E-mail nevypadá správně." : "Napiš svůj e-mail."; e.hidden = false; $("vst-email").focus(); return; }
+    busy = true; var b = $("vst-go"), old = b.textContent; b.disabled = true; b.textContent = "Posílám vstupenku…"; e.hidden = true;
+    var ctl = ("AbortController" in window) ? new AbortController() : null, tm = setTimeout(function(){ if (ctl) ctl.abort(); }, 30000);
+    // e-mail se zároveň uloží jako kontakt (stejně jako formulář „Nech nám kontakt“)
+    posliKontakt(st.jmeno, em, "").then(function(){ st.kontakt = true; save(); }, function(){});
+    fetch(VST_HOOK, {method:"POST", body:new URLSearchParams({odpoved:"vstupenka", jmeno:st.jmeno, email:em}), signal: ctl ? ctl.signal : undefined})
+      .then(function(r){ return r.text(); })
+      .then(function(txt){
+        clearTimeout(tm);
+        var d = null; try { d = JSON.parse(txt); } catch(x){}
+        var t = $("vst-text");
+        if (d && d.stav === "odeslano"){
+          vstStav = "odeslano"; $("vst-form").hidden = true; $("vst-znovu").hidden = true; $("vst").classList.remove("nova");
+          t.textContent = "🎟️ Vstupenka letí na " + em + ". Do pár minut ji máš v poště. Nevidíš ji? Mrkni i do spamu a označ ji jako „Není spam“.";
+          t.className = "vst-ok";
+          try { localStorage.setItem("vegas-gal-email", em); localStorage.setItem("vegas-gal-jmeno", st.jmeno); } catch(x){}
+          kontakt(panel());
+        } else if (d && d.stav === "limit"){
+          e.textContent = "Vstupenku jsme ti už poslali dvakrát. Mrkni do spamu. Když ji pořád nemáš, napiš Robertovi."; e.hidden = false;
+        } else if (d && d.stav === "nesedi"){
+          e.textContent = "Vstupenka je jen pro toho, kdo sedí u stolu. Zkontroluj, že jsi ALL IN pod svým jménem."; e.hidden = false;
+        } else {
+          e.textContent = "Teď se to nepovedlo poslat. Zkus to za chvíli znovu."; e.hidden = false;
+        }
+      }, function(){ clearTimeout(tm); e.textContent = "Nepovedlo se to poslat. Zkontroluj připojení a zkus to znovu."; e.hidden = false; })
+      .then(function(){ busy = false; b.disabled = false; b.textContent = old; });
+  });
+
   function cistyEmail(s){ return String(s || "").replace(/\s+/g, "").trim(); }
   function cistyTel(s){ return String(s || "").replace(/[^0-9+()\- ]/g, "").replace(/\s+/g, " ").trim(); }
   function okEmail(s){ return !s || /^[^\s@<>"|\\;]{1,64}@[^\s@<>"|\\;]{1,80}\.[^\s@<>"|\\;.]{2,}$/.test(s); }
