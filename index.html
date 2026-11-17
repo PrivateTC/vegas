@@ -1212,11 +1212,13 @@ a.link{display:inline-block}
   $("kt-stul-uz").addEventListener("click", function(){ $("kt-vyzva-uz").click(); });
   // ---- fotostěna (RF 15. 11. 2026): fotky jdou na Disk účtu jen pro fotky, na stránce jen počet a jména ----
   var FOTO_HOOK = "https://hook.eu1.make.com/um6q52779a38fsenjtt7i7st8essf8ya";
+  // nahrávání fotek má vlastní scénář (17. 11. 2026): výpadek Google Disku tak nezastaví šatnu, klín ani stěnu
+  var FOTO_UP_HOOK = "https://hook.eu1.make.com/1or16tcvj5qi3qd5bk4yfa6nsa4jm1kw";
   var fotoKat = "tehdy", fotoBusy = false, MAX_FOTEK = 30;   // jedna dávka; víc se dá poslat dalším výběrem
-  function fotoPost(pole){
+  function fotoPost(pole, hook){
     var ctl = ("AbortController" in window) ? new AbortController() : null;
     var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 60000);
-    return fetch(FOTO_HOOK, {method:"POST", body:new URLSearchParams(pole), signal: ctl ? ctl.signal : undefined})
+    return fetch(hook || FOTO_HOOK, {method:"POST", body:new URLSearchParams(pole), signal: ctl ? ctl.signal : undefined})
       .then(function(r){ return r.text(); })
       .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (d && d.chybi) throw new Error("chybi:" + d.chybi); if (!d || !d.ok) throw new Error("server"); return d; },
             function(e){ clearTimeout(t); throw e; });
@@ -1242,20 +1244,28 @@ a.link{display:inline-block}
       var jm = split(d.kdo), uniq = [], f = {};
       jm.forEach(function(x){ var k = x.toLowerCase(); if (!f[k]){ f[k] = 1; uniq.push(x); } });
       fotkari = f;
+      try { localStorage.setItem("vegas-vzhledy", d.vzhledy || ""); } catch(e){}
+      prectiVzhledy(d.vzhledy);
+      $("stena").hidden = jm.length === 0;
+      $("stena-n").textContent = jm.length;
+      $("stena-txt").textContent = tvarFotek(jm.length) + " od " + uniq.length + (uniq.length === 1 ? " člověka" : " lidí");
+      $("stena-jm").textContent = uniq.slice(-6).reverse().join(", ") + (uniq.length > 6 ? " a další" : "");
+      if (!$("yes").hidden && (st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase());
+    }).catch(function(){
+      // server neodpověděl: použij naposledy načtené vzhledy z tohoto prohlížeče (nic se nemaže)
+      var c = null; try { c = localStorage.getItem("vegas-vzhledy"); } catch(e){}
+      if (c){ prectiVzhledy(c); if (!$("yes").hidden && (st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase()); }
+    });
+  }
+  function prectiVzhledy(txt){
       var vz = {}, kl = {};
-      split(d.vzhledy).forEach(function(x){
+      split(txt).forEach(function(x){
         var p = x.split(";"); if (p.length < 3) return;
         var kat = p[0].trim(), kdo = p[1].trim(), text = p.slice(2).join(";").trim(), k = kdo.toLowerCase();
         if (kat === "vzhled" && kdo && kdo !== "_" && text) vz[k] = text;
         if (kat === "klin" && kdo){ delete kl[k]; kl[k] = text; }
       });
       VZHLEDY = vz; KLINY = kl;
-      $("stena").hidden = jm.length === 0;
-      $("stena-n").textContent = jm.length;
-      $("stena-txt").textContent = tvarFotek(jm.length) + " od " + uniq.length + (uniq.length === 1 ? " člověka" : " lidí");
-      $("stena-jm").textContent = uniq.slice(-6).reverse().join(", ") + (uniq.length > 6 ? " a další" : "");
-      if (!$("yes").hidden && (st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase());
-    }).catch(function(){});
   }
   // ---- klín (RF 16. 11. 2026): pán si může vzít volnou dámu na klín; dáma může kdykoli seskočit, pán ji může pustit ----
   var KLINY = {};   // dáma (malými) → jméno pána, "" = nesedí
@@ -1422,7 +1432,7 @@ a.link{display:inline-block}
     soubory.forEach(function(f, i){
       retez = retez.then(function(){
         stav.textContent = "Nahrávám " + (i + 1) + " z " + soubory.length + "…";
-        return zmensi(f).then(function(data){ return fotoPost({odpoved:"foto", jmeno:st.jmeno, kat:fotoKat, data:data}); })
+        return zmensi(f).then(function(data){ return fotoPost({odpoved:"foto", jmeno:st.jmeno, kat:fotoKat, data:data}, FOTO_UP_HOOK); })
           .then(function(){ hotovo++; }, function(){ chyb++; });
       });
     });
