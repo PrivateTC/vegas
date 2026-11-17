@@ -35,6 +35,8 @@ h1{margin:0; font:400 36px/1.05 var(--f-display)}
 @media (min-width:640px){ .grid{grid-template-columns:repeat(4, 1fr); gap:10px} }
 .tile{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; background:#24123a; border:0; padding:0; cursor:pointer}
 .tile img{width:100%; height:100%; object-fit:cover; display:block}
+/* RF 17. 11.: fotky jen v menším rozlišení, bez stahování (podržení / pravé tlačítko vypnuté) */
+.tile img, .lb-img img{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none; -webkit-user-drag:none; pointer-events:auto}
 .tile .kom{position:absolute; right:6px; bottom:6px; padding:2px 7px; border-radius:999px; background:rgba(0,0,0,.65); color:#fff; font:600 12px/1.4 var(--f-cond)}
 .empty{margin:0; padding:16px; border:1px dashed var(--line); border-radius:14px; color:var(--muted); text-align:center}
 .note{margin:0; font-size:13px; color:var(--muted)}
@@ -105,7 +107,6 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     <button class="ico next" id="lb-next" type="button" aria-label="Další fotka">›</button>
   </div>
   <div class="lb-body">
-    <div class="lb-acts"><a id="lb-stahnout" href="#" target="_blank" rel="noopener">Stáhnout</a></div>
     <ul class="koms" id="lb-koms"></ul>
     <form class="kf" id="kf" novalidate>
       <label for="kf-text" id="kf-lbl">Napiš komentář</label>
@@ -178,7 +179,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     vybrane.forEach(function(f, i){
       var b = el("button", "tile"); b.type = "button";
       b.setAttribute("aria-label", (KAT[f.kat] || "Fotka") + " od " + f.kdo);
-      var img = el("img"); img.loading = "lazy"; img.alt = ""; nastavObr(img, f.id, 500); b.appendChild(img);
+      var img = el("img"); img.loading = "lazy"; img.alt = ""; nastavObr(img, f.id, 360); b.appendChild(img);
       var n = (komentare[f.id] || []).length; if (n) b.appendChild(el("span", "kom", "💬 " + n));
       b.addEventListener("click", function(){ otevri(i); });
       g.appendChild(b);
@@ -189,8 +190,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     pozice = i; var f = vybrane[i]; if (!f) return;
     $("lb-kdo").textContent = (KAT[f.kat] || "Fotka") + " · od " + f.kdo;
     $("lb-kdy").textContent = kdy(f.zapsano);
-    nastavObr($("lb-foto"), f.id, 1600);
-    $("lb-stahnout").href = "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(f.id);
+    nastavObr($("lb-foto"), f.id, 800);
     var ul = $("lb-koms"); ul.textContent = "";
     (komentare[f.id] || []).forEach(function(k){
       var li = el("li"); li.appendChild(el("b", "", k.kdo)); li.appendChild(el("small", "", kdy(k.zapsano))); li.appendChild(el("p", "", k.text)); ul.appendChild(li);
@@ -208,6 +208,9 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     if ($("lb").hidden || e.target.tagName === "TEXTAREA") return;
     if (e.key === "Escape") zavri(); else if (e.key === "ArrowLeft") $("lb-prev").click(); else if (e.key === "ArrowRight") $("lb-next").click();
   });
+  // bez stahování: žádné kontextové menu ani přetažení obrázku
+  document.addEventListener("contextmenu", function(e){ if (e.target && e.target.tagName === "IMG") e.preventDefault(); });
+  document.addEventListener("dragstart", function(e){ if (e.target && e.target.tagName === "IMG") e.preventDefault(); });
   // přejetí prstem v detailu: doleva další, doprava předchozí
   var sx = null;
   $("lb-foto").addEventListener("touchstart", function(e){ sx = e.touches[0].clientX; }, {passive:true});
@@ -236,7 +239,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
       $("ahoj").textContent = "";
       $("ahoj").appendChild(document.createTextNode("Ahoj"));
       if (ja){ $("ahoj").appendChild(document.createTextNode(", ")); var b = el("b", "", ja); $("ahoj").appendChild(b); }
-      $("ahoj").appendChild(document.createTextNode(". Tady jsou fotky, které parta nahrála. Ťukni na fotku a můžeš ji okomentovat nebo stáhnout."));
+      $("ahoj").appendChild(document.createTextNode(". Tady jsou fotky, které parta nahrála. Ťukni na fotku a můžeš ji okomentovat."));
       $("kf-lbl").textContent = "Napiš komentář" + (ja ? " (podepíše se „" + ja + "“)" : "");
       rozeber(d); kresli(); $("app").hidden = false; $("vstup").hidden = true;
       if (HOST){ $("pozn").textContent = "Galerii vidí jen hosté, kteří nám nechali e-mail i telefon."; }
