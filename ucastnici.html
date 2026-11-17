@@ -60,10 +60,13 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--cyan); outline-off
 .bar{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; justify-content:space-between}
 .stamp{margin:0; font:400 12px/1.3 var(--f-mono); color:var(--muted)}
 #app{display:flex; flex-direction:column; gap:24px}
+.zpet{align-self:flex-start; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 14px; margin:-6px 0 2px; border-radius:999px; border:1.5px solid var(--line); background:rgba(0,0,0,.25); color:var(--text); text-decoration:none; font:700 15px/1 var(--f-cond); letter-spacing:.06em}
+.zpet:hover{border-color:var(--bulb); color:var(--bulb)}
 </style>
 </head>
 <body>
 <main class="wrap">
+  <a class="zpet" href="./">← Zpět na pozvánku</a>
   <p class="kicker">Little Las Vegas · pořadatelé</p>
   <h1>Účastníci a kontakty</h1>
   <p class="lead">Kdo jde, kdo pasuje a kdo ještě nenechal kontakt. Ty, co ho nedali, popožeň zprávou níž.</p>
