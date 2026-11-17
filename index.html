@@ -304,9 +304,32 @@ a.link{display:inline-block}
 .seatbox{border-top:1px dashed rgba(255,214,110,.35); padding-top:14px; display:flex; flex-direction:column; gap:10px}
 .seatbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
 .seatbox h3 span{color:#d9efe6; letter-spacing:.06em}
-.odpocet{margin:0; padding:10px 12px; border-radius:12px; background:rgba(0,0,0,.28); border:1px solid rgba(255,214,110,.35);
-  font:700 17px/1.25 var(--f-cond); letter-spacing:.04em; color:var(--bulb) !important; text-align:center}
-.odpocet b{font-size:22px}
+/* odpočet jako kasinová tabule (RF 17. 11. 2026): žárovkový rám, čtyři žetony DNY/HOD/MIN/SEK, sekundy tikají */
+.odpocet{position:relative; margin:4px 0; padding:16px 12px 14px; border-radius:18px; text-align:center;
+  background:radial-gradient(120% 90% at 50% 0%, #3a0d1c 0%, #1a0812 70%); border:2px solid var(--bulb);
+  box-shadow:0 0 0 4px rgba(143,16,36,.9), 0 0 26px rgba(255,214,110,.35), inset 0 0 22px rgba(0,0,0,.6)}
+.odpocet::before,.odpocet::after{content:""; position:absolute; left:14px; right:14px; height:6px; pointer-events:none;
+  background:radial-gradient(circle, #fff6cf 0 2px, rgba(255,214,110,.0) 3px) 0 0/16px 6px repeat-x; filter:drop-shadow(0 0 4px var(--bulb));
+  animation:odpZar 1.2s steps(2) infinite}
+.odpocet::before{top:5px} .odpocet::after{bottom:5px; animation-delay:.6s}
+@keyframes odpZar{50%{opacity:.35}}
+.odp-k{margin:4px 0 10px !important; font:700 13px/1.2 var(--f-cond) !important; letter-spacing:.26em; text-transform:uppercase; color:#ffd9a8 !important}
+.odp-cisla{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-width:380px; margin:0 auto}
+.odp-cisla div{display:flex; flex-direction:column; align-items:center; gap:7px; min-width:0}
+.odp-cisla i{position:relative; width:100%; max-width:84px; aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; overflow:hidden;
+  background:radial-gradient(circle, #fff8e1 0 57%, #c9a24a 57.5% 60%, transparent 60.5%), repeating-conic-gradient(var(--red) 0 15deg, #fff2d2 15deg 30deg);
+  box-shadow:0 4px 0 #6b0a1a, 0 6px 14px rgba(0,0,0,.55)}
+.odp-cisla b{display:block; font:400 clamp(24px,8vw,38px)/1 var(--f-display); color:var(--ink); letter-spacing:.01em; font-variant-numeric:tabular-nums}
+.odp-cisla span{display:block; font:700 clamp(10px,2.9vw,12px)/1 var(--f-cond); letter-spacing:.18em; text-transform:uppercase; color:var(--bulb)}
+.odp-cisla .odp-s b{color:var(--red)}
+.odp-cisla b.tik{animation:odpTik .45s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes odpTik{from{transform:translateY(-55%) scale(.8); opacity:0}}
+.odp-kdy{margin:12px 0 0 !important; font:600 15px/1.35 var(--f-body) !important; color:#fff !important}
+.odp-kdy b{color:var(--bulb)}
+.odpocet.blizko{animation:odpPuls 1.6s ease-in-out infinite}
+@keyframes odpPuls{50%{box-shadow:0 0 0 4px rgba(227,32,61,1), 0 0 44px rgba(255,214,110,.75), inset 0 0 22px rgba(0,0,0,.6)}}
+.odp-live{margin:0 !important; font:400 clamp(24px,7vw,32px)/1.15 var(--f-display) !important; color:var(--bulb) !important; text-shadow:0 0 14px rgba(255,214,110,.7)}
+@media (prefers-reduced-motion:reduce){ .odpocet,.odpocet::before,.odpocet::after,.odp-cisla b.tik{animation:none} }
 .kt-vyzva{display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:14px; background:rgba(255,214,110,.12); border:1.5px solid var(--bulb)}
 .kt-vyzva p{margin:0; color:#fff !important; font-size:16px; line-height:1.45}
 .kt-vyzva p b{color:var(--bulb)}
@@ -588,7 +611,17 @@ a.link{display:inline-block}
     <h2>Sedíš u stolu.</h2>
     <p class="zm-pas" id="zm-pas"><span class="zm-pas-k">📣 Změna místa!</span>Stůl se stěhuje do <b>Medusa Cabaret</b> (bývalý One Club), Melantrichova 5, Praha 1. Čas zůstává: pátek 20. 11., 18:00–24:00. <a id="zm-pas-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Medusa%20Cabaret%2C%20Melantrichova%205%2C%20Praha%201">Navigovat</a></p>
     <p class="yes-n" id="yes-n" hidden></p>
-    <p class="odpocet" id="odpocet" hidden></p>
+    <div class="odpocet" id="odpocet" role="timer" hidden>
+      <p class="odp-k" id="odp-k">Do rozdání karet zbývá</p>
+      <div class="odp-cisla" id="odp-cisla" aria-hidden="true">
+        <div><i><b id="odp-d">0</b></i><span id="odp-dl">dní</span></div>
+        <div><i><b id="odp-h">00</b></i><span>hodin</span></div>
+        <div><i><b id="odp-m">00</b></i><span>minut</span></div>
+        <div class="odp-s"><i><b id="odp-s">00</b></i><span>vteřin</span></div>
+      </div>
+      <p class="odp-live" id="odp-live" hidden>Karty se právě rozdávají!</p>
+      <p class="odp-kdy" id="odp-kdy"></p>
+    </div>
     <div class="kt-vyzva" id="kt-vyzva" hidden>
       <p><b>Chybí nám tvůj e-mail.</b> Pošleme ti aktuality k pátku a pozvánky na další akce party. <b>Galerie fotek se otevře jen tomu, kdo nám dal e-mail i telefon.</b> Zabere to 10 vteřin.</p>
       <button class="btn" id="kt-vyzva-go" type="button">Doplnit e-mail a telefon</button>
@@ -764,14 +797,34 @@ a.link{display:inline-block}
     var el = $("odpocet"), u = st.udalost, od = utc(u && u.od), konec = utc(u && u.do), ted = Date.now();
     if (!u || isNaN(od) || ted > konec){ el.hidden = true; return; }
     el.hidden = false;
-    if (ted >= od){ el.textContent = "Karty se právě rozdávají. Dorazíš?"; return; }
-    var min = Math.floor((od - ted) / 60000), d = Math.floor(min / 1440), h = Math.floor(min % 1440 / 60), mi = min % 60;
+    var misto = String(u.misto || "").split(" (")[0].split(",")[0];
+    var zacal = ted >= od;
+    $("odp-k").hidden = zacal; $("odp-cisla").hidden = zacal; $("odp-live").hidden = !zacal;
+    var kdy = $("odp-kdy");
+    if (!kdy.dataset.hotovo){
+      var t = "pátek 20. 11. v 18:00";
+      try {
+        var f = new Intl.DateTimeFormat("cs-CZ", {timeZone:"Europe/Prague", weekday:"long", day:"numeric", month:"numeric", hour:"2-digit", minute:"2-digit"}).formatToParts(new Date(od)), g = {};
+        f.forEach(function(x){ g[x.type] = x.value; });
+        t = g.weekday + " " + g.day + ". " + g.month + ". v " + g.hour + ":" + g.minute;
+      } catch(e){}
+      kdy.textContent = "";
+      kdy.appendChild(document.createTextNode(t.charAt(0).toUpperCase() + t.slice(1)));
+      if (misto){ kdy.appendChild(document.createTextNode(" · ")); var mb = document.createElement("b"); mb.textContent = misto; kdy.appendChild(mb); }
+      kdy.dataset.hotovo = "1";
+    }
+    if (zacal){ el.classList.add("blizko"); el.setAttribute("aria-label", "Karty se právě rozdávají"); return; }
+    var sek = Math.floor((od - ted) / 1000), d = Math.floor(sek / 86400), h = Math.floor(sek % 86400 / 3600), mi = Math.floor(sek % 3600 / 60), se = sek % 60;
+    var dva = function(n){ return (n < 10 ? "0" : "") + n; };
+    var dejText = function(id, v){ var b = $(id); if (b.textContent !== v){ b.textContent = v; b.classList.remove("tik"); void b.offsetWidth; b.classList.add("tik"); } };
+    dejText("odp-d", String(d)); dejText("odp-h", dva(h)); dejText("odp-m", dva(mi)); dejText("odp-s", dva(se));
+    $("odp-dl").textContent = d === 1 ? "den" : d >= 2 && d <= 4 ? "dny" : "dní";
+    $("odp-h").parentNode.nextSibling.textContent = h === 1 ? "hodina" : h >= 2 && h <= 4 ? "hodiny" : "hodin";
+    $("odp-m").parentNode.nextSibling.textContent = mi === 1 ? "minuta" : mi >= 2 && mi <= 4 ? "minuty" : "minut";
+    $("odp-s").parentNode.nextSibling.textContent = se === 1 ? "vteřina" : se >= 2 && se <= 4 ? "vteřiny" : "vteřin";
+    el.classList.toggle("blizko", sek < 86400);
     var tvar = function(n, a, b, c){ return n + " " + (n === 1 ? a : n >= 2 && n <= 4 ? b : c); };
-    el.textContent = "";
-    el.appendChild(document.createTextNode("Do rozdání karet zbývá "));
-    var b = document.createElement("b");
-    b.textContent = d > 0 ? tvar(d, "den", "dny", "dní") + (h ? " " + tvar(h, "hodina", "hodiny", "hodin") : "") : h > 0 ? tvar(h, "hodina", "hodiny", "hodin") + " " + mi + " min" : mi + " min";
-    el.appendChild(b);
+    el.setAttribute("aria-label", "Do rozdání karet zbývá " + tvar(d, "den", "dny", "dní") + ", " + tvar(h, "hodina", "hodiny", "hodin") + " a " + mi + " min");
   }
   function split(s){ return String(s || "").split("|").map(function(x){ return x.trim(); }).filter(Boolean); }
 
@@ -1147,7 +1200,7 @@ a.link{display:inline-block}
       ln.appendChild(bt);
     }
     if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); navsteva(); }
-    clearInterval(odpTimer); if (v === "ano") odpTimer = setInterval(odpocet, 30000);
+    clearInterval(odpTimer); if (v === "ano") odpTimer = setInterval(odpocet, 1000);
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     if (v === "ceka"){
       $("ceka-name").textContent = st.jmeno; $("ceka-msg").hidden = true;
