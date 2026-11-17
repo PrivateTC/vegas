@@ -172,6 +172,43 @@ body{
 .chip:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.45), 0 6px 14px rgba(0,0,0,.5), inset 0 0 0 2px rgba(0,0,0,.25)}
 .chip:focus-visible, .link:focus-visible{outline:3px solid var(--cyan); outline-offset:4px}
 
+
+/* ---------- změna místa (RF 17. 11. 2026): pompézní oznámení pro hosty u stolu ---------- */
+.zm-ovl{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:24px 16px;
+  background:radial-gradient(90% 70% at 50% 40%, rgba(143,16,36,.55), rgba(10,4,18,.94)); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  overflow-y:auto; animation:zmIn .35s ease}
+.zm-box{position:relative; z-index:2; width:min(420px,100%); margin:auto; display:flex; flex-direction:column; align-items:stretch; gap:16px; text-align:center;
+  animation:zmPop .7s cubic-bezier(.2,1.5,.4,1) .1s backwards}
+.zm-k{margin:0; font:700 14px/1.2 var(--f-cond); letter-spacing:.3em; text-transform:uppercase; color:var(--bulb); text-shadow:0 0 12px rgba(255,214,110,.7)}
+.zm-sign{margin-top:8px}
+.zm-face{position:relative; z-index:1; background:var(--cream); color:var(--ink); border-radius:14px; padding:18px 10px 16px;
+  display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:inset 0 0 0 4px #fff, inset 0 0 34px rgba(143,16,36,.18)}
+.zm-s{margin:0; font:400 30px/1 var(--f-script); color:var(--sign-blue); transform:rotate(-3deg)}
+.zm-v{margin:0; font:400 clamp(50px,16vw,74px)/.95 var(--f-display); color:var(--red); text-shadow:0 2px 0 #fff, 0 5px 0 rgba(143,16,36,.35);
+  animation:zmZar 1.4s ease-in-out infinite}
+.zm-t{margin:2px 0 0; font:600 13px/1.3 var(--f-cond); letter-spacing:.2em; text-transform:uppercase}
+.zm-a{margin:0; font:600 16px/1.3 var(--f-body)}
+.zm-cas{margin:0; font:400 22px/1.2 var(--f-display); color:var(--text)}
+.zm-cas b{color:var(--bulb); font-weight:400}
+.zm-pozn{margin:-6px 0 0; font:600 13px/1.2 var(--f-cond); letter-spacing:.18em; text-transform:uppercase; color:var(--cyan)}
+.zm-box .btn{width:100%}
+.zm-conf{position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden}
+.zm-conf span{position:absolute; top:-12vh; font:400 26px/1 var(--f-body); font-variant-emoji:text; animation:zmFall 4.2s linear infinite}
+@keyframes zmIn{from{opacity:0}}
+@keyframes zmPop{from{opacity:0; transform:scale(.6) rotate(-4deg)}}
+@keyframes zmZar{50%{text-shadow:0 2px 0 #fff, 0 5px 0 rgba(143,16,36,.35), 0 0 26px rgba(227,32,61,.55)}}
+@keyframes zmFall{to{transform:translateY(125vh) rotate(540deg)}}
+.zm-pas{position:relative; margin:0; padding:14px 14px 13px; border-radius:14px; background:var(--red); color:#fff; text-align:center;
+  border:3px dotted var(--bulb); box-shadow:0 0 0 2px #5c0a17, 0 0 26px rgba(227,32,61,.55); animation:zmPuls 1.6s ease-in-out infinite;
+  font:500 15.5px/1.4 var(--f-body)}
+.zm-pas .zm-pas-k{display:block; margin-bottom:4px; font:400 22px/1.1 var(--f-display); color:var(--bulb); letter-spacing:.02em}
+.zm-pas b{font-weight:700}
+.zm-pas a{color:#fff; font-weight:700; text-underline-offset:3px}
+@keyframes zmPuls{50%{box-shadow:0 0 0 2px #5c0a17, 0 0 44px rgba(255,214,110,.75)}}
+.deal li.nove{background:#fff6dc; box-shadow:0 0 0 3px var(--bulb), 0 0 22px rgba(255,214,110,.6); animation:deal .5s cubic-bezier(.2,.9,.3,1.2) backwards, zmPuls2 1.6s ease-in-out .6s infinite}
+@keyframes zmPuls2{50%{box-shadow:0 0 0 3px var(--red), 0 0 30px rgba(227,32,61,.6)}}
+@media (prefers-reduced-motion:reduce){ .zm-ovl,.zm-box,.zm-v,.zm-pas,.deal li.nove{animation:none} .zm-conf{display:none} }
+
 /* ---------- sukno: podrobnosti ---------- */
 .felt{scroll-margin-top:16px; 
   border-radius:20px; padding:22px 18px 20px;
@@ -541,6 +578,7 @@ a.link{display:inline-block}
   <section class="felt" id="yes" hidden>
     <p class="eyebrow">Sázka přijata</p>
     <h2>Sedíš u stolu.</h2>
+    <p class="zm-pas" id="zm-pas"><span class="zm-pas-k">📣 Změna místa!</span>Stůl se stěhuje do <b>Medusa Cabaret</b> (bývalý One Club), Melantrichova 5, Praha 1. Čas zůstává: pátek 20. 11., 18:00–24:00. <a id="zm-pas-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Medusa%20Cabaret%2C%20Melantrichova%205%2C%20Praha%201">Navigovat</a></p>
     <p class="yes-n" id="yes-n" hidden></p>
     <p class="odpocet" id="odpocet" hidden></p>
     <div class="kt-vyzva" id="kt-vyzva" hidden>
@@ -660,6 +698,25 @@ a.link{display:inline-block}
     </ul>
   </section>
 </main>
+
+<div class="zm-ovl" id="zmena" role="dialog" aria-modal="true" aria-labelledby="zm-v" hidden>
+  <div class="zm-conf" aria-hidden="true"><span style="left:4%;color:#e3203d;animation-delay:0s">♥</span><span style="left:14%;color:#fff;animation-delay:1.3s">♠</span><span style="left:24%;color:#ffd66e;animation-delay:.6s">♦</span><span style="left:35%;color:#fff;animation-delay:2.4s">♣</span><span style="left:46%;color:#e3203d;animation-delay:.2s">♦</span><span style="left:57%;color:#ffd66e;animation-delay:1.8s">♥</span><span style="left:67%;color:#fff;animation-delay:.9s">♠</span><span style="left:77%;color:#e3203d;animation-delay:2.9s">♣</span><span style="left:87%;color:#ffd66e;animation-delay:.4s">♠</span><span style="left:95%;color:#fff;animation-delay:2.1s">♥</span></div>
+  <div class="zm-box">
+    <p class="zm-k">📣 Mimořádné oznámení krupiéra</p>
+    <div class="sign jackpot zm-sign">
+      <div class="zm-face">
+        <p class="zm-s">stůl se stěhuje do</p>
+        <h2 class="zm-v" id="zm-v">MEDUSA</h2>
+        <p class="zm-t">Cabaret · bývalý One Club</p>
+        <p class="zm-a">Melantrichova 5, Praha 1</p>
+      </div>
+    </div>
+    <p class="zm-cas">Pátek 20. 11. · <b>18:00–24:00</b></p>
+    <p class="zm-pozn">Čas zůstává, mění se jen místo</p>
+    <button class="btn" id="zm-ok" type="button">Beru, jdu do Medusy</button>
+    <a class="btn alt" id="zm-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Medusa%20Cabaret%2C%20Melantrichova%205%2C%20Praha%201">📍 Navigovat</a>
+  </div>
+</div>
 <script>
 (function(){
   var HOOK = "https://hook.eu1.make.com/g4rav64rw2925f4n3k26gvdk8jzpdr0b";
@@ -687,6 +744,7 @@ a.link{display:inline-block}
       var z = document.createElement("span"); z.className = "suit" + (d.cervena ? " r" : ""); z.textContent = String(d.znak || "♠").replace(/\uFE0F/g, "") + "\uFE0E";
       var n = document.createElement("h3"); n.textContent = d.nadpis || "";
       var t = document.createElement("div"); t.textContent = d.text || "";
+      if (/^NOVÉ MÍSTO/.test(d.text || "")) li.className = "nove";
       li.appendChild(z); li.appendChild(n); li.appendChild(t); ul.appendChild(li);
     });
   }
@@ -1158,6 +1216,7 @@ a.link{display:inline-block}
     if (btn){ btn.disabled = true; btn.textContent = btnText; }
     $("who-back").disabled = true;
     send(odpoved, jmeno).then(function(d){
+      if (odpoved === "ano") zmVidel();
       prijmi(odpoved, jmeno, d);
       if (!email && !tel){ view(panel(), true); return; }
       // kontakt jde zvlášť až po zapsané odpovědi; když se nepovede, zůstane vyplněný v rámečku „Nech nám kontakt“
@@ -1571,13 +1630,33 @@ a.link{display:inline-block}
     var posun = function(){ if (!$("yes").hidden && $(cilOdkazu)) $(cilOdkazu).scrollIntoView({block:"start"}); };
     posun(); refresh(false).then(function(){ posun(); setTimeout(posun, 700); setTimeout(posun, 1600); }).catch(function(){});
   }, 200);
+  // změna místa (RF 17. 11. 2026): kdo sedí u stolu, uvidí jednou na zařízení velké oznámení
+  var ZM_KEY = "vegas-zmena-medusa";
+  function zmVidel(){ try { localStorage.setItem(ZM_KEY, "1"); } catch(e){} }
+  function zmOznam(){
+    if (st.odpoved !== "ano" || st.stav !== "u_stolu" || Date.now() > Date.UTC(2026, 10, 20, 23)) return;
+    try { if (localStorage.getItem(ZM_KEY)) return; } catch(e){}
+    var o = $("zmena"); if (!o.hidden) return;
+    if (st.udalost && st.udalost.mapa) $("zm-map").href = st.udalost.mapa;
+    o.hidden = false; document.documentElement.style.overflow = "hidden";
+    setTimeout(function(){ $("zm-ok").focus(); }, 80);
+  }
+  function zmZavri(){ zmVidel(); $("zmena").hidden = true; document.documentElement.style.overflow = ""; }
+  $("zm-ok").addEventListener("click", function(){
+    zmZavri(); view(panel(), false);
+    if (!$("yes").hidden) $("yes").scrollIntoView({block:"start"});
+  });
+  $("zm-map").addEventListener("click", function(){ setTimeout(zmZavri, 300); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && !$("zmena").hidden) zmZavri(); });
+
   navsteva();
   if (st.odpoved === "ano"){
     send("seznam", st.jmeno).then(function(d){
       if (st.odpoved !== "ano") return;
       prijmi("ano", st.jmeno, d);
       if (!$("ask").hidden) view("ask", false);   // jen překreslí odkazy na stoly
-    }).catch(function(){});
+      zmOznam();
+    }).catch(function(){ zmOznam(); });
   }
 })();
 </script>
