@@ -509,7 +509,7 @@ a.link{display:inline-block}
 .lt-table.padaji::after{content:""; position:absolute; left:0; right:0; top:0; height:100%; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cg opacity='.8'%3E%3Crect x='8' y='10' width='5' height='3' fill='%23ffd66e' transform='rotate(25 10 11)'/%3E%3Crect x='52' y='6' width='5' height='3' fill='%23e3203d' transform='rotate(-30 54 7)'/%3E%3Ccircle cx='76' cy='30' r='2' fill='%2353d6ff'/%3E%3Crect x='30' y='38' width='5' height='3' fill='%23ff6fb5' transform='rotate(60 32 39)'/%3E%3Ccircle cx='14' cy='62' r='2' fill='%23ffd66e'/%3E%3Crect x='60' y='64' width='5' height='3' fill='%2353d6ff' transform='rotate(15 62 65)'/%3E%3Ccircle cx='42' cy='80' r='1.8' fill='%23e3203d'/%3E%3Crect x='80' y='78' width='5' height='3' fill='%23ffd66e' transform='rotate(-50 82 79)'/%3E%3Cpath d='M20 24q4-5 8 0t8 0t8 0' fill='none' stroke='%23ff6fb5' stroke-width='1.6'/%3E%3Cpath d='M58 46q-3 5 0 9t0 9' fill='none' stroke='%23ffd66e' stroke-width='1.6'/%3E%3C/g%3E%3C/svg%3E") 0 0/70px 70px; opacity:0; pointer-events:none; animation:padej 3.2s ease-in .4s 2}
 @keyframes padej{0%{transform:translateY(-60%); opacity:1} 85%{opacity:1} 100%{transform:translateY(60%); opacity:0}}
 @media (prefers-reduced-motion:reduce){ .lt-table.padaji::after{animation:none} }
-/* nápis MEDUSA ★ CLUB přes celý stůl (RF 17. 11. 2026): velký neon po délce sukna, na dlouhém stole se opakuje */
+/* nápis MEDUSA ★ CABARET přes celý stůl (RF 17. 11. 2026): velký neon po délce sukna, na dlouhém stole se opakuje */
 .lt-napis{position:absolute; inset:10px 0; z-index:0; display:flex; flex-direction:column; align-items:center; justify-content:space-around; pointer-events:none}
 .lt-napis div{writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap;
   font:400 clamp(54px,21vw,92px)/1 var(--f-display); letter-spacing:.04em; color:#ffd66e; opacity:.78;
@@ -1103,8 +1103,8 @@ a.link{display:inline-block}
     var b = document.createElement("b"); b.textContent = n;
     var sp = document.createElement("span"); sp.textContent = "u stolu";
     var nap = document.createElement("div"); nap.className = "lt-napis"; nap.setAttribute("aria-hidden", "true");
-    for (var kz = Math.max(1, Math.round(Math.ceil((cap - 1) / 2) / 11)); kz > 0; kz--) nap.insertAdjacentHTML("beforeend", "<div>MEDUSA <i>★</i> CLUB</div>");
-    tbl.appendChild(nap); tbl.setAttribute("aria-label", "Stůl v Medusa Clubu");
+    for (var kz = Math.max(1, Math.round(Math.ceil((cap - 1) / 2) / 14)); kz > 0; kz--) nap.insertAdjacentHTML("beforeend", "<div>MEDUSA <i>★</i> CABARET</div>");
+    tbl.appendChild(nap); tbl.setAttribute("aria-label", "Stůl v Medusa Cabaret");
     var ln = document.createElement("div"); ln.className = "lt-n";
     ln.appendChild(b); ln.appendChild(sp);
     party(tbl, ln, Math.ceil((cap - 1) / 2));
