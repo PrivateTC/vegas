@@ -473,6 +473,10 @@ a.link{display:inline-block}
 @keyframes padej{0%{transform:translateY(-60%); opacity:1} 85%{opacity:1} 100%{transform:translateY(60%); opacity:0}}
 @media (prefers-reduced-motion:reduce){ .lt-table.padaji::after{animation:none} }
 @media (prefers-reduced-motion:reduce){ .lt .st.sit{animation:none} }
+.foto-cta{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; justify-content:space-between; margin:6px 0 12px; padding:12px 14px; border-radius:14px; border:1px dashed rgba(255,214,110,.5); background:rgba(255,214,110,.08)}
+.foto-cta p{margin:0; flex:1 1 220px}
+.foto-cta a:not(.btn){color:var(--cyan, #3fe3d4); white-space:nowrap}
+.foto-gal{margin-top:10px; display:inline-flex}
 </style>
 </head>
 <body>
@@ -540,7 +544,7 @@ a.link{display:inline-block}
     <p class="yes-n" id="yes-n" hidden></p>
     <p class="odpocet" id="odpocet" hidden></p>
     <div class="kt-vyzva" id="kt-vyzva" hidden>
-      <p><b>Chybí nám tvůj e-mail.</b> Pošleme ti aktuality k pátku, pozvánky na další akce party a <b>osobní odkaz do galerie fotek</b>. Bez e-mailu galerii neuvidíš. Zabere to 10 vteřin.</p>
+      <p><b>Chybí nám tvůj e-mail.</b> Pošleme ti aktuality k pátku a pozvánky na další akce party. <b>Galerie fotek se otevře jen tomu, kdo nám dal e-mail i telefon.</b> Zabere to 10 vteřin.</p>
       <button class="btn" id="kt-vyzva-go" type="button">Doplnit e-mail a telefon</button>
       <button class="link quiet" id="kt-vyzva-uz" type="button">Kontakt už jsem dal</button>
     </div>
@@ -559,6 +563,7 @@ a.link{display:inline-block}
         <button class="link quiet" id="kt-stul-uz" type="button">Kontakt už jsem dal</button>
       </div>
       <p class="satna-tip"><button class="link" id="satna-tip" type="button">🎩 Vytuň si figurku (pod stolem)</button></p>
+      <div class="foto-cta"><p>📷 <b>Máš doma fotky z Vegas?</b> Nahraj je na fotostěnu a zavzpomínáme. <a href="galerie.html">Prohlédni si galerii</a></p><a class="btn" href="#foto">Přidat fotky</a></div>
       <div class="tables" id="poker" role="img" aria-label="Stůl s hosty, kteří už potvrdili"></div>
       <p class="legenda" aria-hidden="true"><span><i class="lg-m"></i>pán</span><span><i class="lg-z"></i>dáma</span><span><i class="lg-x">?</i>nevíme</span></p>
       <div class="satna-bar"><button class="btn alt" id="satna-go" type="button">🎩 Vytuň si figurku</button></div>
@@ -577,7 +582,7 @@ a.link{display:inline-block}
     </div>
     <section class="foto" id="foto" aria-label="Fotostěna">
       <h3>📷 Fotostěna</h3>
-      <p><b>Máš fotky z Vegas z 90. let?</b> Nahraj je sem. Za fotky dostaneš u stolu foťák. Celou galerii pak uvidí ti, kdo nám nechali e-mail: každému pošleme osobní odkaz, kde jde fotky i komentovat.</p>
+      <p><b>Máš fotky z Vegas z 90. let?</b> Nahraj je sem. Za fotky dostaneš u stolu foťák. Celou galerii uvidí každý, kdo nám nechal e-mail i telefon, a fotky tam jde i komentovat.</p>
       <div class="kat" role="radiogroup" aria-label="Jaké fotky nahráváš">
         <button type="button" class="on" data-kat="tehdy" role="radio" aria-checked="true">Tehdy<small>90. léta</small></button>
         <button type="button" data-kat="ted" role="radio" aria-checked="false">Teď<small>selfie, parta</small></button>
@@ -587,8 +592,9 @@ a.link{display:inline-block}
       <input id="foto-vyber" class="sr" type="file" accept="image/*" multiple>
       <p class="foto-stav" id="foto-stav" role="status" hidden></p>
       <p class="err" id="foto-err" role="alert" hidden></p>
+      <a class="btn alt foto-gal" href="galerie.html">🖼️ Prohlédnout galerii</a>
       <div class="stena" id="stena" hidden><b id="stena-n">0</b><div><span id="stena-txt">fotek</span><br><span class="stena-jm" id="stena-jm"></span></div></div>
-      <p class="drob">Fotky se nikde veřejně neukazují, vidí je jen hosté s osobním odkazem z e-mailu. Před odesláním se zmenší a smaže se z nich poloha a údaje z telefonu.</p>
+      <p class="drob">Fotky se nikde veřejně neukazují, v galerii je vidí jen hosté, kteří nám nechali e-mail i telefon. Před odesláním se zmenší a smaže se z nich poloha a údaje z telefonu.</p>
     </section>
     <form class="tipbox" id="tip-form" novalidate>
       <h3>Koho z party ještě postrádáme?</h3>
@@ -617,7 +623,7 @@ a.link{display:inline-block}
   <section class="who kontakt" id="kontakt" hidden>
     <form id="kt-form" novalidate>
       <h2>Nech nám kontakt na novinky</h2>
-      <p class="kt-p">Pošleme ti aktuality k pátečnímu srazu, pozvánky na další akce party a osobní odkaz do galerie fotek (bez e-mailu ji neuvidíš). Nic jiného. Kontakt uvidí jen pořadatelé, u stolu se neukazuje.</p>
+      <p class="kt-p">Pošleme ti aktuality k pátečnímu srazu a pozvánky na další akce party. S e-mailem i telefonem se ti otevře galerie fotek. Nic jiného. Kontakt uvidí jen pořadatelé, u stolu se neukazuje.</p>
       <div class="kt-jm" id="kt-jm">
         <label for="kt-jmeno">Jméno, pod kterým jsi odpověděl (zkontroluj, ať je tvoje)</label>
         <input id="kt-jmeno" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="next" maxlength="40" placeholder="třeba Petr K.">
@@ -1110,7 +1116,13 @@ a.link{display:inline-block}
   function cistyTel(s){ return String(s || "").replace(/[^0-9+()\- ]/g, "").replace(/\s+/g, " ").trim(); }
   function okEmail(s){ return !s || /^[^\s@<>"|\\;]{1,64}@[^\s@<>"|\\;]{1,80}\.[^\s@<>"|\\;.]{2,}$/.test(s); }
   function okTel(s){ return !s || (/^\+?[0-9 ()\-]{6,25}$/.test(s) && s.replace(/\D/g, "").length >= 6); }
-  function posliKontakt(jmeno, email, tel){ return send("kontakt", jmeno, {email:email, telefon:tel}); }
+  function posliKontakt(jmeno, email, tel){
+    return send("kontakt", jmeno, {email:email, telefon:tel}).then(function(d){
+      // galerie pro hosty (RF 17. 11. 2026): prohlížeč si pamatuje vlastní e-mail, galerie ho pošle i se jménem
+      if (email){ try { localStorage.setItem("vegas-gal-email", String(email).trim().toLowerCase()); localStorage.setItem("vegas-gal-jmeno", jmeno); } catch(e){} }
+      return d;
+    });
+  }
 
   function send(odpoved, jmeno, navic){
     var ctl = ("AbortController" in window) ? new AbortController() : null;
