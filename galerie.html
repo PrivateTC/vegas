@@ -72,10 +72,13 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .vstup input{width:100%; min-height:46px; padding:10px 12px; border-radius:12px; border:1.5px solid var(--line); background:#0f0719; color:var(--text); font:400 16px/1.4 var(--f-body)}
 .vstup input:focus{outline:none; border-color:var(--bulb)}
 .vstup a{color:var(--cyan)}
+.zpet{align-self:flex-start; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 14px; margin:-6px 0 2px; border-radius:999px; border:1.5px solid var(--line); background:rgba(0,0,0,.25); color:var(--text); text-decoration:none; font:700 15px/1 var(--f-cond); letter-spacing:.06em}
+.zpet:hover{border-color:var(--bulb); color:var(--bulb)}
 </style>
 </head>
 <body>
 <main class="wrap">
+  <a class="zpet" href="./#stul">← Zpět na pozvánku</a>
   <p class="kicker">Little Las Vegas · galerie</p>
   <h1>Fotky party</h1>
   <p class="lead" id="ahoj">Načítám…</p>
@@ -91,7 +94,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="grid" id="grid"></div>
     <p class="empty" id="prazdno" hidden>Zatím tu nic není. Fotky přidáš na pozvánce u stolu.</p>
-    <p class="note" id="pozn">Odkaz je jen pro tebe, nepřeposílej ho. Fotky přidáš na <a href="./" target="_blank" rel="noopener">pozvánce</a> u stolu (sekce Fotostěna).</p>
+    <p class="note" id="pozn">Odkaz je jen pro tebe, nepřeposílej ho. Fotky přidáš na <a href="./#foto">pozvánce</a> u stolu (sekce Fotostěna).</p>
     <p class="note"><a class="go" href="./#foto" style="display:inline-flex;align-items:center;text-decoration:none">📷 Přidej taky svoje fotky</a></p>
   </div>
 </main>
@@ -262,7 +265,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     EMAIL = em; ls("vegas-gal-email", em); $("msg").hidden = true; $("ahoj").textContent = "Načítám…"; nacti();
   });
   if (HOST){
-    if (!JMENO){ $("ahoj").textContent = ""; var m0 = $("msg"); m0.hidden = false; m0.textContent = "Galerii otevři z pozvánky, kde sedíš u stolu. Pokud máš osobní odkaz z e-mailu, otevři ho celý."; return; }
+    if (!JMENO){ $("ahoj").textContent = ""; var m0 = $("msg"); m0.hidden = false; m0.textContent = "Galerii otevři z pozvánky, kde sedíš u stolu (tlačítko nahoře). Pokud máš osobní odkaz z e-mailu, otevři ho celý."; return; }
     if (!EMAIL){ $("ahoj").textContent = "Ahoj, " + JMENO + "."; ukazVstup(); return; }
   }
   nacti();
