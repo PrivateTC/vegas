@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Limelight&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap">
 <style>
-/* Galerie party (RF 15. 11. 2026): přístup jen s osobním klíčem za # (poslaným e-mailem), fotky z Disku, komentáře pod fotkou. */
+/* Galerie party (RF 15. 11. 2026): přístup s osobním klíčem za #, nebo (RF 17. 11. 2026, volba A) jako host z pozvánky: jméno + vlastní e-mail, server pustí jen s e-mailem i telefonem. */
 :root{color-scheme:dark; --night:#140a22; --night-2:#2b1040; --red:#e3203d; --bulb:#ffd66e; --ink:#24101a;
   --cyan:#3fe3d4; --text:#f4e9ff; --muted:#b8a6cc; --line:rgba(255,214,110,.28);
   --f-display:"Limelight","Rockwell","Georgia",serif; --f-cond:"Barlow Condensed","Arial Narrow",sans-serif;
@@ -64,7 +64,12 @@ h1{margin:0; font:400 36px/1.05 var(--f-display)}
   font:700 16px/1 var(--f-cond); letter-spacing:.1em; text-transform:uppercase; align-self:flex-start}
 .go[disabled]{opacity:.6}
 .kf small{color:var(--muted); font-size:13px}
-button:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
+button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
+.vstup{display:flex; flex-direction:column; gap:10px; padding:16px; border:1px solid var(--line); border-radius:14px; background:rgba(0,0,0,.25)}
+.vstup p{margin:0}
+.vstup input{width:100%; min-height:46px; padding:10px 12px; border-radius:12px; border:1.5px solid var(--line); background:#0f0719; color:var(--text); font:400 16px/1.4 var(--f-body)}
+.vstup input:focus{outline:none; border-color:var(--bulb)}
+.vstup a{color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -73,11 +78,19 @@ button:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid 
   <h1>Fotky party</h1>
   <p class="lead" id="ahoj">Načítám…</p>
   <p class="err" id="msg" role="alert" hidden></p>
+  <form class="vstup" id="vstup" novalidate hidden>
+    <p id="vstup-p">Galerii vidí hosté, kteří nám nechali e-mail i telefon. Zadej e-mail, který jsi dal na pozvánce. Tenhle prohlížeč si ho zapamatuje.</p>
+    <label for="vstup-email" class="sr-lbl">E-mail</label>
+    <input id="vstup-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="80" placeholder="tvůj e-mail">
+    <button class="go" id="vstup-go" type="submit">Ukázat fotky</button>
+    <p class="note">Nedal jsi nám ještě e-mail nebo telefon? <a href="./#kontakt">Doplň je na pozvánce</a> a galerie se ti otevře.</p>
+  </form>
   <div id="app" hidden>
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="grid" id="grid"></div>
     <p class="empty" id="prazdno" hidden>Zatím tu nic není. Fotky přidáš na pozvánce u stolu.</p>
-    <p class="note">Odkaz je jen pro tebe, nepřeposílej ho. Fotky přidáš na <a href="./" target="_blank" rel="noopener">pozvánce</a> u stolu (sekce Fotostěna).</p>
+    <p class="note" id="pozn">Odkaz je jen pro tebe, nepřeposílej ho. Fotky přidáš na <a href="./" target="_blank" rel="noopener">pozvánce</a> u stolu (sekce Fotostěna).</p>
+    <p class="note"><a class="go" href="./#foto" style="display:inline-flex;align-items:center;text-decoration:none">📷 Přidej taky svoje fotky</a></p>
   </div>
 </main>
 
@@ -107,6 +120,12 @@ button:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid 
 (function(){
   var HOOK = "https://hook.eu1.make.com/um6q52779a38fsenjtt7i7st8essf8ya";
   var KLIC = (location.hash || "").replace(/^#/, "").toLowerCase();
+  var HOST = !/^[a-f0-9]{20,40}$/.test(KLIC), JMENO = "", EMAIL = "";
+  function ls(k, v){ try { if (v === undefined) return localStorage.getItem(k) || ""; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch(e){ return ""; } }
+  if (HOST){
+    try { var r = JSON.parse(ls("vegas-rsvp-2") || "null"); if (r && r.jmeno) JMENO = String(r.jmeno); } catch(e){}
+    JMENO = JMENO || ls("vegas-gal-jmeno"); EMAIL = ls("vegas-gal-email");
+  }
   var $ = function(id){ return document.getElementById(id); };
   var KAT = {tehdy:"Tehdy", ted:"Teď", patek:"Z pátku"};
   var fotky = [], komentare = {}, filtr = "vse", vybrane = [], pozice = -1, ja = "", busy = false;
@@ -116,12 +135,12 @@ button:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid 
   function obr(id, w){ return "https://lh3.googleusercontent.com/d/" + encodeURIComponent(id) + "=w" + w; }
   function zaloha(id, w){ return "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id) + "&sz=w" + w; }
   function api(pole){
-    pole.klic = KLIC;
+    if (HOST){ pole.jmeno = JMENO; pole.email = EMAIL; pole.odpoved = pole.odpoved + "_host"; } else pole.klic = KLIC;
     var ctl = ("AbortController" in window) ? new AbortController() : null;
     var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 25000);
     return fetch(HOOK, {method:"POST", body:new URLSearchParams(pole), signal: ctl ? ctl.signal : undefined, cache:"no-store"})
       .then(function(r){ return r.text(); })
-      .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (!d || !d.ok){ var er = new Error("x"); er.kind = String(txt).trim() === "Accepted" ? "klic" : "server"; throw er; } return d; },
+      .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (!d || !d.ok){ var er = new Error("x"); er.kind = d && d.chybi ? "kontakt" : String(txt).trim() === "Accepted" ? "klic" : "server"; throw er; } return d; },
             function(e){ clearTimeout(t); throw e; });
   }
   function rozeber(d){
@@ -206,8 +225,8 @@ button:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid 
     api({odpoved:"koment", foto:f.id, text:t}).then(function(d){
       (komentare[f.id] = komentare[f.id] || []).push({zapsano:"", text:t, kdo:d.ja || ja});
       $("kf-text").value = ""; otevri(pozice);
-    }).catch(function(){
-      e.textContent = "Nepovedlo se uložit. Zkus to za chvíli znovu."; e.hidden = false;
+    }).catch(function(er){
+      e.textContent = er && er.kind === "kontakt" ? "Komentář nejde uložit: u tvého jména nemáme tenhle e-mail nebo telefon." : "Nepovedlo se uložit. Zkus to za chvíli znovu."; e.hidden = false;
     }).then(function(){ busy = false; b.disabled = false; b.textContent = old; });
   });
 
@@ -219,14 +238,30 @@ button:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid 
       if (ja){ $("ahoj").appendChild(document.createTextNode(", ")); var b = el("b", "", ja); $("ahoj").appendChild(b); }
       $("ahoj").appendChild(document.createTextNode(". Tady jsou fotky, které parta nahrála. Ťukni na fotku a můžeš ji okomentovat nebo stáhnout."));
       $("kf-lbl").textContent = "Napiš komentář" + (ja ? " (podepíše se „" + ja + "“)" : "");
-      rozeber(d); kresli(); $("app").hidden = false;
+      rozeber(d); kresli(); $("app").hidden = false; $("vstup").hidden = true;
+      if (HOST){ $("pozn").textContent = "Galerii vidí jen hosté, kteří nám nechali e-mail i telefon."; }
     }).catch(function(e){
       $("ahoj").textContent = "";
       var m = $("msg"); m.hidden = false;
+      if (e && e.kind === "kontakt"){
+        ls("vegas-gal-email", null); EMAIL = "";
+        m.textContent = "U jména „" + JMENO + "“ nemáme tenhle e-mail, nebo nám od tebe chybí telefon. Zkus jiný e-mail, nebo doplň kontakt na pozvánce.";
+        ukazVstup(); return;
+      }
       m.textContent = e && e.kind === "klic" ? "Tenhle odkaz do galerie neplatí. Použij celý odkaz z e-mailu, nebo napiš Robertovi." : "Galerii se nepovedlo načíst. Zkontroluj připojení a obnov stránku.";
     });
   }
-  if (!/^[a-f0-9]{20,40}$/.test(KLIC)){ $("ahoj").textContent = ""; var m = $("msg"); m.hidden = false; m.textContent = "Chybí osobní klíč v odkazu. Otevři celý odkaz z e-mailu."; return; }
+  function ukazVstup(){ $("vstup").hidden = false; $("vstup-email").value = ""; }
+  $("vstup").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var em = $("vstup-email").value.trim().toLowerCase();
+    if (!/^[^\s@<>"|\\;]{1,64}@[^\s@<>"|\\;]{1,80}\.[^\s@<>"|\\;.]{2,}$/.test(em)){ var m = $("msg"); m.hidden = false; m.textContent = "E-mail nevypadá správně."; return; }
+    EMAIL = em; ls("vegas-gal-email", em); $("msg").hidden = true; $("ahoj").textContent = "Načítám…"; nacti();
+  });
+  if (HOST){
+    if (!JMENO){ $("ahoj").textContent = ""; var m0 = $("msg"); m0.hidden = false; m0.textContent = "Galerii otevři z pozvánky, kde sedíš u stolu. Pokud máš osobní odkaz z e-mailu, otevři ho celý."; return; }
+    if (!EMAIL){ $("ahoj").textContent = "Ahoj, " + JMENO + "."; ukazVstup(); return; }
+  }
   nacti();
 })();
 </script>
