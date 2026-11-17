@@ -1564,6 +1564,13 @@ a.link{display:inline-block}
   // pozvánka se vždy otevře od žetonů; odkaz #kontakt rovnou na rámeček s kontaktem
   view("ask", false);
   if (ktOdkaz) setTimeout(function(){ $("kontakt").scrollIntoView({behavior:"smooth", block:"start"}); }, 300);
+  // návrat z galerie a podstránek (RF 17. 11. 2026): …/#stul = ke stolu, …/#foto = na fotostěnu (jen kdo sedí u stolu)
+  var cilOdkazu = {"#stul":"table", "#foto":"foto"}[location.hash];
+  if (cilOdkazu && st.odpoved === "ano") setTimeout(function(){
+    view(panel(), false);
+    var posun = function(){ if (!$("yes").hidden && $(cilOdkazu)) $(cilOdkazu).scrollIntoView({behavior:"smooth", block:"start"}); };
+    posun(); refresh(false).then(posun).catch(function(){});
+  }, 200);
   navsteva();
   if (st.odpoved === "ano"){
     send("seznam", st.jmeno).then(function(d){
