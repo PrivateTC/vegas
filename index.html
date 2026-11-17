@@ -771,7 +771,7 @@ a.link{display:inline-block}
   var VZHLEDY = {};
   var ROZSAH = {k:[6, 4], c:[7, 7], b:[7, 7], d:[64, 32], r:[5, 5], l:[1, 4]};   // [pán, dáma]
   function vychozi(jmeno, zena){
-    var k = hash(String(jmeno).toLowerCase()), v = {k:0, c:(k >> 3) % 7, b:k % 7, d:0, r:0, l:zena ? (k >> 6) % 4 : 0};
+    var k = hash(String(jmeno).toLowerCase()), v = {k:0, c:(k >>> 3) % 7, b:k % 7, d:0, r:0, l:zena ? (k >>> 6) % 4 : 0};   // >>> (17. 11.): s >> vycházely u půlky jmen záporné barvy a uložení server odmítl
     if (!zena){
       var j = String(jmeno).toLowerCase().trim();
       var doutnik = ["robert","ivan","pici"].indexOf(j) !== -1 || (k >> 9) % 3 === 0;
