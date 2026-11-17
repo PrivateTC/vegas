@@ -594,7 +594,7 @@ a.link{display:inline-block}
       <p class="err" id="foto-err" role="alert" hidden></p>
       <a class="btn alt foto-gal" href="galerie.html">🖼️ Prohlédnout galerii</a>
       <div class="stena" id="stena" hidden><b id="stena-n">0</b><div><span id="stena-txt">fotek</span><br><span class="stena-jm" id="stena-jm"></span></div></div>
-      <p class="drob">Fotky se nikde veřejně neukazují, v galerii je vidí jen hosté, kteří nám nechali e-mail i telefon. Před odesláním se zmenší a smaže se z nich poloha a údaje z telefonu.</p>
+      <p class="drob">Fotky se nikde veřejně neukazují, v galerii je vidí jen hosté, kteří nám nechali e-mail i telefon. Uložíme je v plném rozlišení jen pro pořadatele, v galerii jsou vidět zmenšené. Před odesláním se z nich smaže poloha a údaje z telefonu.</p>
     </section>
     <form class="tipbox" id="tip-form" novalidate>
       <h3>Koho z party ještě postrádáme?</h3>
@@ -1227,9 +1227,9 @@ a.link{display:inline-block}
   // nahrávání fotek má vlastní scénář (17. 11. 2026): výpadek Google Disku tak nezastaví šatnu, klín ani stěnu
   var FOTO_UP_HOOK = "https://hook.eu1.make.com/1or16tcvj5qi3qd5bk4yfa6nsa4jm1kw";
   var fotoKat = "tehdy", fotoBusy = false, MAX_FOTEK = 30;   // jedna dávka; víc se dá poslat dalším výběrem
-  function fotoPost(pole, hook){
+  function fotoPost(pole, hook, ms){
     var ctl = ("AbortController" in window) ? new AbortController() : null;
-    var t = setTimeout(function(){ if (ctl) ctl.abort(); }, 60000);
+    var t = setTimeout(function(){ if (ctl) ctl.abort(); }, ms || 60000);
     return fetch(hook || FOTO_HOOK, {method:"POST", body:new URLSearchParams(pole), signal: ctl ? ctl.signal : undefined})
       .then(function(r){ return r.text(); })
       .then(function(txt){ clearTimeout(t); var d = null; try { d = JSON.parse(txt); } catch(e){} if (d && d.chybi) throw new Error("chybi:" + d.chybi); if (!d || !d.ok) throw new Error("server"); return d; },
@@ -1409,21 +1409,41 @@ a.link{display:inline-block}
       var e = $("satna-err"); e.textContent = "Nepovedlo se uložit. Zkontroluj připojení a zkus to znovu."; e.hidden = false;
     }).then(function(){ b.disabled = false; b.textContent = old; });
   });
-  // zmenšení na max. 1600 px a JPEG: zároveň zmizí EXIF (poloha, telefon)
-  function zmensi(file){
+  // fotky (RF 17. 11. 2026): originál v plném rozlišení do soukromé složky, ke sdílení jen zmenšenina 1000 px.
+  // Obojí se přeuloží jako JPEG přes canvas, takže zmizí EXIF (poloha, telefon). Make bere nejvýš 5 MB na odeslání,
+  // proto originál po base64 drží pod 4,25 mil. znaků (URL kódování přidá ~18 %) (snižuje se kvalita, až nakonec rozměr).
+  function nactiObr(file){
     return new Promise(function(ok, ko){
       var url = URL.createObjectURL(file), img = new Image();
-      img.onload = function(){
-        var max = 1600, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
-        var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
-        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-        URL.revokeObjectURL(url);
-        var data = c.toDataURL("image/jpeg", 0.82).split(",")[1] || "";
-        if (!/^\/9j\//.test(data)) return ko(new Error("jpeg"));
-        ok(data);
-      };
+      img.onload = function(){ URL.revokeObjectURL(url); ok(img); };
       img.onerror = function(){ URL.revokeObjectURL(url); ko(new Error("obrazek")); };
       img.src = url;
+    });
+  }
+  function jpeg(img, max, q){
+    var w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+    if (w * h * k * k > 16000000) k = Math.sqrt(16000000 / (w * h));   // limit plátna v Safari
+    var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    var data = c.toDataURL("image/jpeg", q).split(",")[1] || "";
+    c.width = c.height = 1;
+    if (!/^\/9j\//.test(data)) throw new Error("jpeg");
+    return data;
+  }
+  function plnaVerze(img){
+    var LIMIT = 4250000, max = Math.max(img.naturalWidth, img.naturalHeight), q = [0.92, 0.86, 0.8, 0.72], data = "";
+    for (var kolo = 0; kolo < 6; kolo++){
+      for (var i = 0; i < q.length; i++){ data = jpeg(img, max, q[i]); if (data.length <= LIMIT) return data; }
+      max = Math.round(max * 0.85);
+    }
+    return data.length <= LIMIT ? data : "";
+  }
+  function nahrajFotku(f){
+    return nactiObr(f).then(function(img){
+      var plna = plnaVerze(img), mala = jpeg(img, 1000, 0.8);
+      var dal = function(id){ return fotoPost({odpoved:"foto", jmeno:st.jmeno, kat:fotoKat, data:mala, plna:id || ""}, FOTO_UP_HOOK); };
+      if (!plna) return dal("");
+      return fotoPost({odpoved:"foto_plna", jmeno:st.jmeno, kat:fotoKat, data:plna}, FOTO_UP_HOOK, 180000).then(function(d){ return dal(d.plna); });
     });
   }
   Array.prototype.forEach.call(document.querySelectorAll(".kat button"), function(b){
@@ -1444,7 +1464,7 @@ a.link{display:inline-block}
     soubory.forEach(function(f, i){
       retez = retez.then(function(){
         stav.textContent = "Nahrávám " + (i + 1) + " z " + soubory.length + "…";
-        return zmensi(f).then(function(data){ return fotoPost({odpoved:"foto", jmeno:st.jmeno, kat:fotoKat, data:data}, FOTO_UP_HOOK); })
+        return nahrajFotku(f)
           .then(function(){ hotovo++; }, function(){ chyb++; });
       });
     });
