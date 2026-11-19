@@ -425,7 +425,15 @@ a.link{display:inline-block}
 .lt .st{position:relative}
 .lt .st .ozdoba{position:absolute; pointer-events:none; filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
 .lt .st .korunka{width:16px; height:10px; top:-4px; left:50%; transform:translateX(-50%)}
-.lt .st .dort{width:15px; height:14px; bottom:16px; right:10px}
+.lt .st .dort{width:32px; height:30px; bottom:13px; right:-2px; z-index:2}
+/* RADARův dort (RF 19. 11. 2026): dvakrát větší, patrový, tři svíčky s plamínky, žetony a jiskřičky */
+.lt .st .dort .plamen{transform-box:fill-box; transform-origin:50% 100%; animation:dortPlamen .55s ease-in-out infinite alternate}
+.lt .st .dort .p2{animation-delay:-.2s} .lt .st .dort .p3{animation-delay:-.35s}
+.lt .st .dort .jiskra{transform-box:fill-box; transform-origin:50% 50%; animation:dortJiskra 1.4s ease-in-out infinite}
+.lt .st .dort .j2{animation-delay:-.5s} .lt .st .dort .j3{animation-delay:-.9s}
+@keyframes dortPlamen{from{transform:scale(.85,.9) rotate(-4deg); opacity:.85} to{transform:scale(1.08,1.12) rotate(4deg); opacity:1}}
+@keyframes dortJiskra{0%,100%{transform:scale(.2); opacity:0} 50%{transform:scale(1); opacity:1}}
+@media (prefers-reduced-motion:reduce){ .lt .st .dort .plamen, .lt .st .dort .jiskra{animation:none} }
 .lt .st.fotkar::after{content:"📷"; position:absolute; top:-2px; right:8px; font-size:14px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .tipbox{display:flex; flex-direction:column; gap:10px; border-top:1px dashed rgba(255,214,110,.35); padding-top:14px}
 .tipbox h3{margin:0; font:700 13px/1 var(--f-cond); letter-spacing:.2em; text-transform:uppercase; color:var(--bulb)}
@@ -1100,7 +1108,7 @@ a.link{display:inline-block}
     if (dama) el.insertAdjacentHTML("beforeend", '<span class="klin-dama">' + postava(dama) + '</span>');
     // drobné ozdoby (RF 15. 11. 2026): korunka pro Piciho, narozeninový dortík před RADARem
     if (klic === "pici") el.insertAdjacentHTML("afterbegin", '<svg class="ozdoba korunka" viewBox="0 0 20 12" aria-hidden="true"><path d="M1 11L2.5 3L7 7L10 1L13 7L17.5 3L19 11Z" fill="#ffd66e" stroke="#b98f2e" stroke-width=".8" stroke-linejoin="round"/><circle cx="10" cy="1.6" r="1.1" fill="#e3203d"/></svg>');
-    if (klic === "radar") el.insertAdjacentHTML("beforeend", '<svg class="ozdoba dort" viewBox="0 0 20 18" aria-hidden="true"><rect x="9.3" y="1.5" width="1.4" height="5" rx=".6" fill="#fff2d2"/><path d="M10 0C11.2 1.2 10.9 2 10 2.2C9.1 2 8.8 1.2 10 0Z" fill="#ffb02e"/><rect x="2" y="7" width="16" height="9" rx="2" fill="#f6d7e6"/><path d="M2 9.5C4 11 6 8.5 8 10S12 8.5 14 10S16 9 18 9.5V9C18 7.9 17.1 7 16 7H4C2.9 7 2 7.9 2 9Z" fill="#e3203d"/><rect x="1" y="15.5" width="18" height="2" rx="1" fill="#ffd66e"/></svg>');
+    if (klic === "radar") el.insertAdjacentHTML("beforeend", '<svg class="ozdoba dort" viewBox="0 0 32 30" aria-hidden="true"><path class="jiskra j1" d="M4 3L4.7 4.6L6.3 5.3L4.7 6L4 7.6L3.3 6L1.7 5.3L3.3 4.6Z" fill="#ffd66e"/><path class="jiskra j2" d="M28 1L28.6 2.4L30 3L28.6 3.6L28 5L27.4 3.6L26 3L27.4 2.4Z" fill="#fff2d2"/><path class="jiskra j3" d="M27 11L27.5 12.1L28.6 12.6L27.5 13.1L27 14.2L26.5 13.1L25.4 12.6L26.5 12.1Z" fill="#3fe3d4"/><rect x="11.3" y="4.2" width="1.6" height="5" rx=".6" fill="#3fe3d4"/><rect x="15.2" y="3.2" width="1.6" height="6" rx=".6" fill="#ff6fb5"/><rect x="19.1" y="4.2" width="1.6" height="5" rx=".6" fill="#ffd66e"/><path class="plamen" d="M12.1 .9C13.5 2.3 13.2 3.6 12.1 3.9C11 3.6 10.7 2.3 12.1 .9Z" fill="#ffb02e"/><path class="plamen p2" d="M16 0C17.4 1.4 17.1 2.7 16 3C14.9 2.7 14.6 1.4 16 0Z" fill="#ffb02e"/><path class="plamen p3" d="M19.9 .9C21.3 2.3 21 3.6 19.9 3.9C18.8 3.6 18.5 2.3 19.9 .9Z" fill="#ffb02e"/><rect x="8" y="9" width="16" height="8.5" rx="2" fill="#fff2d2"/><path d="M8 11.2C9.6 12.6 11.2 10.4 12.8 11.8S16 10.4 17.6 11.8S20.8 10.6 22.4 11.6S23.6 11.4 24 11.2V11C24 9.9 23.1 9 22 9H10C8.9 9 8 9.9 8 11Z" fill="#ff6fb5"/><text x="16" y="16.4" text-anchor="middle" font-family="Georgia,serif" font-size="4.6" font-weight="700" fill="#e3203d">A&#9829;&#xFE0E;</text><rect x="3" y="17" width="26" height="10.5" rx="2.2" fill="#f6d7e6"/><path d="M3 19.6C5 21.2 7 18.6 9 20.2S13 18.6 15 20.2S19 18.6 21 20.2S25 18.8 27 20S28.6 19.8 29 19.6V19.2C29 18 28 17 26.8 17H5.2C4 17 3 18 3 19.2Z" fill="#e3203d"/><circle cx="8" cy="24" r="2" fill="#e3203d" stroke="#fff2d2" stroke-width=".7" stroke-dasharray="1 .9"/><circle cx="16" cy="24" r="2" fill="#141414" stroke="#ffd66e" stroke-width=".7" stroke-dasharray="1 .9"/><circle cx="24" cy="24" r="2" fill="#2b9e6a" stroke="#fff2d2" stroke-width=".7" stroke-dasharray="1 .9"/><rect x="1" y="27.3" width="30" height="2.4" rx="1.2" fill="#ffd66e"/></svg>');
     var em = document.createElement("em"); em.title = jm;
     em.textContent = slova[0] + (slova[1] ? " " + slova[1].charAt(0).toUpperCase() + "." : "");
     el.appendChild(em);
