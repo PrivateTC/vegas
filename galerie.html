@@ -36,24 +36,56 @@ h1{margin:0; font:400 36px/1.05 var(--f-display)}
 .tile{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; background:#24123a; border:0; padding:0; cursor:pointer}
 .tile img{width:100%; height:100%; object-fit:cover; display:block}
 /* RF 17. 11.: fotky jen v menším rozlišení, bez stahování (podržení / pravé tlačítko vypnuté) */
-.tile img, .lb-img img{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none; -webkit-user-drag:none; pointer-events:auto}
+.tile img, .slide img, .lb-strip img{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none; -webkit-user-drag:none; pointer-events:auto}
 .tile .kom{position:absolute; right:6px; bottom:6px; padding:2px 7px; border-radius:999px; background:rgba(0,0,0,.65); color:#fff; font:600 12px/1.4 var(--f-cond)}
 .empty{margin:0; padding:16px; border:1px dashed var(--line); border-radius:14px; color:var(--muted); text-align:center}
 .note{margin:0; font-size:13px; color:var(--muted)}
 .note a{color:var(--cyan)}
-/* detail fotky */
-.lb{position:fixed; inset:0; z-index:10; background:rgba(10,4,18,.96); display:flex; flex-direction:column; overflow-y:auto}
-.lb-top{display:flex; justify-content:space-between; align-items:center; padding:10px 14px; position:sticky; top:0; background:rgba(10,4,18,.9)}
-.lb-top b{font:700 16px/1.2 var(--f-cond); color:var(--bulb)}
-.lb-top small{display:block; font:400 12px/1.2 var(--f-mono); color:var(--muted)}
-.ico{appearance:none; border:0; background:rgba(255,255,255,.08); color:#fff; width:44px; height:44px; border-radius:50%; font-size:22px; cursor:pointer}
-.lb-img{position:relative; display:flex; align-items:center; justify-content:center; min-height:50vh}
-.lb-img img{max-width:100%; max-height:72vh; display:block}
-.lb-img .prev, .lb-img .next{position:absolute; top:50%; transform:translateY(-50%)}
-.lb-img .prev{left:8px} .lb-img .next{right:8px}
-.lb-body{max-width:640px; width:100%; margin:0 auto; padding:14px 16px 30px; display:flex; flex-direction:column; gap:12px}
-.lb-acts{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
-.lb-acts a{color:var(--cyan); font:600 15px/1 var(--f-cond); letter-spacing:.06em; text-transform:uppercase}
+/* prohlížeč fotek (RF 19. 11. 2026): celá obrazovka, listování prstem jako v galerii telefonu, kdo fotku nahrál, pás náhledů, komentáře ve vysouvacím panelu */
+.lb{position:fixed; inset:0; z-index:10; background:#07030c; overflow:hidden; touch-action:pan-x; -webkit-user-select:none; user-select:none}
+.lb-track{position:absolute; inset:0; display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; scrollbar-width:none; overscroll-behavior:contain}
+.lb-track::-webkit-scrollbar{display:none}
+.lb-track.zoomed{overflow-x:hidden; scroll-snap-type:none}
+.slide{flex:0 0 100%; width:100%; height:100%; scroll-snap-align:center; scroll-snap-stop:always; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative}
+.slide img{max-width:100%; max-height:100%; object-fit:contain; display:block; opacity:0; transition:opacity .25s}
+.slide img.ok{opacity:1}
+.slide .spin{position:absolute; width:34px; height:34px; border-radius:50%; border:3px solid rgba(255,214,110,.25); border-top-color:var(--bulb); animation:spin .9s linear infinite}
+.slide.nacteno .spin{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.slide.zoom{overflow:auto; display:block; touch-action:pan-x pan-y}
+.slide.zoom img{max-width:none; max-height:none; width:220%; margin:0 auto}
+.ui{transition:opacity .2s, transform .2s}
+.lb.bez-ui .ui{opacity:0; pointer-events:none}
+.lb-top{position:absolute; left:0; right:0; top:0; display:flex; justify-content:space-between; align-items:center; gap:10px;
+  padding:calc(8px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 22px max(12px, env(safe-area-inset-left, 0px));
+  background:linear-gradient(rgba(7,3,12,.85), rgba(7,3,12,0))}
+.lb-pocet{font:500 14px/1 var(--f-mono); color:#fff; background:rgba(0,0,0,.45); padding:8px 12px; border-radius:999px}
+.ico{appearance:none; border:0; background:rgba(0,0,0,.45); color:#fff; width:44px; height:44px; border-radius:50%; font-size:22px; line-height:1; cursor:pointer; display:inline-flex; align-items:center; justify-content:center}
+.nav{position:absolute; top:50%; transform:translateY(-50%); width:48px; height:48px; font-size:30px}
+.nav.prev{left:max(10px, env(safe-area-inset-left, 0px))} .nav.next{right:max(10px, env(safe-area-inset-right, 0px))}
+@media (hover:none){ .nav{display:none} }
+.lb-cap{position:absolute; left:0; right:0; bottom:0; padding:30px max(14px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));
+  background:linear-gradient(rgba(7,3,12,0), rgba(7,3,12,.78) 38%, rgba(7,3,12,.92)); display:flex; flex-direction:column; gap:10px}
+.lb-who{display:flex; align-items:center; gap:10px; max-width:720px; width:100%; margin:0 auto}
+.av{flex:0 0 40px; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font:700 18px/1 var(--f-cond); color:var(--ink); background:var(--bulb); box-shadow:0 0 0 2px rgba(255,255,255,.18)}
+.lb-who div{flex:1; min-width:0}
+.lb-who b{display:block; font:700 18px/1.15 var(--f-cond); color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.lb-who small{display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:3px; font:400 13px/1.2 var(--f-body); color:var(--muted)}
+.chip{font:700 11px/1 var(--f-cond); letter-spacing:.12em; text-transform:uppercase; padding:4px 8px; border-radius:999px; background:rgba(255,214,110,.16); color:var(--bulb); border:1px solid rgba(255,214,110,.4)}
+.lb-kbtn{appearance:none; flex:0 0 auto; border:1.5px solid rgba(255,214,110,.5); background:rgba(0,0,0,.4); color:#fff; border-radius:999px; min-height:44px; padding:0 14px; font:700 15px/1 var(--f-cond); letter-spacing:.04em; cursor:pointer; white-space:nowrap}
+.lb-strip{position:relative; display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:2px; max-width:720px; width:100%; margin:0 auto}
+.lb-strip::-webkit-scrollbar{display:none}
+.lb-strip button{flex:0 0 52px; height:52px; padding:0; border:0; border-radius:8px; overflow:hidden; background:#24123a; opacity:.5; cursor:pointer; outline:2px solid transparent; outline-offset:1px; transition:opacity .15s}
+.lb-strip button.on{opacity:1; outline-color:var(--bulb)}
+.lb-strip img{width:100%; height:100%; object-fit:cover; display:block; pointer-events:none}
+.sheet{position:absolute; left:0; right:0; bottom:0; max-height:78%; display:flex; flex-direction:column; background:#1a0d2a; border-top:1px solid var(--line);
+  border-radius:20px 20px 0 0; box-shadow:0 -20px 40px rgba(0,0,0,.5); touch-action:pan-y; -webkit-user-select:text; user-select:text; animation:nahoru .22s ease-out}
+@keyframes nahoru{from{transform:translateY(40%); opacity:.4}}
+.sheet-h{display:flex; justify-content:space-between; align-items:center; padding:12px 14px 8px 18px; border-bottom:1px solid rgba(255,255,255,.07)}
+.sheet-h b{font:700 18px/1.2 var(--f-cond); color:var(--bulb)}
+.sheet-h small{display:block; font:400 13px/1.2 var(--f-body); color:var(--muted)}
+.sheet-b{overflow-y:auto; padding:12px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display:flex; flex-direction:column; gap:12px; max-width:680px; width:100%; margin:0 auto}
+.bez-kom{margin:0; color:var(--muted)}
 .koms{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
 .koms li{padding:10px 12px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08)}
 .koms li b{font:700 15px/1.2 var(--f-cond); color:var(--bulb)}
@@ -99,24 +131,34 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   </div>
 </main>
 
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Fotka" hidden>
-  <div class="lb-top">
-    <div><b id="lb-kdo"></b><small id="lb-kdy"></small></div>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Prohlížeč fotek" hidden>
+  <div class="lb-track" id="lb-track"></div>
+  <div class="lb-top ui">
+    <span class="lb-pocet" id="lb-pocet" aria-live="polite"></span>
     <button class="ico" id="lb-zavrit" type="button" aria-label="Zavřít">✕</button>
   </div>
-  <div class="lb-img">
-    <button class="ico prev" id="lb-prev" type="button" aria-label="Předchozí fotka">‹</button>
-    <img id="lb-foto" alt="">
-    <button class="ico next" id="lb-next" type="button" aria-label="Další fotka">›</button>
+  <button class="ico nav prev ui" id="lb-prev" type="button" aria-label="Předchozí fotka">‹</button>
+  <button class="ico nav next ui" id="lb-next" type="button" aria-label="Další fotka">›</button>
+  <div class="lb-cap ui">
+    <div class="lb-who">
+      <span class="av" id="lb-av" aria-hidden="true"></span>
+      <div><b id="lb-kdo"></b><small id="lb-meta"></small></div>
+      <button class="lb-kbtn" id="lb-kbtn" type="button"></button>
+    </div>
+    <div class="lb-strip" id="lb-strip" aria-label="Náhledy fotek"></div>
   </div>
-  <div class="lb-body">
-    <ul class="koms" id="lb-koms"></ul>
-    <form class="kf" id="kf" novalidate>
-      <label for="kf-text" id="kf-lbl">Napiš komentář</label>
-      <textarea id="kf-text" maxlength="500" placeholder="Co si k fotce pamatuješ?"></textarea>
-      <p class="err" id="kf-err" role="alert" hidden></p>
-      <button class="go" id="kf-go" type="submit">Přidat komentář</button>
-    </form>
+  <div class="sheet" id="sheet" role="region" aria-label="Komentáře" hidden>
+    <div class="sheet-h"><div><b>Komentáře</b><small id="sheet-pod"></small></div><button class="ico" id="sheet-x" type="button" aria-label="Zavřít komentáře">✕</button></div>
+    <div class="sheet-b">
+      <ul class="koms" id="lb-koms"></ul>
+      <p class="bez-kom" id="bez-kom" hidden>Zatím bez komentářů. Napiš první, co si k fotce pamatuješ.</p>
+      <form class="kf" id="kf" novalidate>
+        <label for="kf-text" id="kf-lbl">Napiš komentář</label>
+        <textarea id="kf-text" maxlength="500" placeholder="Co si k fotce pamatuješ?"></textarea>
+        <p class="err" id="kf-err" role="alert" hidden></p>
+        <button class="go" id="kf-go" type="submit">Přidat komentář</button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -189,38 +231,107 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     });
     $("prazdno").hidden = vybrane.length > 0;
   }
-  function otevri(i){
-    pozice = i; var f = vybrane[i]; if (!f) return;
-    $("lb-kdo").textContent = (KAT[f.kat] || "Fotka") + " · od " + f.kdo;
-    $("lb-kdy").textContent = kdy(f.zapsano);
-    nastavObr($("lb-foto"), f.id, 800);
-    var ul = $("lb-koms"); ul.textContent = "";
-    (komentare[f.id] || []).forEach(function(k){
-      var li = el("li"); li.appendChild(el("b", "", k.kdo)); li.appendChild(el("small", "", kdy(k.zapsano))); li.appendChild(el("p", "", k.text)); ul.appendChild(li);
-    });
-    $("kf-err").hidden = true;
-    $("lb-prev").hidden = i <= 0; $("lb-next").hidden = i >= vybrane.length - 1;
-    var lb = $("lb"); if (lb.hidden){ lb.hidden = false; document.body.style.overflow = "hidden"; }
-    lb.scrollTop = 0;
+  // ---- prohlížeč (RF 19. 11. 2026) ----
+  var track = $("lb-track"), lbHist = false, tapT = null, posunT = null;
+  function tvarKom(n){ return n === 1 ? "komentář" : (n >= 2 && n <= 4) ? "komentáře" : "komentářů"; }
+  function barva(t){ var h = 0; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 360; return "hsl(" + h + " 85% 68%)"; }
+  function sirka(){ return track.clientWidth || window.innerWidth; }
+  function nactiSlide(i){
+    var sl = track.children[i], f = vybrane[i]; if (!sl || !f || sl.dataset.n) return;
+    sl.dataset.n = "1"; var img = sl.querySelector("img");
+    img.onload = function(){ img.classList.add("ok"); sl.classList.add("nacteno"); };
+    nastavObr(img, f.id, 800);
   }
-  function zavri(){ $("lb").hidden = true; document.body.style.overflow = ""; pozice = -1; kresli(); }
+  function postav(){
+    track.textContent = ""; var strip = $("lb-strip"); strip.textContent = "";
+    vybrane.forEach(function(f, i){
+      var sl = el("div", "slide"); sl.appendChild(el("span", "spin"));
+      var img = el("img"); img.alt = (KAT[f.kat] || "Fotka") + " od " + f.kdo; img.draggable = false; sl.appendChild(img);
+      track.appendChild(sl);
+      var t = el("button"); t.type = "button"; t.setAttribute("aria-label", "Fotka " + (i + 1) + " od " + f.kdo);
+      var ti = el("img"); ti.alt = ""; ti.loading = "lazy"; nastavObr(ti, f.id, 160); t.appendChild(ti);
+      t.addEventListener("click", function(){ jdi(i, true); });
+      strip.appendChild(t);
+    });
+    $("lb-strip").hidden = vybrane.length < 2;
+  }
+  function popis(i){
+    var f = vybrane[i]; if (!f) return;
+    pozice = i;
+    $("lb-pocet").textContent = (i + 1) + " / " + vybrane.length;
+    var kdo = f.kdo || "host";
+    $("lb-av").textContent = kdo.charAt(0).toUpperCase(); $("lb-av").style.background = barva(kdo);
+    $("lb-kdo").textContent = "Od: " + kdo;
+    var m = $("lb-meta"); m.textContent = "";
+    m.appendChild(el("span", "chip", KAT[f.kat] || "Fotka"));
+    if (f.zapsano) m.appendChild(el("span", "", "nahráno " + kdy(f.zapsano)));
+    var n = (komentare[f.id] || []).length;
+    $("lb-kbtn").textContent = n ? "💬 " + n : "💬 Komentovat";
+    $("lb-kbtn").setAttribute("aria-label", n ? n + " " + tvarKom(n) + ", otevřít" : "Napsat komentář");
+    $("lb-prev").hidden = i <= 0; $("lb-next").hidden = i >= vybrane.length - 1;
+    [i, i + 1, i - 1, i + 2].forEach(nactiSlide);
+    var th = $("lb-strip").children;
+    for (var k = 0; k < th.length; k++) th[k].classList.toggle("on", k === i);
+    if (th[i]){ var st = $("lb-strip"); try { st.scrollTo({left: th[i].offsetLeft - (st.clientWidth - th[i].offsetWidth) / 2, behavior:"smooth"}); } catch(e){ st.scrollLeft = th[i].offsetLeft; } }
+    if (!$("sheet").hidden) komentuj();
+  }
+  function odzoom(){ var z = track.querySelector(".slide.zoom"); if (z){ z.classList.remove("zoom"); z.scrollTop = z.scrollLeft = 0; } track.classList.remove("zoomed"); }
+  function jdi(i, plynule){
+    if (i < 0 || i >= vybrane.length) return;
+    odzoom();
+    track.scrollTo({left: i * sirka(), behavior: plynule ? "smooth" : "auto"});
+    popis(i);
+  }
+  track.addEventListener("scroll", function(){
+    clearTimeout(posunT);
+    posunT = setTimeout(function(){ var i = Math.round(track.scrollLeft / sirka()); if (i !== pozice) popis(i); }, 60);
+  }, {passive:true});
+  window.addEventListener("resize", function(){ if (!$("lb").hidden && pozice >= 0) track.scrollTo({left: pozice * sirka(), behavior:"auto"}); });
+  // ťuknutí = schovat / ukázat popisky, dvojí ťuknutí = přiblížit
+  track.addEventListener("click", function(e){
+    if (!$("sheet").hidden){ $("sheet").hidden = true; return; }
+    var sl = e.target.closest ? e.target.closest(".slide") : null;
+    if (tapT){ clearTimeout(tapT); tapT = null;
+      if (sl){ var z = !sl.classList.contains("zoom"); odzoom();
+        if (z){ sl.classList.add("zoom"); track.classList.add("zoomed"); $("lb").classList.add("bez-ui");
+          var r = sl.getBoundingClientRect(); sl.scrollLeft = (e.clientX - r.left) * 1.2; sl.scrollTop = (e.clientY - r.top) * 1.2 - r.height / 4; }
+        else $("lb").classList.remove("bez-ui"); }
+      return; }
+    tapT = setTimeout(function(){ tapT = null; if (!track.classList.contains("zoomed")) $("lb").classList.toggle("bez-ui"); }, 260);
+  });
+  function otevri(i){
+    if (!vybrane[i]) return;
+    postav();
+    var lb = $("lb"); lb.hidden = false; lb.classList.remove("bez-ui"); $("sheet").hidden = true;
+    document.body.style.overflow = "hidden";
+    if (!lbHist){ try { history.pushState({lb:1}, ""); lbHist = true; } catch(e){} }
+    requestAnimationFrame(function(){ jdi(i, false); });
+    $("lb-zavrit").focus({preventScroll:true});
+  }
+  function zavriTed(){ odzoom(); $("lb").hidden = true; $("sheet").hidden = true; document.body.style.overflow = ""; track.textContent = ""; pozice = -1; kresli(); }
+  function zavri(){ if (lbHist){ lbHist = false; try { history.back(); return; } catch(e){} } zavriTed(); }
+  window.addEventListener("popstate", function(){ if (!$("lb").hidden){ lbHist = false; zavriTed(); } });
+  function komentuj(){
+    var f = vybrane[pozice]; if (!f) return;
+    var ks = komentare[f.id] || [], ul = $("lb-koms"); ul.textContent = "";
+    ks.forEach(function(k){ var li = el("li"); li.appendChild(el("b", "", k.kdo)); if (k.zapsano) li.appendChild(el("small", "", kdy(k.zapsano))); li.appendChild(el("p", "", k.text)); ul.appendChild(li); });
+    $("bez-kom").hidden = ks.length > 0;
+    $("sheet-pod").textContent = "Fotka od " + (f.kdo || "hosta") + (ks.length ? " · " + ks.length + " " + tvarKom(ks.length) : "");
+    $("kf-err").hidden = true;
+  }
+  $("lb-kbtn").addEventListener("click", function(){ komentuj(); $("sheet").hidden = false; });
+  $("sheet-x").addEventListener("click", function(){ $("sheet").hidden = true; });
   $("lb-zavrit").addEventListener("click", zavri);
-  $("lb-prev").addEventListener("click", function(){ if (pozice > 0) otevri(pozice - 1); });
-  $("lb-next").addEventListener("click", function(){ if (pozice < vybrane.length - 1) otevri(pozice + 1); });
+  $("lb-prev").addEventListener("click", function(){ jdi(pozice - 1, true); });
+  $("lb-next").addEventListener("click", function(){ jdi(pozice + 1, true); });
   document.addEventListener("keydown", function(e){
     if ($("lb").hidden || e.target.tagName === "TEXTAREA") return;
-    if (e.key === "Escape") zavri(); else if (e.key === "ArrowLeft") $("lb-prev").click(); else if (e.key === "ArrowRight") $("lb-next").click();
+    if (e.key === "Escape"){ if (!$("sheet").hidden) $("sheet").hidden = true; else zavri(); }
+    else if (e.key === "ArrowLeft") jdi(pozice - 1, true); else if (e.key === "ArrowRight") jdi(pozice + 1, true);
   });
   // bez stahování: žádné kontextové menu ani přetažení obrázku
   document.addEventListener("contextmenu", function(e){ if (e.target && e.target.tagName === "IMG") e.preventDefault(); });
   document.addEventListener("dragstart", function(e){ if (e.target && e.target.tagName === "IMG") e.preventDefault(); });
-  // přejetí prstem v detailu: doleva další, doprava předchozí
-  var sx = null;
-  $("lb-foto").addEventListener("touchstart", function(e){ sx = e.touches[0].clientX; }, {passive:true});
-  $("lb-foto").addEventListener("touchend", function(e){
-    if (sx == null) return; var dx = e.changedTouches[0].clientX - sx; sx = null;
-    if (dx < -50) $("lb-next").click(); else if (dx > 50) $("lb-prev").click();
-  }, {passive:true});
 
   $("kf").addEventListener("submit", function(ev){
     ev.preventDefault(); if (busy || pozice < 0) return;
@@ -230,7 +341,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     busy = true; var b = $("kf-go"), old = b.textContent; b.disabled = true; b.textContent = "Ukládám…"; e.hidden = true;
     api({odpoved:"koment", foto:f.id, text:t}).then(function(d){
       (komentare[f.id] = komentare[f.id] || []).push({zapsano:"", text:t, kdo:d.ja || ja});
-      $("kf-text").value = ""; otevri(pozice);
+      $("kf-text").value = ""; popis(pozice); komentuj();
     }).catch(function(er){
       e.textContent = er && er.kind === "kontakt" ? "Komentář nejde uložit: u tvého jména nemáme tenhle e-mail nebo telefon." : "Nepovedlo se uložit. Zkus to za chvíli znovu."; e.hidden = false;
     }).then(function(){ busy = false; b.disabled = false; b.textContent = old; });
@@ -242,7 +353,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
       $("ahoj").textContent = "";
       $("ahoj").appendChild(document.createTextNode("Ahoj"));
       if (ja){ $("ahoj").appendChild(document.createTextNode(", ")); var b = el("b", "", ja); $("ahoj").appendChild(b); }
-      $("ahoj").appendChild(document.createTextNode(". Tady jsou fotky, které parta nahrála. Ťukni na fotku a můžeš ji okomentovat."));
+      $("ahoj").appendChild(document.createTextNode(". Tady jsou fotky, které parta nahrála. Ťukni na fotku, listuj prstem do stran a fotky můžeš komentovat."));
       $("kf-lbl").textContent = "Napiš komentář" + (ja ? " (podepíše se „" + ja + "“)" : "");
       rozeber(d); kresli(); $("app").hidden = false; $("vstup").hidden = true;
       if (HOST){ $("pozn").textContent = "Galerii vidí jen hosté, kteří nám nechali e-mail i telefon."; }
