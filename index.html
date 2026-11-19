@@ -346,6 +346,24 @@ a.link{display:inline-block}
 .odp-kdy b{color:var(--bulb)}
 .odpocet.blizko{animation:odpPuls 1.6s ease-in-out infinite}
 @keyframes odpPuls{50%{box-shadow:0 0 0 4px rgba(227,32,61,1), 0 0 44px rgba(255,214,110,.75), inset 0 0 22px rgba(0,0,0,.6)}}
+/* Jsem tady (RF 19. 11. 2026): v pátek se host po příchodu do Medusy označí, u stolu svítí zeleně */
+.tu{display:flex; flex-direction:column; gap:10px; margin:4px 0; padding:14px; border-radius:18px; text-align:center;
+  background:radial-gradient(120% 90% at 50% 0%, rgba(63,227,154,.22), rgba(0,0,0,.35) 70%); border:2px solid #3fe39a; box-shadow:0 0 18px rgba(63,227,154,.35), inset 0 0 14px rgba(63,227,154,.15)}
+.tu-h{display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap}
+.tu-h b{font:700 18px/1.2 var(--f-cond); letter-spacing:.06em; text-transform:uppercase; color:#8dffc9}
+.tu-h span{font:700 15px/1 var(--f-cond); color:#fff}
+.tu p{margin:0}
+.tu-jm{color:#e9fff4; font-size:15px; line-height:1.45}
+.tu-jm b{color:var(--bulb)}
+.tu-go{background:#3fe39a !important; color:#06281a !important; box-shadow:0 4px 0 #1f9c66 !important; font-size:20px !important; min-height:58px; animation:tuPuls 1.6s ease-in-out infinite}
+.tu-go[disabled]{animation:none; opacity:.55; font-size:16px !important}
+@keyframes tuPuls{50%{box-shadow:0 4px 0 #1f9c66, 0 0 22px rgba(63,227,154,.8)}}
+.tu-ok{font:700 17px/1.35 var(--f-cond); color:#8dffc9}
+.tu-pozn{font-size:13px; color:#bfe3d6}
+.tu .err{color:#ffb4b4}
+.lt .st.uvnitr svg{filter:drop-shadow(0 0 7px #3fe39a) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+.lt .st .tu-znak{position:absolute; top:0; left:8px; font-size:12px; line-height:1; pointer-events:none}
+@media (prefers-reduced-motion:reduce){ .tu-go{animation:none} }
 .odp-live{margin:0 !important; font:400 clamp(24px,7vw,32px)/1.15 var(--f-display) !important; color:var(--bulb) !important; text-shadow:0 0 14px rgba(255,214,110,.7)}
 @media (prefers-reduced-motion:reduce){ .odpocet,.odpocet::before,.odpocet::after,.odp-cisla b.tik{animation:none} }
 .kt-vyzva{display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:14px; background:rgba(255,214,110,.12); border:1.5px solid var(--bulb)}
@@ -639,6 +657,15 @@ a.link{display:inline-block}
       </div>
       <p class="odp-live" id="odp-live" hidden>Karty se právě rozdávají!</p>
       <p class="odp-kdy" id="odp-kdy"></p>
+    </div>
+    <div class="tu" id="tu" hidden>
+      <div class="tu-h"><b>📍 Kdo už je v Meduse</b><span id="tu-n"></span></div>
+      <p class="tu-jm" id="tu-jm"></p>
+      <button class="btn tu-go" id="tu-go" type="button">📍 Jsem tady!</button>
+      <p class="tu-ok" id="tu-ok" role="status" hidden></p>
+      <button class="link quiet" id="tu-zpet" type="button" hidden>Ještě tu nejsem (zrušit)</button>
+      <p class="err" id="tu-err" role="alert" hidden></p>
+      <p class="tu-pozn" id="tu-pozn">Až dorazíš do Medusy, ťukni na tlačítko. U stolu se ti rozsvítí zelená figurka a ostatní uvidí, že už tam jsi.</p>
     </div>
     <div class="vst" id="vst" hidden>
       <div class="vst-h"><b>🎟️ Vstupenka</b><span>Pátek 20. 11.</span></div>
@@ -1067,8 +1094,9 @@ a.link{display:inline-block}
     }
     var klic = jm.toLowerCase(), slova = jm.trim().split(/\s+/);
     var jaNaKline = dama && dama.toLowerCase() === me;
-    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me || jaNaKline ? " me" : "") + (fotkari[klic] ? " fotkar" : "") + (posazeni[klic] ? "" : " sit") + (dama ? " par" : "");
+    el.className = "st" + (kral(jm) ? " king" : "") + (klic === me || jaNaKline ? " me" : "") + (fotkari[klic] ? " fotkar" : "") + (posazeni[klic] ? "" : " sit") + (dama ? " par" : "") + (TU[klic] ? " uvnitr" : "");
     el.innerHTML = postava(jm);
+    if (TU[klic]){ el.insertAdjacentHTML("beforeend", '<span class="tu-znak" aria-hidden="true">🟢</span>'); el.title = jm + " už je v Meduse (od " + TU[klic].cas + ")"; }
     if (dama) el.insertAdjacentHTML("beforeend", '<span class="klin-dama">' + postava(dama) + '</span>');
     // drobné ozdoby (RF 15. 11. 2026): korunka pro Piciho, narozeninový dortík před RADARem
     if (klic === "pici") el.insertAdjacentHTML("afterbegin", '<svg class="ozdoba korunka" viewBox="0 0 20 12" aria-hidden="true"><path d="M1 11L2.5 3L7 7L10 1L13 7L17.5 3L19 11Z" fill="#ffd66e" stroke="#b98f2e" stroke-width=".8" stroke-linejoin="round"/><circle cx="10" cy="1.6" r="1.1" fill="#e3203d"/></svg>');
@@ -1230,7 +1258,7 @@ a.link{display:inline-block}
       bt.addEventListener("click", function(){ kestolu(); });
       ln.appendChild(bt);
     }
-    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); navsteva(); }
+    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); navsteva(); tuStart(); }
     clearInterval(odpTimer); if (v === "ano") odpTimer = setInterval(odpocet, 1000);
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     if (v === "ceka"){
@@ -1464,6 +1492,64 @@ a.link{display:inline-block}
     } catch(e){}
   }
   function tvarFotek(n){ return n === 1 ? "fotka" : n >= 2 && n <= 4 ? "fotky" : "fotek"; }
+  // ---- Jsem tady (RF 19. 11. 2026): host se v pátek po příchodu označí, ostatní ho vidí u stolu zeleně ----
+  var TU_HOOK = "https://hook.eu1.make.com/xof7bo5ecwmr25uxh7ney7w7p6hn83aa";
+  var TU = {}, tuTimer = null, tuBusy = false, TU_TEST = /[?&]test-tu=1(&|$)/.test(location.search);
+  function tuOkno(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 19, 23, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); }   // celý pátek (Praha) do soboty 6:00
+  function tuTlacitko(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 20, 15, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); } // od 16:00
+  function tuPost(pole){
+    var ctl = ("AbortController" in window) ? new AbortController() : null, t = setTimeout(function(){ if (ctl) ctl.abort(); }, 20000);
+    return fetch(TU_HOOK, {method:"POST", body:new URLSearchParams(pole), cache:"no-store", signal: ctl ? ctl.signal : undefined})
+      .then(function(r){ return r.text(); })
+      .then(function(x){ clearTimeout(t); var d = null; try { d = JSON.parse(x); } catch(e){} if (!d) throw new Error("server"); return d; }, function(e){ clearTimeout(t); throw e; });
+  }
+  function tuPrekresli(){ if (!$("yes").hidden && (st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase()); }
+  function tuNacti(){
+    if (document.hidden) return;
+    tuPost({odpoved:"kdotu"}).then(function(d){
+      var nove = {};
+      split(d.radky || "").forEach(function(r){ var p = r.split(";"); var jm = (p[0] || "").trim(); if (!jm || jm === "_") return; nove[jm.toLowerCase()] = {jm:jm, cas:(p[1] || "").trim()}; });
+      var zmena = JSON.stringify(nove) !== JSON.stringify(TU); TU = nove; tuKresli(); if (zmena) tuPrekresli();
+    }).catch(function(){});
+  }
+  function tuKresli(){
+    var box = $("tu"); box.hidden = !tuOkno(); if (box.hidden) return;
+    var me = (st.jmeno || "").toLowerCase().trim(), keys = Object.keys(TU).sort(function(a, b){ return TU[a].cas < TU[b].cas ? -1 : TU[a].cas > TU[b].cas ? 1 : 0; });
+    var n = keys.length, jm = $("tu-jm"); jm.textContent = "";
+    $("tu-n").textContent = n ? n + " " + lidi(n) : "";
+    if (!n) jm.textContent = "Zatím tu nikdo není. Buď první! 🎰";
+    else {
+      jm.appendChild(document.createTextNode((n === 1 ? "Uvnitř už je: " : "Uvnitř už jsou: ")));
+      keys.forEach(function(k, i){ if (i) jm.appendChild(document.createTextNode(", ")); var b = document.createElement(k === me ? "b" : "span"); b.textContent = TU[k].jm; jm.appendChild(b); });
+    }
+    var ja = TU[me], go = $("tu-go"), ok = $("tu-ok");
+    go.hidden = !!ja; $("tu-zpet").hidden = !ja; ok.hidden = !ja; $("tu-pozn").hidden = !!ja;
+    if (ja) ok.textContent = "✅ Jsi uvnitř" + (ja.cas ? " od " + ja.cas : "") + ". U stolu svítíš zeleně.";
+    else { var lze = tuTlacitko(); go.disabled = !lze || tuBusy; go.textContent = lze ? "📍 Jsem tady!" : "📍 Jsem tady! (zapne se v pátek v 16:00)"; }
+  }
+  function tuAkce(pole, hotovo){
+    if (tuBusy) return; tuBusy = true; var e = $("tu-err"); e.hidden = true; tuKresli();
+    tuPost(pole).then(function(d){
+      if (d.ok){ hotovo(d); }
+      else { e.textContent = d.stav === "nesedi" ? "Označit se může jen ten, kdo sedí u stolu." : "Nepovedlo se. Zkus to znovu."; e.hidden = false; }
+    }).catch(function(){ e.textContent = "Nepovedlo se. V Meduse může být slabý signál, zkus to za chvilku znovu."; e.hidden = false; })
+      .then(function(){ tuBusy = false; tuKresli(); });
+  }
+  $("tu-go").addEventListener("click", function(){
+    var me = (st.jmeno || "").toLowerCase().trim();
+    tuAkce({odpoved:"jsemtu", jmeno:st.jmeno}, function(d){ TU[me] = {jm:st.jmeno, cas:d.cas || ""}; tuPrekresli(); try { navigator.vibrate && navigator.vibrate(60); } catch(x){} });
+  });
+  $("tu-zpet").addEventListener("click", function(){
+    var me = (st.jmeno || "").toLowerCase().trim();
+    tuAkce({odpoved:"odchod", jmeno:st.jmeno}, function(){ delete TU[me]; tuPrekresli(); });
+  });
+  function tuStart(){
+    clearInterval(tuTimer); tuKresli();
+    if (!tuOkno()) return;
+    tuNacti(); tuTimer = setInterval(function(){ tuKresli(); tuNacti(); }, 45000);
+  }
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !$("yes").hidden && tuOkno()) tuNacti(); });
+
   function stena(){
     fotoPost({odpoved:"stena"}).then(function(d){
       var jm = split(d.kdo), uniq = [], f = {};
