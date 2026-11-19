@@ -41,6 +41,22 @@ h1{margin:0; font:400 36px/1.05 var(--f-display)}
 .empty{margin:0; padding:16px; border:1px dashed var(--line); border-radius:14px; color:var(--muted); text-align:center}
 .note{margin:0; font-size:13px; color:var(--muted)}
 .note a{color:var(--cyan)}
+/* výzva k přidání fotek (RF 19. 11. 2026): kontrastní tlačítko + plovoucí tlačítko při listování */
+.pridat{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:6px; padding:16px; border-radius:18px;
+  background:linear-gradient(135deg, rgba(255,214,110,.16), rgba(227,32,61,.14)); border:1.5px solid rgba(255,214,110,.55); box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.pridat-ik{flex:0 0 48px; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; background:rgba(0,0,0,.35); border:1px solid rgba(255,214,110,.4)}
+.pridat-t{flex:1 1 180px; min-width:0; display:flex; flex-direction:column; gap:2px}
+.pridat-t b{font:700 19px/1.2 var(--f-cond); color:#fff}
+.pridat-t span{font-size:14px; line-height:1.4; color:#e6d9f2}
+.pridat-btn, .fab{display:inline-flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; background:var(--bulb); color:var(--ink);
+  font:700 17px/1 var(--f-cond); letter-spacing:.08em; text-transform:uppercase; border-radius:14px; box-shadow:0 4px 0 #b98f2e, 0 10px 22px rgba(0,0,0,.35)}
+.pridat-btn{flex:1 1 100%; min-height:52px; padding:0 18px}
+.pridat-btn:active, .fab:active{transform:translateY(2px); box-shadow:0 2px 0 #b98f2e}
+.fab{position:fixed; z-index:5; right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(16px + env(safe-area-inset-bottom, 0px)); min-height:52px; padding:0 20px; border-radius:999px;
+  box-shadow:0 4px 0 #b98f2e, 0 10px 28px rgba(0,0,0,.55); transition:opacity .2s, transform .2s}
+.fab.schovej{opacity:0; transform:translateY(20px); pointer-events:none}
+.fab span{font-size:20px; letter-spacing:0}
+.pridat-btn:focus-visible, .fab:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
 /* prohlížeč fotek (RF 19. 11. 2026): celá obrazovka, listování prstem jako v galerii telefonu, kdo fotku nahrál, pás náhledů, komentáře ve vysouvacím panelu */
 .lb{position:fixed; inset:0; z-index:10; background:#07030c; overflow:hidden; touch-action:pan-x; -webkit-user-select:none; user-select:none}
 .lb-track{position:absolute; inset:0; display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; scrollbar-width:none; overscroll-behavior:contain}
@@ -127,9 +143,14 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     <div class="grid" id="grid"></div>
     <p class="empty" id="prazdno" hidden>Zatím tu nic není. Fotky přidáš na pozvánce u stolu.</p>
     <p class="note" id="pozn">Odkaz je jen pro tebe, nepřeposílej ho. Fotky přidáš na <a href="./#fotky">pozvánce</a> u stolu (sekce Fotostěna).</p>
-    <p class="note"><a class="go" href="./#fotky" style="display:inline-flex;align-items:center;text-decoration:none">📷 Přidej taky svoje fotky</a></p>
+    <div class="pridat">
+      <span class="pridat-ik" aria-hidden="true">📸</span>
+      <div class="pridat-t"><b>Máš doma fotky z Vegas?</b><span>Tehdy, teď nebo z pátku. Nahraješ je z mobilu za pár vteřin.</span></div>
+      <a class="pridat-btn" href="./#fotky">Přidat fotky</a>
+    </div>
   </div>
 </main>
+<a class="fab" id="fab" href="./#fotky" hidden><span aria-hidden="true">📸</span> Přidat fotky</a>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Prohlížeč fotek" hidden>
   <div class="lb-track" id="lb-track"></div>
@@ -347,6 +368,13 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
     }).then(function(){ busy = false; b.disabled = false; b.textContent = old; });
   });
 
+  // plovoucí „Přidat fotky“: ukáže se s galerií, schová se u spodní výzvy a v prohlížeči
+  (function(){
+    var fab = $("fab"), cil = document.querySelector(".pridat");
+    if (!fab || !cil) return;
+    var vidim = false;
+    if ("IntersectionObserver" in window) new IntersectionObserver(function(e){ vidim = e[0].isIntersecting; fab.classList.toggle("schovej", vidim); }, {threshold:.2}).observe(cil);
+  })();
   function nacti(){
     return api({odpoved:"galerie"}).then(function(d){
       ja = d.ja || "";
@@ -355,7 +383,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
       if (ja){ $("ahoj").appendChild(document.createTextNode(", ")); var b = el("b", "", ja); $("ahoj").appendChild(b); }
       $("ahoj").appendChild(document.createTextNode(". Tady jsou fotky, které parta nahrála. Ťukni na fotku, listuj prstem do stran a fotky můžeš komentovat."));
       $("kf-lbl").textContent = "Napiš komentář" + (ja ? " (podepíše se „" + ja + "“)" : "");
-      rozeber(d); kresli(); $("app").hidden = false; $("vstup").hidden = true;
+      rozeber(d); kresli(); $("app").hidden = false; $("vstup").hidden = true; $("fab").hidden = false;
       if (HOST){ $("pozn").textContent = "Galerii vidí jen hosté, kteří nám nechali e-mail i telefon."; }
     }).catch(function(e){
       $("ahoj").textContent = "";
