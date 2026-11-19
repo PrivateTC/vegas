@@ -1496,7 +1496,7 @@ a.link{display:inline-block}
   var TU_HOOK = "https://hook.eu1.make.com/xof7bo5ecwmr25uxh7ney7w7p6hn83aa";
   var TU = {}, tuTimer = null, tuBusy = false, TU_TEST = /[?&]test-tu=1(&|$)/.test(location.search);
   function tuOkno(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 19, 23, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); }   // celý pátek (Praha) do soboty 6:00
-  function tuTlacitko(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 20, 15, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); } // od 16:00
+  function tuTlacitko(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 20, 17, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); } // od 18:00 (RF 19. 11.)
   function tuPost(pole){
     var ctl = ("AbortController" in window) ? new AbortController() : null, t = setTimeout(function(){ if (ctl) ctl.abort(); }, 20000);
     return fetch(TU_HOOK, {method:"POST", body:new URLSearchParams(pole), cache:"no-store", signal: ctl ? ctl.signal : undefined})
@@ -1525,7 +1525,7 @@ a.link{display:inline-block}
     var ja = TU[me], go = $("tu-go"), ok = $("tu-ok");
     go.hidden = !!ja; $("tu-zpet").hidden = !ja; ok.hidden = !ja; $("tu-pozn").hidden = !!ja;
     if (ja) ok.textContent = "✅ Jsi uvnitř" + (ja.cas ? " od " + ja.cas : "") + ". U stolu svítíš zeleně.";
-    else { var lze = tuTlacitko(); go.disabled = !lze || tuBusy; go.textContent = lze ? "📍 Jsem tady!" : "📍 Jsem tady! (zapne se v pátek v 16:00)"; }
+    else { var lze = tuTlacitko(); go.disabled = !lze || tuBusy; go.textContent = lze ? "📍 Jsem tady!" : "📍 Jsem tady! (zapne se v pátek v 18:00)"; }
   }
   function tuAkce(pole, hotovo){
     if (tuBusy) return; tuBusy = true; var e = $("tu-err"); e.hidden = true; tuKresli();
