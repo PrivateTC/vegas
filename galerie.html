@@ -390,7 +390,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
       var m = $("msg"); m.hidden = false;
       if (e && e.kind === "kontakt"){
         ls("vegas-gal-email", null); EMAIL = "";
-        m.textContent = "U jména „" + JMENO + "“ nemáme tenhle e-mail, nebo nám od tebe chybí telefon. Zkus jiný e-mail, nebo doplň kontakt na pozvánce.";
+        m.textContent = "Tenhle e-mail u nás nemáme, nebo nám od tebe chybí telefon. Zadej e-mail, který jsi dal na pozvánce, nebo tam doplň kontakt.";
         ukazVstup(); return;
       }
       m.textContent = e && e.kind === "klic" ? "Tenhle odkaz do galerie neplatí. Použij celý odkaz z e-mailu, nebo napiš Robertovi." : "Galerii se nepovedlo načíst. Zkontroluj připojení a obnov stránku.";
