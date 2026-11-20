@@ -1486,7 +1486,6 @@ a.link{display:inline-block}
   }
   // počítání návštěv (RF 15. 11. 2026, volba A): nejvýš 1× za hodinu z prohlížeče; se jménem, kdo už odpověděl, jinak anonymně
   function navsteva(){
-    if (Date.now() >= Date.UTC(2026, 10, 19, 23, 0)) return;   // úspora kreditů: v den párty se návštěvy nepočítají (RF 20. 11. 2026)
     try {
       var dev = localStorage.getItem("vegas-dev");
       if (!/^[a-f0-9]{16}$/.test(dev || "")){
