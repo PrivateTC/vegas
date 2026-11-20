@@ -346,6 +346,38 @@ a.link{display:inline-block}
 .odp-kdy b{color:var(--bulb)}
 .odpocet.blizko{animation:odpPuls 1.6s ease-in-out infinite}
 @keyframes odpPuls{50%{box-shadow:0 0 0 4px rgba(227,32,61,1), 0 0 44px rgba(255,214,110,.75), inset 0 0 22px rgba(0,0,0,.6)}}
+/* Den D (RF 20. 11. 2026): sváteční cedule nad stolem v den párty; čistě v prohlížeči, Make nevolá */
+.dend{position:relative; overflow:hidden; margin:2px 0 4px; padding:22px 14px 18px; border-radius:18px; text-align:center; isolation:isolate;
+  background:radial-gradient(120% 95% at 50% 0%, #5a1636 0%, #26091f 58%, #13081b 100%); border:2px solid var(--bulb);
+  box-shadow:0 0 0 4px rgba(143,16,36,.9), 0 0 32px rgba(255,214,110,.42), inset 0 0 26px rgba(0,0,0,.55); animation:dendPuls 2.4s ease-in-out infinite}
+.dend::before,.dend::after{content:""; position:absolute; left:14px; right:14px; height:6px; pointer-events:none; z-index:2;
+  background:radial-gradient(circle, #fff6cf 0 2px, rgba(255,214,110,0) 3px) 0 0/16px 6px repeat-x; filter:drop-shadow(0 0 4px var(--bulb));
+  animation:odpZar 1.2s steps(2) infinite}
+.dend::before{top:6px} .dend::after{bottom:6px; animation-delay:.6s}
+.dend-zar{position:absolute; inset:-40%; z-index:-1; pointer-events:none; opacity:.22;
+  background:repeating-conic-gradient(from 0deg at 50% 100%, rgba(255,214,110,.55) 0 6deg, transparent 6deg 22deg); animation:dendToc 18s linear infinite}
+.dend-k{margin:2px 0 6px !important; font:700 12px/1.2 var(--f-cond) !important; letter-spacing:.32em; text-transform:uppercase; color:#ffd9a8 !important}
+.dend-h{margin:0 !important; font:400 clamp(34px,11vw,48px)/1 var(--f-display) !important; color:#fff !important;
+  text-shadow:0 0 6px rgba(255,255,255,.6), 0 0 18px rgba(227,32,61,.9), 0 0 34px rgba(227,32,61,.6); animation:dendNeon 3.2s infinite}
+.dend-h span{color:var(--bulb); text-shadow:0 0 6px rgba(255,246,207,.7), 0 0 20px rgba(255,214,110,.9)}
+.dend-t{margin:10px auto 0 !important; max-width:30em; font:600 16px/1.4 var(--f-body) !important; color:#fff !important}
+.dend-t b{color:var(--bulb)}
+.dend-zetony{display:flex; justify-content:center; gap:10px; margin:12px 0 2px}
+.dend-zetony span{display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; font-size:20px; line-height:1;
+  background:radial-gradient(circle, #fff8e1 0 52%, #c9a24a 53% 57%, transparent 58%), repeating-conic-gradient(var(--red) 0 20deg, #fff2d2 20deg 40deg);
+  box-shadow:0 3px 0 #6b0a1a, 0 5px 12px rgba(0,0,0,.5); animation:dendHop 2.2s ease-in-out infinite}
+.dend-zetony span:nth-child(2){animation-delay:.18s} .dend-zetony span:nth-child(3){animation-delay:.36s}
+.dend-zetony span:nth-child(4){animation-delay:.54s} .dend-zetony span:nth-child(5){animation-delay:.72s}
+.dend-p{margin:10px auto 0 !important; max-width:30em; font:500 14.5px/1.45 var(--f-body) !important; color:#ecdcf7 !important}
+.dend.hraje{background:radial-gradient(120% 95% at 50% 0%, #6b0f22 0%, #2c0816 58%, #13081b 100%)}
+.dend.hraje .dend-h{animation:dendNeon 1.6s infinite}
+.dend-c{position:absolute; top:-14px; width:7px; height:12px; border-radius:2px; z-index:1; pointer-events:none; animation:dendPad 2.8s cubic-bezier(.3,.6,.5,1) forwards}
+@keyframes dendPuls{50%{box-shadow:0 0 0 4px rgba(227,32,61,1), 0 0 48px rgba(255,214,110,.75), inset 0 0 26px rgba(0,0,0,.55)}}
+@keyframes dendToc{to{transform:rotate(360deg)}}
+@keyframes dendNeon{0%,18%,22%,60%,64%,100%{opacity:1} 20%,62%{opacity:.55}}
+@keyframes dendHop{0%,100%{transform:translateY(0) rotate(0)} 40%{transform:translateY(-7px) rotate(-12deg)} 60%{transform:translateY(0) rotate(8deg)}}
+@keyframes dendPad{to{transform:translateY(340px) rotate(720deg); opacity:0}}
+@media (prefers-reduced-motion:reduce){ .dend,.dend::before,.dend::after,.dend-zar,.dend-h,.dend-zetony span{animation:none} .dend-c{display:none} }
 /* Jsem tady (RF 19. 11. 2026): v pátek se host po příchodu do Medusy označí, u stolu svítí zeleně */
 .tu{display:flex; flex-direction:column; gap:10px; margin:4px 0; padding:14px; border-radius:18px; text-align:center;
   background:radial-gradient(120% 90% at 50% 0%, rgba(63,227,154,.22), rgba(0,0,0,.35) 70%); border:2px solid #3fe39a; box-shadow:0 0 18px rgba(63,227,154,.35), inset 0 0 14px rgba(63,227,154,.15)}
@@ -709,6 +741,14 @@ a.link{display:inline-block}
       </div>
       <p class="satna-tip"><button class="link" id="satna-tip" type="button">🎩 Vytuň si figurku (pod stolem)</button></p>
       <div class="foto-cta"><p>📷 <b>Máš doma fotky z Vegas?</b> Nahraj je na fotostěnu a zavzpomínáme. <a href="galerie.html">Prohlédni si galerii</a></p><a class="btn" href="#foto">Přidat fotky</a></div>
+      <div class="dend" id="dend" hidden>
+        <div class="dend-zar" aria-hidden="true"></div>
+        <p class="dend-k" id="dend-k">Pátek 20. 11. · Den D</p>
+        <p class="dend-h" id="dend-h">Dnes to <span>vypukne!</span></p>
+        <p class="dend-t" id="dend-t"></p>
+        <div class="dend-zetony" aria-hidden="true"><span>🃏</span><span>🎲</span><span>🍸</span><span>💃</span><span>🎰</span></div>
+        <p class="dend-p" id="dend-p"></p>
+      </div>
       <div class="tables" id="poker" role="img" aria-label="Stůl s hosty, kteří už potvrdili"></div>
       <p class="legenda" aria-hidden="true"><span><i class="lg-m"></i>pán</span><span><i class="lg-z"></i>dáma</span><span><i class="lg-x">?</i>nevíme</span></p>
       <div class="satna-bar"><button class="btn alt" id="satna-go" type="button">🎩 Vytuň si figurku</button></div>
@@ -1266,7 +1306,7 @@ a.link{display:inline-block}
       bt.addEventListener("click", function(){ kestolu(); });
       ln.appendChild(bt);
     }
-    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); navsteva(); tuStart(); }
+    if (v === "ano"){ $("yes-name").textContent = st.jmeno; deal(st.detaily); extras(); odpocet(); stena(); navsteva(); tuStart(); denD(); }
     clearInterval(odpTimer); if (v === "ano") odpTimer = setInterval(odpocet, 1000);
     if (v === "ne"){ $("no-name").textContent = st.jmeno; }
     if (v === "ceka"){
@@ -1568,6 +1608,59 @@ a.link{display:inline-block}
     STENA_P = fotoPost({odpoved:"stena"}).then(function(d){ STENA_P = null; try { localStorage.setItem("vegas-stena-c", JSON.stringify({t:Date.now(), d:d})); } catch(e){} return d; }, function(e){ STENA_P = null; throw e; });
     return STENA_P;
   }
+  // Den D (RF 20. 11. 2026): sváteční cedule nad stolem, mění se podle času (Praha); test: ?test-dend=rano|hodina|hraje|po
+  var DEND_TEST = (location.search.match(/[?&]test-dend=([a-z]+)/) || [])[1], dendTimer = null;
+  function dendTed(){
+    var f = {rano:Date.UTC(2026,10,20,9,20), hodina:Date.UTC(2026,10,20,16,25), hraje:Date.UTC(2026,10,20,19,10), po:Date.UTC(2026,10,21,0,30)};
+    return DEND_TEST && f[DEND_TEST] ? f[DEND_TEST] : Date.now();
+  }
+  function dendKresli(){
+    var el = $("dend"); if (!el) return;
+    var t = dendTed(), den = Date.UTC(2026,10,19,23,0), start = Date.UTC(2026,10,20,17,0), konec = Date.UTC(2026,10,20,23,0), rano = Date.UTC(2026,10,21,5,0);
+    if (t < den || t >= rano){ el.hidden = true; clearInterval(dendTimer); return; }
+    var k = $("dend-k"), h = $("dend-h"), tx = $("dend-t"), p = $("dend-p");
+    var nastav = function(kick, h1, h2, text, pozn){
+      k.textContent = kick;
+      h.textContent = h1 + " "; var sp = document.createElement("span"); sp.textContent = h2; h.appendChild(sp);
+      tx.innerHTML = text; p.textContent = pozn;
+    };
+    el.classList.toggle("hraje", t >= start && t < konec);
+    if (t < start){
+      var min = Math.ceil((start - t) / 60000), hod = Math.floor(min / 60), zb = min % 60;
+      var za = hod >= 1 ? hod + " h " + zb + " min" : min + " " + (min === 1 ? "minutu" : min <= 4 ? "minuty" : "minut");
+      nastav("Pátek 20. 11. · Den D", "Dnes to", "vypukne!",
+        "Karty se rozdávají za <b>" + za + "</b> · Medusa Cabaret, Melantrichova 5",
+        hod >= 1 ? "Po 30 letech zase u jednoho stolu. Vyžehli košili, nabij telefon a přines dobrou náladu. Zbytek obstaráme my."
+                 : "Poslední hodina! Bundu na sebe a vyraž, ať ti nikdo nevyfoukne místo u stolu.");
+    } else if (t < konec){
+      nastav("Den D · právě teď", "Hraje", "se!",
+        "Stůl v <b>Meduse</b> je otevřený až do půlnoci. Kdo ještě není na místě, ať přidá do kroku.",
+        "Už jsi tam? Ťukni nahoře na „📍\u00a0Jsem\u00a0tady!“ a večer vyfoť na fotostěnu (Z pátku).");
+    } else {
+      nastav("Den D · po půlnoci", "Díky za", "večer!",
+        "Bylo to <b>ALL IN</b>. Děkujeme, že jste přišli.",
+        "Fotky z pátku nahraj na fotostěnu (Z pátku), ať je všichni uvidí.");
+    }
+    if (el.hidden){ el.hidden = false; dendOhnostroj(el); }
+  }
+  function dendOhnostroj(el){
+    try {
+      if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var klic = "vegas-dend-" + (dendTed() >= Date.UTC(2026,10,20,17,0) ? "hraje" : "den");
+      if (!DEND_TEST && localStorage.getItem(klic)) return;
+      localStorage.setItem(klic, "1");
+    } catch(e){}
+    var barvy = ["#ffd66e", "#e3203d", "#3fe3d4", "#fff2d2", "#ff7ab8"];
+    for (var i = 0; i < 34; i++){
+      var c = document.createElement("i"); c.className = "dend-c";
+      c.style.left = (Math.random() * 100) + "%"; c.style.background = barvy[i % barvy.length];
+      c.style.animationDelay = (Math.random() * 0.9) + "s"; c.style.animationDuration = (2.2 + Math.random() * 1.4) + "s";
+      el.appendChild(c);
+      (function(x){ setTimeout(function(){ if (x.parentNode) x.parentNode.removeChild(x); }, 4800); })(c);
+    }
+  }
+  function denD(){ dendKresli(); clearInterval(dendTimer); if (!$("dend").hidden) dendTimer = setInterval(dendKresli, 30000); }
+
   function stena(znovu){
     stenaData(znovu).then(function(d){
       var jm = split(d.kdo), uniq = [], f = {};
