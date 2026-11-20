@@ -156,14 +156,14 @@ button:focus-visible{outline:3px solid var(--cyan); outline-offset:3px}
   }
 
   $("obnovit").addEventListener("click", function(){ kol = 0; nacti(); plan(); });
-  // samo se obnovuje jednou za minutu, jen když je stránka vidět, nejvýš 30× po sobě (pak tlačítkem)
+  // samo se obnovuje jednou za 3 minuty (úspora kreditů, RF 20. 11. 2026), jen když je stránka vidět, nejvýš 30× po sobě (pak tlačítkem)
   function plan(){
     clearInterval(casovac);
     casovac = setInterval(function(){
       if (document.visibilityState !== "visible" || busy || potvrzuje > 0) return;
       if (++kol > 30){ clearInterval(casovac); $("stamp").textContent += " · samo se už neobnovuje, dej Obnovit"; return; }
       nacti();
-    }, 60000);
+    }, 180000);
   }
 
   if (!KLIC){ chyba("Chybí klíč v odkazu. Otevři celý odkaz, který ti poslal Robert."); return; }
