@@ -1504,6 +1504,8 @@ a.link{display:inline-block}
   var TU_HOOK = "https://hook.eu1.make.com/xof7bo5ecwmr25uxh7ney7w7p6hn83aa";
   var TU = {}, tuTimer = null, tuBusy = false, TU_TEST = /[?&]test-tu=1(&|$)/.test(location.search);
   function tuOkno(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 19, 23, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); }   // celý pátek (Praha) do soboty 6:00
+  // šetření kreditů Make (RF 20. 11. 2026): seznam „kdo je tu“ se načítá až od 17:45 a jen každých 90 s
+  function tuCteni(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 20, 16, 45) && t < Date.UTC(2026, 10, 21, 5, 0)); }
   function tuTlacitko(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 20, 17, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); } // od 18:00 (RF 19. 11.)
   function tuPost(pole){
     var ctl = ("AbortController" in window) ? new AbortController() : null, t = setTimeout(function(){ if (ctl) ctl.abort(); }, 20000);
@@ -1513,7 +1515,7 @@ a.link{display:inline-block}
   }
   function tuPrekresli(){ if (!$("yes").hidden && (st.hraci || []).length) stul(poradi(st.hraci), (st.jmeno || "").toLowerCase()); }
   function tuNacti(){
-    if (document.hidden) return;
+    if (document.hidden || !tuCteni()) return;
     tuPost({odpoved:"kdotu"}).then(function(d){
       var nove = {};
       split(d.radky || "").forEach(function(r){ var p = r.split(";"); var jm = (p[0] || "").trim(); if (!jm || jm === "_") return; nove[jm.toLowerCase()] = {jm:jm, cas:(p[1] || "").trim()}; });
@@ -1554,7 +1556,7 @@ a.link{display:inline-block}
   function tuStart(){
     clearInterval(tuTimer); tuKresli();
     if (!tuOkno()) return;
-    tuNacti(); tuTimer = setInterval(function(){ tuKresli(); tuNacti(); }, 45000);
+    tuNacti(); tuTimer = setInterval(function(){ tuKresli(); tuNacti(); }, 90000);
   }
   document.addEventListener("visibilitychange", function(){ if (!document.hidden && !$("yes").hidden && tuOkno()) tuNacti(); });
 
