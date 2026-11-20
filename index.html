@@ -1486,6 +1486,7 @@ a.link{display:inline-block}
   }
   // počítání návštěv (RF 15. 11. 2026, volba A): nejvýš 1× za hodinu z prohlížeče; se jménem, kdo už odpověděl, jinak anonymně
   function navsteva(){
+    if (Date.now() >= Date.UTC(2026, 10, 19, 23, 0)) return;   // úspora kreditů: v den párty se návštěvy nepočítají (RF 20. 11. 2026)
     try {
       var dev = localStorage.getItem("vegas-dev");
       if (!/^[a-f0-9]{16}$/.test(dev || "")){
@@ -1504,7 +1505,7 @@ a.link{display:inline-block}
   var TU_HOOK = "https://hook.eu1.make.com/xof7bo5ecwmr25uxh7ney7w7p6hn83aa";
   var TU = {}, tuTimer = null, tuBusy = false, TU_TEST = /[?&]test-tu=1(&|$)/.test(location.search);
   function tuOkno(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 19, 23, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); }   // celý pátek (Praha) do soboty 6:00
-  // šetření kreditů Make (RF 20. 11. 2026): seznam „kdo je tu“ se načítá až od 17:45 a jen každých 90 s
+  // šetření kreditů Make (RF 20. 11. 2026): seznam „kdo je tu“ se načítá až od 17:45 a jen každé 2 minuty
   function tuCteni(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 20, 16, 45) && t < Date.UTC(2026, 10, 21, 5, 0)); }
   function tuTlacitko(){ var t = Date.now(); return TU_TEST || (t >= Date.UTC(2026, 10, 20, 17, 0) && t < Date.UTC(2026, 10, 21, 5, 0)); } // od 18:00 (RF 19. 11.)
   function tuPost(pole){
@@ -1556,12 +1557,20 @@ a.link{display:inline-block}
   function tuStart(){
     clearInterval(tuTimer); tuKresli();
     if (!tuOkno()) return;
-    tuNacti(); tuTimer = setInterval(function(){ tuKresli(); tuNacti(); }, 90000);
+    tuNacti(); tuTimer = setInterval(function(){ tuKresli(); tuNacti(); }, 120000);
   }
   document.addEventListener("visibilitychange", function(){ if (!document.hidden && !$("yes").hidden && tuOkno()) tuNacti(); });
 
-  function stena(){
-    fotoPost({odpoved:"stena"}).then(function(d){
+  // úspora kreditů (RF 20. 11. 2026): fotostěnu si telefon pamatuje 5 minut; po vlastním nahrání se načte hned
+  var STENA_P = null;   // probíhající načtení: souběžná volání (vstup ke stolu + překreslení) sdílí jedno
+  function stenaData(znovu){
+    if (STENA_P && !znovu) return STENA_P;
+    try { var c = JSON.parse(localStorage.getItem("vegas-stena-c") || "null"); if (!znovu && c && c.d && Date.now() - c.t < 300000) return Promise.resolve(c.d); } catch(e){}
+    STENA_P = fotoPost({odpoved:"stena"}).then(function(d){ STENA_P = null; try { localStorage.setItem("vegas-stena-c", JSON.stringify({t:Date.now(), d:d})); } catch(e){} return d; }, function(e){ STENA_P = null; throw e; });
+    return STENA_P;
+  }
+  function stena(znovu){
+    stenaData(znovu).then(function(d){
       var jm = split(d.kdo), uniq = [], f = {};
       jm.forEach(function(x){ var k = x.toLowerCase(); if (!f[k]){ f[k] = 1; uniq.push(x); } });
       fotkari = f;
@@ -1783,7 +1792,7 @@ a.link{display:inline-block}
         (vse.length > soubory.length ? " Zbylé fotky vyber znovu, pošlou se v další dávce." : "") : "";
       stav.hidden = !hotovo;
       if (chyb){ var e = $("foto-err"); e.textContent = (chyb === 1 ? "Jednu fotku" : chyb + " fotky") + " se nepovedlo nahrát. Zkus to prosím znovu."; e.hidden = false; }
-      if (hotovo) stena();
+      if (hotovo) stena(true);
     });
   });
 
@@ -1847,8 +1856,12 @@ a.link{display:inline-block}
   $("other-no").addEventListener("click", fresh);
 
   // mám už karty? (nic se nezapisuje, jen se zeptá na stav)
+  // úspora kreditů (RF 20. 11. 2026): stůl načtený při otevření se při vstupu ke stolu použije znovu (do 2 minut); tlačítko kontroly načítá vždy čerstvě
+  var SZ = null;
+  function seznamZnovu(){ if (SZ && Date.now() - SZ.t < 120000) return SZ.p; return seznamNacti(); }
+  function seznamNacti(){ var p = send("seznam", st.jmeno); SZ = {t:Date.now(), p:p}; p.catch(function(){ SZ = null; }); return p; }
   function refresh(hlasit){
-    return send("seznam", st.jmeno).then(function(d){
+    return (hlasit ? seznamNacti() : seznamZnovu()).then(function(d){
       if (st.odpoved !== "ano") return;
       var predtim = st.stav;
       prijmi("ano", st.jmeno, d);
@@ -1901,7 +1914,7 @@ a.link{display:inline-block}
 
   navsteva();
   if (st.odpoved === "ano"){
-    send("seznam", st.jmeno).then(function(d){
+    seznamNacti().then(function(d){
       if (st.odpoved !== "ano") return;
       prijmi("ano", st.jmeno, d);
       if (!$("ask").hidden) view("ask", false);   // jen překreslí odkazy na stoly
